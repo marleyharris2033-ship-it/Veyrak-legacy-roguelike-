@@ -55,3 +55,24 @@
   .ability-card>strong{font-size:10px}.card-description{font-size:8px;line-height:1.2;min-height:18px}.ability-card>small{font-size:6px}
   .pile-row{display:none}
 }
+
+
+/* Landscape Safari hard-fit: fixed three-row battle layout, no vertical overflow. */
+@media (orientation:landscape) and (max-height:550px){
+  html,body,#app{height:100%;max-height:100%;overflow:hidden}
+  .battle.screen{display:grid;grid-template-rows:48px minmax(0,1fr) 158px;height:100dvh;min-height:0;overflow:hidden}
+  .battle>.run-top{height:48px;min-height:0}
+  .battle>.arena{grid-row:2;height:auto!important;min-height:0!important;max-height:none!important;align-self:stretch;overflow:hidden;margin:0 auto}
+  .battle>.combat-controls{grid-row:3;height:158px;min-height:0;overflow:hidden;margin:0}
+  .fighter{height:100%;min-height:0;overflow:hidden;display:grid;grid-template-rows:52px minmax(0,1fr);align-items:end}
+  .fighter.player{justify-items:start}.fighter.enemy{justify-items:end}
+  .fighter-info{grid-row:1;width:min(245px,80%);margin:0;align-self:end}
+  .combat-hero,.enemy-art{grid-row:2;height:100%;min-height:0;max-height:100%;object-fit:contain;object-position:bottom;margin:0}
+  .combat-hero{max-width:58%;justify-self:start}.enemy-art{max-width:58%;justify-self:end}
+  .turn-medallion{align-self:center}
+  .combat-controls{display:grid;grid-template-rows:35px 105px 0}
+  .combat-toolbar{height:35px;min-height:0;margin:0}
+  .hand{height:105px;min-height:0;overflow:hidden}
+  .ability-card{height:101px;min-height:0}
+  .pile-row{display:none}
+}
