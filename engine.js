@@ -1,4 +1,4 @@
-export const VERSION = 1;
+export const VERSION = 2;
 export const HEROES = [
  {id:'kaerun',name:'Kaerun',title:'The Unbroken',weapon:'Gauntlets',signature:'Sovereign Impact',available:true,portrait:16.64},
  {id:'ilyra',name:'Ilyra',title:'The Crystal Seer',weapon:'Staff & catalyst',signature:'Violet Core',available:true,portrait:29.49},
@@ -8,11 +8,18 @@ export const HEROES = [
  {id:'nyvara',name:'Nyvara',weapon:'Rifle',portrait:84.28}
 ];
 export const CARDS = {
- strike:{name:'Strike',cost:1,damage:6,icon:'strike',text:'Deal 6 damage.'},
- guard:{name:'Guard',cost:1,block:6,icon:'guard',text:'Gain 6 Block this turn.'},
- surge:{name:'Core surge',cost:2,damage:14,icon:'surge',text:'Deal 14 damage.'}
+ strike:{name:'Strike',cost:1,damage:6,icon:'strike',type:'attack',art:'strike',text:'Deal 6 damage.'},
+ guard:{name:'Guard',cost:1,block:6,icon:'guard',type:'defence',art:'guard',text:'Gain 6 Block this turn.'},
+ cleave:{name:'Cleave',cost:2,damage:8,icon:'strike',type:'attack',art:'cleave',text:'Deal 8 damage to all enemies.'},
+ focus:{name:'Focus',cost:1,coreGain:1,icon:'core',type:'skill',art:'focus',text:'Gain 1 Core.'},
+ reinforce:{name:'Reinforce',cost:2,block:12,icon:'guard',type:'defence',art:'reinforce',text:'Gain 12 Block this turn.'},
+ precision:{name:'Precision Strike',cost:1,damage:8,mark:1,icon:'strike',type:'attack',art:'precision',text:'Deal 8 damage. Apply 1 Mark.'},
+ quickstep:{name:'Quick Step',cost:1,agility:2,icon:'surge',type:'skill',art:'quickstep',text:'Gain 2 Agility this turn.'},
+ powerslam:{name:'Power Slam',cost:2,damage:12,conditionalDamage:18,blockThreshold:6,icon:'strike',type:'attack',art:'powerslam',text:'Deal 12 damage. If you have 6+ Block, deal 18.'},
+ deflect:{name:'Deflect',cost:0,block:4,icon:'guard',type:'defence',art:'deflect',text:'Gain 4 Block.'},
+ resolve:{name:'Inner Resolve',cost:1,strength:3,icon:'surge',type:'skill',art:'resolve',text:'Gain 3 Strength this turn.'}
 };
-const DECK=['strike','strike','strike','strike','strike','guard','guard','guard','guard','surge'];
+const DECK=['strike','strike','guard','guard','cleave','focus','reinforce','precision','quickstep','powerslam','deflect','resolve'];
 const ENEMIES = [
  {id:'shard',name:'Shard Wisp',hp:25,colour:'#91e4e0',moves:[{kind:'attack',value:6},{kind:'attack',value:8},{kind:'guard',value:5}]},
  {id:'ember',name:'Ember Watcher',hp:29,colour:'#ffad66',moves:[{kind:'attack',value:7},{kind:'charge',value:0},{kind:'attack',value:13}]},
@@ -35,11 +42,11 @@ export function enterBattle(run){
  if(run.phase!=='map')return false;
  const e=structuredClone(run.encounters[run.index]);
  run.phase='combat';run.block=0;
- run.battle={enemy:{...e,maxHp:e.hp,block:0,move:Math.floor(random(run)*e.moves.length)},draw:shuffle(DECK,run),hand:[],discard:[],turn:0};
+ run.battle={enemy:{...e,maxHp:e.hp,block:0,move:Math.floor(random(run)*e.moves.length),mark:0},draw:shuffle(DECK,run),hand:[],discard:[],turn:0,strength:0,agility:0};
  run.log=[`${e.name} bars your path.`];startTurn(run);return true;
 }
 function draw(run,n){const b=run.battle;for(let i=0;i<n;i++){if(!b.draw.length){b.draw=shuffle(b.discard,run);b.discard=[];}if(!b.draw.length)break;b.hand.push(b.draw.pop());}}
-function startTurn(run){run.block=0;run.core=3;run.battle.turn++;run.turns++;draw(run,5);}
+function startTurn(run){run.block=0;run.core=3;run.battle.strength=0;run.battle.agility=0;run.battle.turn++;run.turns++;draw(run,5);}
 export function intent(run){if(!run.battle)return null;const e=run.battle.enemy;return e.moves[e.move%e.moves.length];}
 function log(run,text){run.log=[...run.log.slice(-5),text];}
 export function playCard(run,index){
@@ -47,8 +54,12 @@ export function playCard(run,index){
  const b=run.battle;const card=CARDS[b.hand[index]];
  if(!card||card.cost>run.core)return false;
  run.core-=card.cost;run.cardsPlayed++;
- if(card.block){run.block+=card.block;log(run,`Guard grants ${card.block} Block.`);}
- if(card.damage){const blocked=Math.min(b.enemy.block,card.damage);b.enemy.block-=blocked;const damage=card.damage-blocked;b.enemy.hp=Math.max(0,b.enemy.hp-damage);log(run,`${card.name} deals ${damage} damage${blocked?` (${blocked} blocked)`:''}.`);}
+ if(card.coreGain){run.core=Math.min(3,run.core+card.coreGain);log(run,`${card.name} restores ${card.coreGain} Core.`);}
+ if(card.block){const amount=card.block+(b.agility||0);run.block+=amount;log(run,`${card.name} grants ${amount} Block.`);}
+ if(card.strength){b.strength=(b.strength||0)+card.strength;log(run,`${card.name} grants ${card.strength} Strength this turn.`);}
+ if(card.agility){b.agility=(b.agility||0)+card.agility;log(run,`${card.name} grants ${card.agility} Agility this turn.`);}
+ if(card.mark){b.enemy.mark=(b.enemy.mark||0)+card.mark;}
+ if(card.damage){let base=card.blockThreshold&&run.block>=card.blockThreshold?card.conditionalDamage:card.damage;let raw=base+(b.strength||0)+(b.enemy.mark||0);const blocked=Math.min(b.enemy.block,raw);b.enemy.block-=blocked;const damage=raw-blocked;b.enemy.hp=Math.max(0,b.enemy.hp-damage);log(run,`${card.name} deals ${damage} damage${blocked?` (${blocked} blocked)`:''}.`);}
  b.discard.push(b.hand.splice(index,1)[0]);
  if(b.enemy.hp===0){run.phase=run.index===run.encounters.length-1?'won':'victory';run.core=0;log(run,`${b.enemy.name} defeated.`);}
  return true;
@@ -74,7 +85,7 @@ export function restore(raw){
  if(r.phase==='map'){if(r.battle!==null||r.hp===0)return null;}
  else{
  const b=r.battle,e=b?.enemy,base=r.encounters[r.index];
- if(!b||!e||e.id!==base.id||e.name!==base.name||e.colour!==base.colour||e.maxHp!==base.hp||e.boss!==base.boss||!int(e.hp,0,e.maxHp)||!int(e.block,0,10)||!int(e.move,0,base.moves.length-1)||JSON.stringify(e.moves)!==JSON.stringify(base.moves)||!int(b.turn,1,100000))return null;
+ if(!b||!e||e.id!==base.id||e.name!==base.name||e.colour!==base.colour||e.maxHp!==base.hp||e.boss!==base.boss||!int(e.hp,0,e.maxHp)||!int(e.block,0,10)||!int(e.move,0,base.moves.length-1)||!int(e.mark??0,0,99)||!int(b.strength??0,0,99)||!int(b.agility??0,0,99)||JSON.stringify(e.moves)!==JSON.stringify(base.moves)||!int(b.turn,1,100000))return null;
  if(!['draw','hand','discard'].every(k=>Array.isArray(b[k])&&b[k].every(c=>Object.hasOwn(CARDS,c)))||b.hand.length>5)return null;
  if(JSON.stringify([...b.draw,...b.hand,...b.discard].sort())!==JSON.stringify([...DECK].sort()))return null;
  if(r.phase==='combat'&&(r.hp===0||e.hp===0))return null;
