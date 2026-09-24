@@ -116,3 +116,33 @@
   .card-art{width:34px;height:34px;margin:0}.card-art svg{width:21px;height:21px}
   .ability-card>strong{font-size:9px}.card-description{font-size:7px;line-height:1.15;min-height:15px}.ability-card>small{font-size:5px}
 }
+
+
+/* Cohesive landscape combat HUD — two clean rails, unobstructed arena. */
+@media (orientation:landscape) and (max-height:550px){
+  .battle.screen{grid-template-rows:40px minmax(0,1fr) 124px}
+  .battle>.run-top{height:40px;padding:3px 18px;background:linear-gradient(90deg,#08101bea,#0b1220dc,#08101bea);border-bottom:1px solid #b8955655}
+  .run-brand{font-size:15px}.run-location{font-size:10px}.run-location small{font-size:6px}
+  .battle>.arena{padding:0 3vw;grid-template-columns:minmax(0,1fr) 44px minmax(0,1fr)}
+  .fighter{display:flex;flex-direction:column;justify-content:flex-end!important;position:relative;overflow:visible}
+  .fighter-info{position:absolute;top:7px;width:43%;max-width:230px;margin:0;z-index:6}
+  .player .fighter-info{left:2vw}.enemy .fighter-info{right:2vw}
+  .health-label{font-size:9px;margin-bottom:2px;text-shadow:0 1px 4px #000}.health-track{height:5px}
+  .block,.intent{font-size:7px;padding:2px 5px;margin-top:3px;white-space:nowrap}
+  .combat-hero{position:absolute;bottom:0;left:13vw;height:72%;width:auto;max-width:24vw;max-height:none;margin:0;object-fit:contain;object-position:center bottom}
+  .enemy-art{position:absolute;bottom:0;right:12vw;height:70%;width:auto;max-width:24vw;max-height:none;margin:0}
+  .turn-medallion{position:absolute;left:50%;top:12px;transform:translateX(-50%);width:40px;height:40px;z-index:6}
+  .battle>.combat-controls{height:124px;padding:0 10px max(2px,env(safe-area-inset-bottom));background:linear-gradient(180deg,#08101bd9,#060c15f8);border-top:1px solid #b8955655;overflow:hidden}
+  .combat-toolbar{height:27px;display:grid;grid-template-columns:90px 1fr 112px;align-items:center;position:relative;margin:0;gap:8px}
+  .core-count{position:static;clip-path:none;width:auto;height:auto;display:flex;justify-content:flex-start;background:transparent;border:0;gap:5px}
+  .core-count svg{display:block;width:20px;height:20px}.core-count strong{font-size:16px}.core-count small{font-size:8px}.core-count>span{display:inline;font-size:7px}
+  .combat-message{position:static;transform:none;font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center}
+  .end-turn{position:static;min-width:0;width:112px;min-height:27px;height:27px;padding:3px 12px;font-size:8px;justify-self:end}
+  .hand{height:94px;min-height:0;display:flex;align-items:flex-end;justify-content:center;gap:7px;padding:2px 125px 0;overflow:hidden}
+  .ability-card{flex:0 1 125px;width:auto;max-width:145px;height:89px;min-height:0;margin:0!important;padding:5px 6px 3px;gap:1px;transform:none!important;border-radius:5px 5px 2px 2px}
+  .ability-card:not(:disabled):hover{transform:translateY(-5px)!important;z-index:10}
+  .card-cost{width:18px;height:18px;top:3px;left:4px;font-size:8px}
+  .card-art{width:27px;height:27px}.card-art svg{width:17px;height:17px}
+  .ability-card>strong{font-size:8px}.card-description{font-size:6.5px;line-height:1.1;min-height:12px}.ability-card>small{font-size:5px}
+  .pile-row{display:none}
+}
