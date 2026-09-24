@@ -76,3 +76,43 @@
   .ability-card{height:101px;min-height:0}
   .pile-row{display:none}
 }
+
+
+/* Battle composition v3 — Veyrak styling with compact deckbuilder proportions. */
+@media (orientation:landscape) and (max-height:550px){
+  .battle.screen{grid-template-rows:38px minmax(0,1fr) 132px;background-position:center 42%}
+  .battle>.run-top{height:38px;padding:3px 14px;background:#080d16c9;backdrop-filter:blur(3px)}
+  .run-brand{font-size:14px;letter-spacing:.18em}.run-brand span{font-size:5px}
+  .run-location{font-size:9px}.run-location small{display:inline;margin:0 0 0 8px;font-size:6px}
+  .run-top .quiet{min-height:28px;padding:3px 8px;font-size:9px}.run-top .quiet svg{width:15px;height:15px}
+  .battle>.arena{width:100%;max-width:none;padding:0 2.2vw;grid-template-columns:minmax(0,1fr) 46px minmax(0,1fr);position:relative}
+  .fighter{grid-template-rows:43px minmax(0,1fr);padding:0!important}
+  .fighter.player{justify-items:start}.fighter.enemy{justify-items:end}
+  .fighter-info{width:min(250px,66%);margin:0 2vw;z-index:4}
+  .player .fighter-info{justify-self:start}.enemy .fighter-info{justify-self:end}
+  .health-label{font-size:10px;margin-bottom:2px}.health-label small{font-size:8px}.health-track{height:5px}
+  .block,.intent{font-size:8px;padding:2px 5px;margin-top:2px;background:#08111bd9}
+  .block svg,.intent svg{width:11px;height:11px}
+  .combat-hero{height:100%;width:auto;max-width:43%;max-height:100%;justify-self:start;margin-left:11vw;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 10px 7px #0009)}
+  .enemy-art{height:94%;width:auto;max-width:43%;max-height:100%;justify-self:end;margin-right:10vw}
+  .turn-medallion{width:42px;height:42px;z-index:5;background:#091321c7}.turn-medallion span{font-size:6px}.turn-medallion strong{font-size:18px}
+  .battle>.combat-controls{height:132px;padding:0 12px max(3px,env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent 0,#070d17b8 22%,#070d17f2 100%);border-top:0;position:relative;overflow:visible}
+  .combat-controls{display:block}
+  .combat-toolbar{height:32px;margin:0;position:relative;z-index:4}
+  .core-count{position:absolute;left:1.2vw;bottom:-76px;width:56px;height:56px;display:flex;justify-content:center;gap:2px;background:#101c2be8;border:2px solid #9dcfe1;clip-path:polygon(50% 0,100% 22%,100% 78%,50% 100%,0 78%,0 22%);z-index:7}
+  .core-count svg{display:none}.core-count strong{font-size:17px}.core-count small{font-size:9px}.core-count>span{display:none}
+  .combat-message{position:absolute;left:50%;transform:translateX(-50%);top:3px;font-size:9px;white-space:nowrap;text-shadow:0 2px 5px #000}
+  .end-turn{position:absolute;right:1.4vw;bottom:-70px;min-width:116px;min-height:38px;padding:6px 18px;font-size:9px;z-index:7}
+  .hand{height:100px;min-height:0;display:flex;align-items:flex-end;justify-content:center;gap:0;padding:0 145px;overflow:visible;perspective:800px}
+  .ability-card{flex:0 0 112px;width:112px;height:106px;min-height:0;margin-left:-9px;padding:7px 6px 4px;gap:2px;transform-origin:50% 110%;box-shadow:0 5px 12px #0008;border-color:#bfa46d;background:linear-gradient(150deg,#29303b,#111827 72%)}
+  .ability-card:first-child{margin-left:0}
+  .ability-card:nth-child(1){transform:rotate(-4deg) translateY(5px)}
+  .ability-card:nth-child(2){transform:rotate(-2deg) translateY(1px)}
+  .ability-card:nth-child(3){transform:translateY(-2px)}
+  .ability-card:nth-child(4){transform:rotate(2deg) translateY(1px)}
+  .ability-card:nth-child(5){transform:rotate(4deg) translateY(5px)}
+  .ability-card:not(:disabled):hover{transform:translateY(-18px) scale(1.12);z-index:10}
+  .card-cost{width:20px;height:20px;top:4px;left:4px;font-size:9px}
+  .card-art{width:34px;height:34px;margin:0}.card-art svg{width:21px;height:21px}
+  .ability-card>strong{font-size:9px}.card-description{font-size:7px;line-height:1.15;min-height:15px}.ability-card>small{font-size:5px}
+}
