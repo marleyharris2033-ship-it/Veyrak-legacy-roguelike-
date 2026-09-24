@@ -183,3 +183,5 @@
  .battle.screen{grid-template-rows:38px minmax(0,1fr) 96px}
  .battle>.combat-controls{height:96px;overflow:visible}
 }
+
+.collection-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-height:62vh;overflow:auto;margin-top:16px;padding:2px}.collection-card{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:center;padding:9px;border:1px solid #b8955655;background:#09111dcc}.collection-card img{width:76px;height:104px;object-fit:contain}.collection-card div{display:flex;flex-direction:column;gap:5px}.collection-card strong{font-family:var(--serif);color:#ead29b}.collection-card span{font-size:12px;line-height:1.4;color:#d9dce2}.collection-card small{color:#bda873}@media(max-width:600px){.collection-grid{grid-template-columns:1fr}.collection-card{grid-template-columns:64px 1fr}.collection-card img{width:64px;height:88px}}
