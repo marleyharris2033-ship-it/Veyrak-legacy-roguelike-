@@ -10,3 +10,48 @@
 /* Keep portrait proportions natural when the roster becomes compact. */
 @media(min-width:1000px) and (max-height:800px){.portrait{background-position-y:79.7%}}
 @media(max-width:600px) and (orientation:portrait){.portrait{background-position-y:79.4%}}
+
+
+/* iPhone landscape fit pass: keep each gameplay screen inside one viewport. */
+@media (orientation:landscape) and (max-height:550px){
+  .screen{height:100svh;min-height:100svh;overflow:hidden}
+  .topbar{height:48px;padding:6px 18px}
+  .run-brand{font-size:17px}.run-location{font-size:11px}.run-location small{margin-top:2px;font-size:7px}
+  .run-top .quiet{min-height:34px;padding:5px 9px}
+  .selection{padding-bottom:6px}
+  .selection .topbar{height:44px}
+  .select-stage{min-height:0;height:calc(100svh - 142px);width:min(1120px,94vw);gap:2vw}
+  .hero-display{height:100%;min-height:0}
+  .hero-art{max-height:100%;object-fit:contain}
+  .dossier{max-width:390px;padding:12px 22px 11px}
+  .dossier-mark{display:none}.dossier>.eyebrow{margin:3px 0}.dossier h2{font-size:29px}
+  .subtitle{margin-top:3px;font-size:9px}.gold-rule{margin:8px 0}
+  .traits{margin-bottom:8px;gap:24px}.traits svg{width:24px;height:24px}.traits>div{font-size:11px;gap:5px}
+  .seed-label{margin-bottom:4px;font-size:10px}input{min-height:35px;padding:6px 10px}
+  .seed-help{margin:4px 0 7px;font-size:9px}.dossier .gold{min-height:38px;padding:7px 20px}
+  .starter-note{margin-top:5px;font-size:8px}
+  .hero-roster{height:88px;width:min(940px,90vw);gap:9px;margin:4px auto 0}
+  .hero-choice{height:84px;overflow:hidden}.portrait{height:60px;aspect-ratio:auto}.hero-name{padding:3px;font-size:9px}
+  .route-panel{height:calc(100svh - 48px);max-width:1180px;margin:0 auto;padding:9px 28px 8px}
+  .route-panel>h1{font-size:29px;margin:3px 0 2px}.route-panel>.muted{font-size:11px}
+  .route-nodes{margin:19px 0 13px}.node-symbol{width:48px;height:48px;margin-bottom:10px}.node-symbol svg{width:23px;height:23px}
+  .route-node span{font-size:8px;margin-bottom:3px}.route-node strong{font-size:11px}
+  .route-next{padding:9px 18px;margin-bottom:5px}.route-next h2{font-size:20px;margin:3px 0}.route-next p:not(.eyebrow){font-size:10px}
+  .route-next .gold{min-height:38px;padding:7px 24px;font-size:10px}.route-panel>.small{font-size:9px}
+  .battle{height:100svh}
+  .battle .arena{height:calc(100svh - 218px);min-height:0;max-width:1280px;width:98%;grid-template-columns:minmax(0,1fr) 58px minmax(0,1fr);flex:1}
+  .fighter{justify-content:flex-end}.fighter.player{align-items:flex-start;padding-left:4vw}.fighter.enemy{align-items:flex-end;padding-right:4vw}
+  .fighter-info{width:min(250px,82%);margin-top:4px}
+  .combat-hero{height:calc(100% - 55px);max-height:260px;max-width:72%;align-self:flex-start}
+  .enemy-art{height:calc(100% - 52px);max-height:235px;max-width:72%;align-self:flex-end}
+  .turn-medallion{width:50px;height:50px}.turn-medallion strong{font-size:20px}
+  .health-label{font-size:11px;margin-bottom:3px}.health-label small{font-size:9px}.health-track{height:6px}
+  .block,.intent{padding:3px 6px;margin-top:3px;font-size:9px}
+  .combat-controls{height:170px;flex:none;padding:7px max(18px,calc((100vw - 1220px)/2)) max(5px,env(safe-area-inset-bottom));margin-top:0}
+  .combat-toolbar{height:37px;margin-bottom:4px;gap:12px}.core-count svg{width:25px;height:25px}.core-count strong{font-size:21px}
+  .combat-message{font-size:10px}.end-turn{min-height:34px;min-width:135px;padding:6px 20px;font-size:10px}
+  .hand{height:105px;min-height:0;gap:8px;padding:1px}.ability-card{flex-basis:145px;height:103px;padding:8px 7px 5px;gap:3px}
+  .card-cost{width:21px;height:21px;font-size:10px}.card-art{width:31px;height:31px}.card-art svg{width:20px;height:20px}
+  .ability-card>strong{font-size:10px}.card-description{font-size:8px;line-height:1.2;min-height:18px}.ability-card>small{font-size:6px}
+  .pile-row{display:none}
+}
