@@ -15,6 +15,9 @@ const ENEMIES = [
  {id:'stone',name:'Ruin Sentinel',hp:32,colour:'#cdbb91',moves:[{kind:'guard',value:7},{kind:'attack',value:9},{kind:'attack',value:7}]},
  {id:'void',name:'Veil Fragment',hp:27,colour:'#c197ff',moves:[{kind:'attack',value:5},{kind:'attack',value:10},{kind:'guard',value:6}]}
 ];
+const ELITES=[
+ {id:'crusher',name:'Obsidian Crusher',hp:58,colour:'#e07b4f',elite:true,moves:[{kind:'attack',value:10},{kind:'guard',value:10},{kind:'attack',value:16},{kind:'attack',value:12}]}
+];
 const BOSS={id:'warden',name:'The Gate Warden',hp:100,colour:'#f4cf79',moves:[{kind:'attack',value:13},{kind:'guard',value:12},{kind:'charge',value:0},{kind:'attack',value:23}]};
 export function normaliseSeed(s){return String(s).trim().slice(0,32)||'VEYATHUUN';}
 function hash(text){let n=2166136261;for(const c of text){n^=c.charCodeAt(0);n=Math.imul(n,16777619);}return n>>>0;}
@@ -79,8 +82,8 @@ function randomRelic(r){const pool=Object.keys(RELICS).filter(id=>!r.relics.incl
 export function createRun(seed,hero='kaerun'){
  if(!HEROES.some(h=>h.id===hero&&h.available))throw Error('This hero is locked.');
  seed=normaliseSeed(seed);const state={rng:hash(seed+':route')};
- const route=[];const layouts=[['battle','battle','battle'],['battle','mystery','chest'],['shop','battle','mystery'],['battle','battle','battle'],['mystery','battle','chest'],['rest','shop','battle'],['battle','battle','battle'],['chest','mystery','battle'],['battle','battle','battle'],['rest','shop','mystery'],['boss']];
- layouts.forEach((types,row)=>{const ordered=shuffle(types,state);ordered.forEach((type,col)=>{const id=`${row}-${col}`;let enemy=structuredClone(type==='boss'?BOSS:ENEMIES[Math.floor(random(state)*4)]);if(type!=='boss'){enemy.hp+=4+row*3;enemy.moves=enemy.moves.map(m=>({...m,value:m.kind==='attack'?m.value+1+Math.floor(row/3):m.value}));}enemy.boss=type==='boss';route.push({id,row,col,type,enemy,next:[]});});});
+ const route=[];const layouts=[['battle','battle','battle'],['battle','mystery','chest'],['shop','battle','mystery'],['battle','elite','battle'],['mystery','battle','chest'],['rest','shop','battle'],['battle','elite','battle'],['chest','mystery','battle'],['battle','elite','battle'],['rest','shop','mystery'],['boss']];
+ layouts.forEach((types,row)=>{const ordered=shuffle(types,state);ordered.forEach((type,col)=>{const id=`${row}-${col}`;let enemy=structuredClone(type==='boss'?BOSS:type==='elite'?ELITES[Math.floor(random(state)*ELITES.length)]:ENEMIES[Math.floor(random(state)*4)]);if(!['boss','elite'].includes(type)){enemy.hp+=4+row*3;enemy.moves=enemy.moves.map(m=>({...m,value:m.kind==='attack'?m.value+1+Math.floor(row/3):m.value}));}enemy.boss=type==='boss';route.push({id,row,col,type,enemy,next:[]});});});
  for(const n of route)n.next=route.filter(v=>v.row===n.row+1&&(v.type==='boss'||Math.abs(v.col-n.col)<=1)).map(v=>v.id);
  return {version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80,maxHp:80,block:0,core:0,index:0,route,current:null,visited:[],deck:[...STARTER],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
 }
@@ -89,14 +92,14 @@ function sampleCards(r,n=3){const pool=Object.keys(CARDS).filter(id=>!CARDS[id].
 export function chooseNode(r,id){
  if(r.phase!=='map'||!availableNodes(r).includes(id))return false;
  const node=r.route.find(n=>n.id===id);r.current=id;r.visited.push(id);r.index=node.row;r.room=null;
- if(['battle','boss'].includes(node.type)){startBattle(r,node);return true;}
+ if(['battle','elite','boss'].includes(node.type)){startBattle(r,node);return true;}
  r.phase=node.type;
  if(node.type==='chest')r.room=treasureRoom(r,node);
  if(node.type==='mystery')r.room={kind:['cache','shrine','rift'][Math.floor(random(r)*3)],cards:sampleCards(r)};
  if(node.type==='shop')r.room={stock:sampleCards(r).map(id=>({kind:'card',id,price:35+CARDS[id].cost*10,sold:false})).concat([{kind:'potion',price:25,sold:false},{kind:'relic',id:randomRelic(r),price:85,sold:false}]).filter(x=>x.kind!=='relic'||x.id)};
  return true;
 }
-export function enterBattle(r){const id=availableNodes(r).find(id=>['battle','boss'].includes(r.route.find(n=>n.id===id).type));return id?chooseNode(r,id):false;}
+export function enterBattle(r){const id=availableNodes(r).find(id=>['battle','elite','boss'].includes(r.route.find(n=>n.id===id).type));return id?chooseNode(r,id):false;}
 function startBattle(r,node){
  const enemies=[structuredClone(node.enemy)];if([3,6,8].includes(node.row)&&node.type==='battle'&&node.col===1){const add=structuredClone(ENEMIES[0]);add.hp=16+node.row;enemies.push(add);}
  const es=enemies.map(e=>({...e,maxHp:e.hp,block:0,move:Math.floor(random(r)*e.moves.length),mark:0,weak:0,vulnerable:0,bleed:0,strength:0,stunned:false}));
@@ -120,8 +123,8 @@ function log(r,text){r.log=[...r.log.slice(-5),text];}
 export function selectTarget(r,i){if(r.phase!=='combat'||!Number.isInteger(i)||!r.battle.enemies[i]?.hp)return false;r.battle.target=i;return true;}
 function victory(r){
  const b=r.battle;if(!b.enemies.every(e=>e.hp===0))return false;
- const gold=30+(r.relics.includes('gilded')?10:0);r.gold+=gold;r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;
- r.phase=r.route.find(n=>n.id===r.current).type==='boss'?'won':'victory';r.rewards=sampleCards(r);log(r,`Victory! Gained ${gold} gold.`);return true;
+ const node=r.route.find(n=>n.id===r.current),elite=node.type==='elite',gold=(elite?60:30)+(r.relics.includes('gilded')?10:0);r.gold+=gold;r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;
+ if(elite){const relic=randomRelic(r);if(relic)r.relics.push(relic);r.eliteReward=relic;}else r.eliteReward=null;r.phase=node.type==='boss'?'won':'victory';r.rewards=sampleCards(r);log(r,`Victory! Gained ${gold} gold${elite&&r.eliteReward?` and ${RELICS[r.eliteReward].name}`:''}.`);return true;
 }
 function hitEnemy(r,e,base){const b=r.battle,weakMult=b.weak>0?.75:1,vulnMult=e.vulnerable>0?1.5:1,raw=Math.max(0,Math.floor((base+b.strength+(r.relics.includes('hunterlens')&&e.mark>0?2:0))*weakMult*vulnMult)),blocked=Math.min(e.block,raw);e.block-=blocked;const damage=Math.min(e.hp,raw-blocked);e.hp-=damage;return damage;}
 export function playCard(r,i){
@@ -155,7 +158,7 @@ export function endTurn(r){
  }
  b.weak=Math.max(0,(b.weak||0)-1);b.vulnerable=Math.max(0,(b.vulnerable||0)-1);if(victory(r))return true;if(!b.enemies[b.target]?.hp)b.target=b.enemies.findIndex(e=>e.hp>0);startTurn(r);log(r,'Your turn. Choose a card.');return true;
 }
-function leave(r){r.phase='map';r.battle=null;r.room=null;r.block=0;r.rewards=[];return true;}
+function leave(r){r.phase='map';r.battle=null;r.room=null;r.block=0;r.rewards=[];r.eliteReward=null;return true;}
 export function advance(r,card=null){if(r.phase!=='victory'||(card!==null&&!r.rewards.includes(card)))return false;if(card)r.deck.push(card);return leave(r);}
 export function resolveRoom(r,choice){
  if(r.phase==='chest'){
