@@ -117,7 +117,7 @@ function startTurn(r){
 }
 export function intent(r,index=r.battle?.target??0){
  const e=r.battle?.enemies[index];if(!e)return null;if(e.stunned)return {kind:'stun',value:0};
- const m=e.moves[e.move%e.moves.length];return m.kind==='attack'?{...m,value:Math.max(0,m.value-(r.battle.weaken||0))}:m;
+ const m=e.moves[e.move%e.moves.length];return m.kind==='attack'?{...m,value:Math.max(0,Math.floor((m.value+(e.strength||0)-(r.battle.weaken||0))*(e.weak>0?.75:1)*(r.battle.vulnerable>0?1.5:1)))}:m;
 }
 function log(r,text){r.log=[...r.log.slice(-5),text];}
 export function selectTarget(r,i){if(r.phase!=='combat'||!Number.isInteger(i)||!r.battle.enemies[i]?.hp)return false;r.battle.target=i;return true;}
@@ -129,13 +129,12 @@ function victory(r){
 function hitEnemy(r,e,base){const b=r.battle,weakMult=b.weak>0?.75:1,vulnMult=e.vulnerable>0?1.5:1,raw=Math.max(0,Math.floor((base+b.strength+(r.relics.includes('hunterlens')&&e.mark>0?2:0))*weakMult*vulnMult)),blocked=Math.min(e.block,raw);e.block-=blocked;const damage=Math.min(e.hp,raw-blocked);e.hp-=damage;return damage;}
 export function playCard(r,i){
  if(r.phase!=='combat'||!Number.isInteger(i)||i<0)return false;
- const b=r.battle,id=b.hand[i],c=CARDS[id],selected=b.enemies[b.target];if(!c||c.cost>r.core||!selected?.hp)return false;
+ const b=r.battle,id=b.hand[i],c=CARDS[id],selected=b.enemies[b.target];if(!c||c.cost>r.core||!selected?.hp||c.requiresMark&&selected.mark<=0)return false;
  r.core-=c.cost;r.cardsPlayed++;b.hand.splice(i,1);
- if(c.coreGain)r.core=Math.min(MAX_CORE,r.core+c.coreGain);if(c.block)r.block+=c.block;if(c.markedBonusBlock&&selected.mark>0)r.block+=c.markedBonusBlock;if(c.strength)b.strength+=c.strength;if(c.mark)selected.mark+=c.mark;
+ if(c.coreGain)r.core=Math.min(MAX_CORE,r.core+c.coreGain);if(c.block)r.block+=c.block;if(c.markedBonusBlock&&selected.mark>0)r.block+=c.markedBonusBlock;if(c.strength)b.strength+=c.strength;if(c.mark&&!c.damage)selected.mark+=c.mark;
  if(c.drawPenalty)b.drawPenalty=(b.drawPenalty||0)+c.drawPenalty;if(c.coreDebt)b.coreDebt=(b.coreDebt||0)+c.coreDebt;
  if(c.power){b.power=(b.power||0)+c.power;b.strength+=c.power;}if(c.echo)b.echo=true;if(c.weaken)b.weaken=(b.weaken||0)+c.weaken;if(c.relentless)b.relentless=(b.relentless||0)+1;if(c.bloodRush)b.bloodRush=true;
  let detail='';if(c.fortune){const roll=Math.floor(random(r)*3);if(roll===0){r.block+=10;detail='Gained 10 Block.';}else if(roll===1){r.core=Math.min(MAX_CORE,r.core+2);detail='Gained 2 Core.';}else{draw(r,3);detail='Drew 3 cards.';}}
- if(c.requiresMark&&selected.mark<=0){b.discard.push(id);log(r,`${c.name}: target must be Marked.`);return true;}
  if(c.damage){
   const markedBefore=selected.mark>0,selectedAliveBefore=selected.hp>0,repetitions=b.echo?2:1;b.echo=false;const firstBonus=b.firstAttack&&r.relics.includes('emberstone')?3:0;b.firstAttack=false;
   for(let n=0;n<repetitions;n++){
@@ -145,7 +144,7 @@ export function playCard(r,i){
     const damage=hitEnemy(r,e,base+firstBonus);if(c.siphon&&damage>0)r.hp=Math.min(r.maxHp,r.hp+c.siphon);if(c.stun&&r.block>=10)e.stunned=true;
    }
   }
-  if(c.blockComboVulnerable&&r.block>=10)selected.vulnerable=(selected.vulnerable||0)+c.blockComboVulnerable;if(markedBefore&&b.relentless>0){draw(r,b.relentless);b.relentless=0;}if(selectedAliveBefore&&!selected.hp&&b.bloodRush){r.core=Math.min(MAX_CORE,r.core+1);b.bloodRush=false;}
+  if(c.mark)selected.mark+=c.mark;if(c.blockComboVulnerable&&r.block>=10)selected.vulnerable=(selected.vulnerable||0)+c.blockComboVulnerable;if(markedBefore&&b.relentless>0){draw(r,b.relentless);b.relentless=0;}if(selectedAliveBefore&&!selected.hp&&b.bloodRush){r.core=Math.min(MAX_CORE,r.core+1);b.bloodRush=false;}
  }
  if(c.weak)selected.weak=(selected.weak||0)+c.weak;if(c.vulnerable)selected.vulnerable=(selected.vulnerable||0)+c.vulnerable;if(c.bleed)selected.bleed=(selected.bleed||0)+c.bleed;if(c.barrier)b.barrier=(b.barrier||0)+c.barrier;if(c.retain)b.retained.push(id);else if(c.exhaust)b.exhaust.push(id);else b.discard.push(id);log(r,`${c.name}: ${detail||c.text}`);if(!selected.hp)b.target=b.enemies.findIndex(e=>e.hp>0);victory(r);return true;
 }
