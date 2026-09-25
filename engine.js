@@ -47,17 +47,17 @@ function shuffle(a,state){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.fl
 export const CARDS={
  strike:{name:'Strike',cost:1,damage:6,type:'attack',text:'Deal 6 damage.',tile:0},
  guard:{name:'Guard',cost:1,block:6,type:'defence',text:'Gain 6 Block this turn.',tile:1},
- targetbreaker:{name:'Target Breaker',cost:1,mark:2,type:'skill',kaerun:true,text:'Apply 2 Mark to target.',tile:2},
+ targetbreaker:{name:'Target Breaker',cost:1,mark:3,type:'skill',kaerun:true,modernArt:'mark',text:'Apply 3 Mark to target.',tile:2},
  gauntletsmash:{name:'Gauntlet Smash',cost:2,damage:12,markedDamage:18,type:'attack',kaerun:true,text:'Deal 12 damage. If the target is Marked, deal 18 instead.',tile:3},
  deflect:{name:'Deflect',cost:0,block:4,type:'defence',text:'Gain 4 Block.',tile:4},
  cleave:{name:'Cleave',cost:2,damage:8,all:true,type:'attack',text:'Deal 8 damage to all enemies.',tile:5},
- focus:{name:'Focus',cost:1,coreGain:1,type:'skill',text:'Gain 1 Core after paying its cost.',tile:6},
+ focus:{name:'Focus',cost:1,coreGain:1,draw:1,type:'skill',modernArt:'core',text:'Gain 1 Core and draw 1 card.',tile:6},
  ironskin:{name:'Iron Skin',cost:1,block:8,strength:1,type:'defence',text:'Gain 8 Block. Gain 1 Strength this turn.',tile:7},
  seismicpunch:{name:'Seismic Punch',cost:2,damage:14,stun:true,type:'attack',text:'Deal 14 damage. Stun target if you have 10 or more Block.',tile:8},
  stonebulwark:{name:'Stone Bulwark',cost:2,block:12,type:'defence',text:'Gain 12 Block this turn.',tile:9},
  meteor:{name:'Meteor Fragment',cost:1,damage:10,randomTarget:true,type:'attack',sigil:'☄',text:'Deal 10 damage to a random enemy.'},
  chainlightning:{name:'Chain Lightning',cost:2,damage:6,splash:3,type:'attack',sigil:'ϟ',text:'Deal 6 damage to a target and 3 to every other enemy.'},
- shatterarmour:{name:'Shatter Armour',cost:1,damage:4,shatter:true,type:'attack',sigil:'⟐',text:'Remove all of an enemy’s Block, then deal 4 damage.'},
+ shatterarmour:{name:'Armour Break',cost:1,damage:4,shatter:true,type:'attack',modernArt:'shatter',text:'Remove all of an enemy’s Block, then deal 4 damage.'},
  lifesiphon:{name:'Life Siphon',cost:2,damage:8,siphon:3,type:'attack',sigil:'✥',text:'Deal 8 damage. Heal 3 Vitality if it damages enemy health.'},
  crystalbarrier:{name:'Crystal Barrier',cost:2,block:15,drawPenalty:1,type:'defence',sigil:'⬡',text:'Gain 15 Block. Draw 1 fewer card next turn.'},
  echocrystal:{name:'Echo Crystal',cost:1,echo:true,type:'skill',sigil:'◇',text:'Your next attack card this turn activates twice. Does not stack.'},
@@ -76,12 +76,27 @@ export const CARDS={
  bloodrush:{name:'Blood Rush',cost:1,strength:2,bloodRush:true,type:'skill',kaerun:true,text:'Gain 2 Strength this turn. If you defeat an enemy this turn, gain 1 Core.'},
  shatterarmourkaerun:{name:'Shatter Armour',cost:2,damage:8,removeBlock:2,vulnerable:2,type:'attack',kaerun:true,text:'Deal 8 damage. Remove 2 Block from target. Apply 2 Vulnerable.'},
  execution:{name:'Execution',cost:2,damage:14,executeBonus:10,type:'attack',kaerun:true,text:'Deal 14 damage. If target is below 50% Health, deal an additional 10 damage.'},
- fortressstance:{name:'Fortress Stance',cost:1,block:10,strength:1,type:'defence',kaerun:true,text:'Gain 10 Block. Gain 1 Strength this turn.'},
+ fortressstance:{name:'Fortress Stance',cost:1,block:10,markedStrength:1,type:'defence',kaerun:true,modernArt:'fortress',text:'Gain 10 Block. If target is Marked, gain 1 Strength this turn.'},
  arcbolt:{name:'Arc Bolt',cost:1,damage:5,resonanceGain:1,type:'attack',ilyra:true,text:'Deal 5 damage. Gain 1 Resonance.'},
  crystalguard:{name:'Crystal Guard',cost:1,block:6,resonanceGain:1,type:'defence',ilyra:true,text:'Gain 6 Block. Gain 1 Resonance.'},
  corespark:{name:'Core Spark',cost:0,coreGain:1,resonanceGain:1,type:'skill',ilyra:true,text:'Gain 1 Core and 1 Resonance.'},
  resonantstrike:{name:'Resonant Strike',cost:2,damage:10,resonanceDamage:3,type:'attack',ilyra:true,text:'Deal 10 damage, plus 3 per Resonance. Spend all Resonance.'},
- prismward:{name:'Prism Ward',cost:1,block:7,resonanceBarrier:2,type:'defence',ilyra:true,text:'Gain 7 Block. Gain 2 next-turn Barrier per Resonance spent.'}
+ prismward:{name:'Prism Ward',cost:1,block:7,resonanceBarrier:2,type:'defence',ilyra:true,text:'Gain 7 Block. Gain 2 next-turn Barrier per Resonance spent.'},
+ arcsplit:{name:'Arc Split',cost:1,damage:4,all:true,resonanceGain:1,type:'attack',ilyra:true,modernArt:'arc',text:'Deal 4 damage to all enemies. Gain 1 Resonance.'},
+ prismstudy:{name:'Prism Study',cost:1,draw:2,resonanceGain:1,type:'skill',ilyra:true,modernArt:'prism',text:'Draw 2 cards. Gain 1 Resonance.'},
+ latticeward:{name:'Lattice Ward',cost:1,block:4,nextBarrier:4,resonanceGain:1,type:'defence',ilyra:true,modernArt:'ward',text:'Gain 4 Block and 4 next-turn Barrier. Gain 1 Resonance.'},
+ crystallance:{name:'Crystal Lance',cost:2,damage:7,resonanceDamage:5,type:'attack',ilyra:true,modernArt:'lance',text:'Deal 7 damage, plus 5 per Resonance. Spend all Resonance.'},
+ fracturefield:{name:'Fracture Field',cost:2,damage:6,all:true,resonanceDamage:2,type:'attack',ilyra:true,modernArt:'fracture',text:'Deal 6 damage to all enemies, plus 2 per Resonance. Spend all Resonance.'},
+ corechannel:{name:'Core Channel',cost:1,draw:1,resonanceGain:2,type:'skill',ilyra:true,modernArt:'channel',text:'Draw 1 card. Gain 2 Resonance.'},
+ resonantmend:{name:'Resonant Mend',cost:2,block:6,resonanceHeal:2,exhaust:true,type:'defence',ilyra:true,modernArt:'mend',text:'Gain 6 Block. Heal 2 Vitality per Resonance spent. Exhaust.'},
+ shieldbash:{name:'Shield Bash',cost:1,damage:5,block:4,type:'attack',modernArt:'shield',text:'Deal 5 damage and gain 4 Block.'},
+ starfall:{name:'Starfall',cost:3,damage:15,all:true,type:'attack',modernArt:'star',text:'Deal 15 damage to all enemies.'},
+ fortify:{name:'Fortify',cost:1,block:5,nextBarrier:3,type:'defence',modernArt:'fortify',text:'Gain 5 Block and 3 next-turn Barrier.'},
+ piercingray:{name:'Piercing Ray',cost:2,damage:10,shatter:true,type:'attack',modernArt:'ray',text:'Remove all of an enemy’s Block, then deal 10 damage.'},
+ suppress:{name:'Suppress',cost:1,weak:2,type:'skill',modernArt:'suppress',text:'Apply 2 Weak to target.'},
+ scout:{name:'Scout',cost:1,draw:2,type:'skill',modernArt:'scout',text:'Draw 2 cards.'},
+ ricochet:{name:'Ricochet',cost:1,damage:5,splash:3,type:'attack',modernArt:'ricochet',text:'Deal 5 damage to target and 3 to all other enemies.'},
+ sundering:{name:'Sundering',cost:2,damage:9,vulnerable:2,type:'attack',modernArt:'sunder',text:'Deal 9 damage. Apply 2 Vulnerable to target.'}
 };
 export const STARTER=['strike','strike','strike','strike','guard','guard','guard','guard','targetbreaker','gauntletsmash'];
 export const ILYRA_STARTER=['arcbolt','arcbolt','arcbolt','crystalguard','crystalguard','crystalguard','corespark','corespark','resonantstrike','prismward'];
@@ -132,7 +147,7 @@ export function continueStage(r){
  r.stage=(r.stage||1)+1;r.stagesCleared=r.stage-1;r.route=buildRoute(r.seed,r.enemyRoster??2,r.beastSystem??5,!!r.legacy,r.stage);r.current=null;r.visited=[];r.index=0;r.phase='map';r.battle=null;r.room=null;r.block=0;r.core=0;r.rewards=[];r.eliteReward=null;r.eliteShardReward=null;r.captureResult=null;return true;
 }
 export function availableNodes(r){return r.current?r.route.find(n=>n.id===r.current).next:r.route.filter(n=>n.row===0).map(n=>n.id);}
-function sampleCards(r,n=3){const pool=Object.keys(CARDS).filter(id=>(!CARDS[id].kaerun||r.hero==='kaerun')&&(!CARDS[id].ilyra||r.hero==='ilyra'));return shuffle(pool,r).slice(0,n);}
+function sampleCards(r,n=3){const pool=Object.keys(CARDS).filter(id=>!['strike','guard'].includes(id)&&(!CARDS[id].kaerun||r.hero==='kaerun')&&(!CARDS[id].ilyra||r.hero==='ilyra'));return shuffle(pool,r).slice(0,n);}
 export function chooseNode(r,id){
  if(r.phase!=='map'||(!r.debugUnlockAll&&!availableNodes(r).includes(id)))return false;
  const node=r.route.find(n=>n.id===id);r.current=id;r.visited.push(id);r.index=node.row;r.room=null;
@@ -181,10 +196,11 @@ export function playCard(r,i){
  if(r.phase!=='combat'||!Number.isInteger(i)||i<0)return false;
  const b=r.battle,id=b.hand[i],c=CARDS[id],selected=b.enemies[b.target];if(!c||c.cost>r.core||!selected?.hp||c.requiresMark&&selected.mark<=0)return false;
  r.core-=c.cost;r.cardsPlayed++;b.hand.splice(i,1);
- if(c.coreGain)r.core=Math.min(MAX_CORE,r.core+c.coreGain);if(c.block)r.block+=c.block;if(c.markedBonusBlock&&selected.mark>0)r.block+=c.markedBonusBlock;if(c.strength)b.strength+=c.strength;if(c.mark&&!c.damage)selected.mark+=c.mark;
+ if(c.coreGain)r.core=Math.min(MAX_CORE,r.core+c.coreGain);if(c.block)r.block+=c.block;if(c.nextBarrier)b.barrier=(b.barrier||0)+c.nextBarrier;if(c.markedBonusBlock&&selected.mark>0)r.block+=c.markedBonusBlock;if(c.strength)b.strength+=c.strength;if(c.markedStrength&&selected.mark>0)b.strength+=c.markedStrength;if(c.mark&&!c.damage)selected.mark+=c.mark;if(c.draw)draw(r,c.draw);
  if(c.resonanceGain)b.resonance=Math.min(3,(b.resonance||0)+c.resonanceGain);
- const spentResonance=c.resonanceDamage||c.resonanceBarrier?b.resonance||0:0;if(spentResonance)b.resonance=0;
+ const spentResonance=c.resonanceDamage||c.resonanceBarrier||c.resonanceHeal?b.resonance||0:0;if(spentResonance)b.resonance=0;
  if(c.resonanceBarrier)b.barrier=(b.barrier||0)+spentResonance*c.resonanceBarrier;
+ if(c.resonanceHeal)r.hp=Math.min(r.maxHp,r.hp+spentResonance*c.resonanceHeal);
  if(c.drawPenalty)b.drawPenalty=(b.drawPenalty||0)+c.drawPenalty;if(c.coreDebt)b.coreDebt=(b.coreDebt||0)+c.coreDebt;
  if(c.power){b.power=(b.power||0)+c.power;b.strength+=c.power;}if(c.echo)b.echo=true;if(c.weaken)b.weaken=(b.weaken||0)+c.weaken;if(c.relentless)b.relentless=(b.relentless||0)+1;if(c.bloodRush)b.bloodRush=true;
  let detail='';if(c.fortune){const roll=Math.floor(random(r)*3);if(roll===0){r.block+=10;detail='Gained 10 Block.';}else if(roll===1){r.core=Math.min(MAX_CORE,r.core+2);detail='Gained 2 Core.';}else{draw(r,3);detail='Drew 3 cards.';}}
@@ -205,7 +221,7 @@ export function playCard(r,i){
  bossPhase(r);if(c.weak)selected.weak=(selected.weak||0)+c.weak;if(c.vulnerable)selected.vulnerable=(selected.vulnerable||0)+c.vulnerable;if(c.bleed)selected.bleed=(selected.bleed||0)+c.bleed;if(c.barrier)b.barrier=(b.barrier||0)+c.barrier;if(c.retain)b.retained.push(id);else if(c.exhaust)b.exhaust.push(id);else b.discard.push(id);log(r,`${c.name}: ${detail||c.text}`);if(!selected.hp)b.target=b.enemies.findIndex(e=>e.hp>0);victory(r);return true;
 }
 export function endTurn(r){
- if(r.phase!=='combat')return false;const b=r.battle;const keep=b.hand.filter(id=>CARDS[id]?.retain),toss=b.hand.filter(id=>!CARDS[id]?.retain&&!CARDS[id]?.exhaust),burn=b.hand.filter(id=>CARDS[id]?.exhaust);b.retained.push(...keep);b.discard.push(...toss);b.exhaust.push(...burn);b.hand=[];b.hurtLastTurn=false;if(b.stunned){b.stunned=false;startTurn(r);log(r,'Stunned — enemy turn skipped.');return true;}
+ if(r.phase!=='combat')return false;const b=r.battle;const keep=b.hand.filter(id=>CARDS[id]?.retain),toss=b.hand.filter(id=>!CARDS[id]?.retain);b.retained.push(...keep);b.discard.push(...toss);b.hand=[];b.hurtLastTurn=false;if(b.stunned){b.stunned=false;startTurn(r);log(r,'Stunned — enemy turn skipped.');return true;}
  for(const e of b.enemies.filter(e=>e.hp>0)){
   e.block=0;if(e.bleed>0){e.hp=Math.max(0,e.hp-e.bleed);e.bleed=Math.max(0,e.bleed-1);if(!e.hp)continue;}if(e.stunned){e.stunned=false;continue;}if(e.boss&&e.stunGuard)e.stunGuard=Math.max(0,e.stunGuard-1);const m=e.moves[e.move%e.moves.length];
   if(['attack','siphon'].includes(m.kind)){const bond=e.boss&&b.enemies.some(x=>x.riftBond&&x.hp>0)?3:0,hits=m.hits||1;for(let h=0;h<hits;h++){const incoming=Math.max(0,Math.floor((m.value+(e.strength||0)+bond-(b.weaken||0))*(e.weak>0?.75:1)*(b.vulnerable>0?1.5:1))),blocked=Math.min(r.block,incoming);r.block-=blocked;let damage=incoming-blocked;if(damage>0&&r.relics.includes('wardstone')&&!b.wardUsed){damage=Math.max(0,damage-3);b.wardUsed=true;}if(damage>0)b.hurtLastTurn=true;r.hp=Math.max(0,r.hp-damage);if(m.kind==='siphon'&&damage>0)e.hp=Math.min(e.maxHp,e.hp+3);if(r.relics.includes('thorncrown')){const thornBlocked=Math.min(e.block,2);e.block-=thornBlocked;e.hp=Math.max(0,e.hp-2+thornBlocked);}if(!r.hp)break;}}

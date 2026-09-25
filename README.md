@@ -44,3 +44,9 @@ Run `npm test`. All saves are local to this browser/device; clearing browser sto
 ## Kaerun combat identity
 
 Kaerun fights with gauntlets and Mark. Target Breaker applies Mark, Gauntlet Smash hits Marked targets harder, and his first attack against a Marked enemy each turn grants 3 Block through Gauntlet Pressure. Mark loses 1 after each enemy action, so his class rewards can extend the setup, defend while pressing forward, or spend Mark on Sovereign Impact. The combat HUD shows whether Gauntlet Pressure is ready.
+
+## Expanded card rewards
+
+Each character now has 12 exclusive cards, alongside 28 shared cards. Seven new Ilyra rewards build or spend Resonance: Arc Split, Prism Study, Lattice Ward, Crystal Lance, Fracture Field, Core Channel and Resonant Mend. Eight new shared rewards add attacks, protection, draw and debuffs: Shield Bash, Starfall, Fortify, Piercing Ray, Suppress, Scout, Ricochet and Sundering. Rewards and merchant cards can include these for the appropriate hero; basic Strike and Guard stay in starter decks but no longer appear in rewards. Existing saved decks remain valid.
+
+Focus now draws a card as well as refunding its Core cost. Target Breaker applies 3 Mark, making it distinct from Sovereign Brand. Fortress Stance gains Strength only against a Marked target, so Iron Skin has a reliable alternative. Shared Armour Break has its own accurate live-text artwork, separate from Kaerun's Shatter Armour. Exhaust cards are discarded if left unplayed and are exhausted only when played. New rewards use individually drawn symbolic artwork with live card text.
