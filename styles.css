@@ -299,3 +299,7 @@ img.neutral-card-png{
 
 /* v11: compact combat status badges */
 .status-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;justify-content:center}.status{display:inline-flex;align-items:center;min-height:18px;padding:2px 6px;border:1px solid #d9b97880;background:#090d14d9;color:#f3dfb1;font:700 8px/1.1 Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 2px 6px #0007}.status-weak,.status-vulnerable,.status-bleed{border-color:#d9897380}.status-barrier{border-color:#82c8df90}.status-stun{border-color:#e7c46c}.enemy-target .status-row{max-width:190px;margin-inline:auto}@media(orientation:landscape) and (max-height:550px){.status-row{margin-top:2px;gap:3px}.status{min-height:15px;padding:1px 4px;font-size:7px}}
+
+
+/* v12: unique relic artwork */
+.relic-art{display:block;width:72px;height:72px;flex:0 0 72px;object-fit:contain;background:transparent;filter:drop-shadow(0 5px 8px #0008);pointer-events:none;user-select:none;-webkit-user-drag:none}.relic-entry>.relic-art{margin:-5px 0}.shop-stock .relic-art{width:92px;height:92px;margin:0 auto 5px}.relic-fallback{font-size:27px;color:#e1c186}.treasure-result .relic-entry{max-width:440px;margin:14px auto}.result-panel .relic-entry{max-width:440px;margin:14px auto}@media(max-width:600px){.relic-art{width:62px;height:62px;flex-basis:62px}.shop-stock .relic-art{width:78px;height:78px}}
