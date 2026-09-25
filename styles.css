@@ -285,3 +285,14 @@ img.neutral-card-png{
 .title-logo{display:block;width:min(520px,82%);max-height:42vh;object-fit:contain;margin:0 auto -6px;filter:drop-shadow(0 8px 18px #0009)}
 @media(max-width:600px) and (orientation:portrait){.title-logo{width:min(430px,88vw);max-height:31svh;margin-bottom:-4px}.title-rule{margin:10px auto 20px}}
 @media(orientation:landscape) and (max-height:550px){.title-logo{width:min(360px,46vw);max-height:34vh;margin-bottom:-8px}.title-rule{margin:5px auto 10px}}
+
+/* v10: landscape title menu reserves room for future menu actions without compressing buttons */
+@media (orientation:landscape) and (max-height:550px){
+ .title{align-items:center;padding:10px 4vw 14px}
+ .title-content{width:min(500px,44vw);margin:0 4vw 0 auto;display:flex;flex-direction:column;align-items:center;max-height:calc(100svh - 20px)}
+ .title-logo{width:min(270px,30vw);height:auto;max-height:25svh;margin:0 auto -4px;flex:0 0 auto}
+ .title-rule{width:72%;margin:3px auto 7px;flex:0 0 auto}
+ .title nav{width:min(330px,38vw);gap:6px;margin:0 auto;flex:0 0 auto}
+ .title .gold{min-height:36px;height:36px;padding:5px 28px;font-size:11px;line-height:1}
+ .title footer{bottom:6px}
+}
