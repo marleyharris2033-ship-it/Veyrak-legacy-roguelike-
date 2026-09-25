@@ -1,4 +1,4 @@
-export const VERSION=3;
+export const VERSION=4;
 export const HEROES = [
  {id:'kaerun',name:'Kaerun',title:'The Unbroken',weapon:'Gauntlets',signature:'Sovereign Impact',available:true,portrait:16.64},
  {id:'ilyra',name:'Ilyra',title:'The Crystal Seer',weapon:'Staff & catalyst',signature:'Violet Core',available:true,portrait:29.49},
@@ -13,7 +13,7 @@ const ENEMIES = [
  {id:'stone',name:'Ruin Sentinel',hp:32,colour:'#cdbb91',moves:[{kind:'guard',value:7},{kind:'attack',value:9},{kind:'attack',value:7}]},
  {id:'void',name:'Veil Fragment',hp:27,colour:'#c197ff',moves:[{kind:'attack',value:5},{kind:'attack',value:10},{kind:'guard',value:6}]}
 ];
-const BOSS={id:'warden',name:'The Gate Warden',hp:62,colour:'#f4cf79',moves:[{kind:'attack',value:10},{kind:'guard',value:10},{kind:'charge',value:0},{kind:'attack',value:19}]};
+const BOSS={id:'warden',name:'The Gate Warden',hp:100,colour:'#f4cf79',moves:[{kind:'attack',value:13},{kind:'guard',value:12},{kind:'charge',value:0},{kind:'attack',value:23}]};
 export function normaliseSeed(s){return String(s).trim().slice(0,32)||'VEYATHUUN';}
 function hash(text){let n=2166136261;for(const c of text){n^=c.charCodeAt(0);n=Math.imul(n,16777619);}return n>>>0;}
 function random(state){state.rng=(state.rng+0x6D2B79F5)>>>0;let t=state.rng;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;}
@@ -35,9 +35,9 @@ export const RELICS={amber:{name:'Amber Heart',text:'Heal 4 Vitality after comba
 export function createRun(seed,hero='kaerun'){
  if(!HEROES.some(h=>h.id===hero&&h.available))throw Error('This hero is locked.');
  seed=normaliseSeed(seed);const state={rng:hash(seed+':route')};
- const route=[];const layouts=[['battle'],['battle','mystery','chest'],['shop','battle','mystery'],['battle','chest','battle'],['mystery','battle','shop'],['rest','mystery','chest'],['boss']];
- layouts.forEach((types,row)=>{const ordered=row===0||row===6?types:shuffle(types,state);ordered.forEach((type,col)=>{const id=`${row}-${col}`;let enemy=structuredClone(type==='boss'?BOSS:ENEMIES[Math.floor(random(state)*4)]);enemy.hp+=type==='boss'?0:row*2;enemy.boss=type==='boss';route.push({id,row,col,type,enemy,next:[]});});});
- for(const n of route)n.next=route.filter(v=>v.row===n.row+1&&(n.row===0||v.row===6||Math.abs(v.col-n.col)<=1)).map(v=>v.id);
+ const route=[];const layouts=[['battle','battle','battle'],['battle','mystery','chest'],['shop','battle','mystery'],['battle','battle','battle'],['mystery','battle','chest'],['rest','shop','battle'],['battle','battle','battle'],['chest','mystery','battle'],['battle','battle','battle'],['rest','shop','mystery'],['boss']];
+ layouts.forEach((types,row)=>{const ordered=shuffle(types,state);ordered.forEach((type,col)=>{const id=`${row}-${col}`;let enemy=structuredClone(type==='boss'?BOSS:ENEMIES[Math.floor(random(state)*4)]);if(type!=='boss'){enemy.hp+=4+row*3;enemy.moves=enemy.moves.map(m=>({...m,value:m.kind==='attack'?m.value+1+Math.floor(row/3):m.value}));}enemy.boss=type==='boss';route.push({id,row,col,type,enemy,next:[]});});});
+ for(const n of route)n.next=route.filter(v=>v.row===n.row+1&&(v.type==='boss'||Math.abs(v.col-n.col)<=1)).map(v=>v.id);
  return {version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80,maxHp:80,block:0,core:0,index:0,route,current:null,visited:[],deck:[...STARTER],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
 }
 export function availableNodes(r){return r.current?r.route.find(n=>n.id===r.current).next:r.route.filter(n=>n.row===0).map(n=>n.id);}
@@ -54,7 +54,7 @@ export function chooseNode(r,id){
 }
 export function enterBattle(r){const id=availableNodes(r).find(id=>['battle','boss'].includes(r.route.find(n=>n.id===id).type));return id?chooseNode(r,id):false;}
 function startBattle(r,node){
- const enemies=[structuredClone(node.enemy)];if(node.row===3&&node.type==='battle'){const add=structuredClone(ENEMIES[0]);add.hp=18;enemies.push(add);}
+ const enemies=[structuredClone(node.enemy)];if([3,6,8].includes(node.row)&&node.type==='battle'&&node.col===1){const add=structuredClone(ENEMIES[0]);add.hp=16+node.row;enemies.push(add);}
  const es=enemies.map(e=>({...e,maxHp:e.hp,block:0,move:Math.floor(random(r)*e.moves.length),mark:0,stunned:false}));
  r.phase='combat';r.battle={enemies:es,target:0,draw:shuffle(r.deck,r),hand:[],discard:[],turn:0,strength:0};r.log=[`${node.enemy.name} bars your path.`];startTurn(r);if(r.relics.includes('aegis'))r.block+=5;
 }
@@ -99,7 +99,7 @@ export function restore(raw){try{
  if(!r||r.version!==VERSION||typeof r.seed!=='string'||r.seed!==normaliseSeed(r.seed)||!HEROES.some(h=>h.id===r.hero&&h.available))return null;
  if(!['map','combat','victory','won','lost','shop','chest','mystery','rest'].includes(r.phase)||!int(r.rng,0,4294967295)||!int(r.hp,0,80)||r.maxHp!==80||!int(r.gold,0,100000)||!int(r.potions,0,1000)||!int(r.core,0,99)||!int(r.block,0,999)||!int(r.blessing,0,20)||!int(r.curse,0,20))return null;
  if(JSON.stringify(r.route)!==JSON.stringify(createRun(r.seed,r.hero).route)||!Array.isArray(r.deck)||r.deck.length<5||r.deck.length>100||r.deck.some(c=>!Object.hasOwn(CARDS,c))||!Array.isArray(r.relics)||r.relics.some(id=>!Object.hasOwn(RELICS,id)))return null;
- if(!Array.isArray(r.visited)||r.visited.length>7)return null;let prev=null;for(const id of r.visited){const n=r.route.find(n=>n.id===id);if(!n||(prev?!prev.next.includes(id):n.row!==0))return null;prev=n;}if(r.current!==(prev?.id??null))return null;
+ if(!Array.isArray(r.visited)||r.visited.length>11)return null;let prev=null;for(const id of r.visited){const n=r.route.find(n=>n.id===id);if(!n||(prev?!prev.next.includes(id):n.row!==0))return null;prev=n;}if(r.current!==(prev?.id??null))return null;
  if(!Array.isArray(r.log)||r.log.some(x=>typeof x!=='string'||x.length>300)||!Array.isArray(r.rewards)||r.rewards.some(x=>!CARDS[x]))return null;
  if(['combat','victory','won','lost'].includes(r.phase)){const b=r.battle;if(!b||!Array.isArray(b.enemies)||!b.enemies.length||b.enemies.some(e=>!int(e.hp,0,e.maxHp)||!Array.isArray(e.moves))||!['draw','hand','discard'].every(k=>Array.isArray(b[k])&&b[k].every(c=>Object.hasOwn(CARDS,c))))return null;if(JSON.stringify([...b.draw,...b.hand,...b.discard].sort())!==JSON.stringify([...r.deck].sort()))return null;if(r.phase==='combat'&&(!r.hp||!b.enemies[b.target]?.hp))return null;}
  if(['shop','chest','mystery'].includes(r.phase)&&!r.room)return null;if(r.phase==='shop'&&(!Array.isArray(r.room.stock)||r.room.stock.some(x=>!int(x.price,0,1000)||!['card','potion','relic'].includes(x.kind)||(x.kind==='card'&&!CARDS[x.id])||(x.kind==='relic'&&!RELICS[x.id]))))return null;
