@@ -296,3 +296,6 @@ img.neutral-card-png{
  .title .gold{min-height:36px;height:36px;padding:5px 28px;font-size:11px;line-height:1}
  .title footer{bottom:6px}
 }
+
+/* v11: compact combat status badges */
+.status-row{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;justify-content:center}.status{display:inline-flex;align-items:center;min-height:18px;padding:2px 6px;border:1px solid #d9b97880;background:#090d14d9;color:#f3dfb1;font:700 8px/1.1 Arial,sans-serif;letter-spacing:.04em;text-transform:uppercase;box-shadow:0 2px 6px #0007}.status-weak,.status-vulnerable,.status-bleed{border-color:#d9897380}.status-barrier{border-color:#82c8df90}.status-stun{border-color:#e7c46c}.enemy-target .status-row{max-width:190px;margin-inline:auto}@media(orientation:landscape) and (max-height:550px){.status-row{margin-top:2px;gap:3px}.status{min-height:15px;padding:1px 4px;font-size:7px}}
