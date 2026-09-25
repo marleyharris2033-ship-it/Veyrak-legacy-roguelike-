@@ -35,7 +35,7 @@ test('siphon only restores enemy Vitality after damaging the player; Weak and pa
 });
 
 test('previous beast update checkpoints retain their saved route and restore old enemy illustrations',()=>{
- const r=E.createRun('PREVIOUS','kaerun',{enemyRoster:1});delete r.enemyRoster;
+ const r=E.createRun('PREVIOUS','kaerun',{enemyRoster:1,beastSystem:1});delete r.enemyRoster;delete r.beastSystem;
  const saved=E.serialise(r),loaded=E.restore(saved);
  assert.ok(loaded);assert.equal(loaded.enemyRoster,1);assert.deepEqual(loaded.route,r.route);assert.ok(E.restore(E.serialise(loaded)));
 });
