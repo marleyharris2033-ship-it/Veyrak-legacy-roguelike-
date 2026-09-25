@@ -307,7 +307,7 @@ img.neutral-card-png{
 /* v13: beast encounters, persistent bestiary and companion controls. */
 .rarity-common{--rarity:#b4c4c2}.rarity-rare{--rarity:#ad9cfa}.rarity-legendary{--rarity:#ffcc66}
 .rarity-badge{display:inline-block;color:var(--rarity);font-size:10px;letter-spacing:.04em;margin-top:4px}
-.beast-node{border-color:var(--rarity)}.beast-node b{color:var(--rarity)}.branch-node small{font-size:8px;line-height:1.2;color:var(--rarity)}
+.beast-node{border-color:var(--rarity,#88d9d0)}.beast-node b{color:var(--rarity,#88d9d0)}.branch-node small{font-size:8px;line-height:1.2;color:var(--rarity)}
 .battle .enemy-target .beast-art{transform:scaleX(-1);object-fit:contain;object-position:center bottom;width:100%;max-width:320px;height:64%;filter:drop-shadow(0 0 5px var(--rarity));pointer-events:none}
 .companion-art{position:absolute;right:0;bottom:0;width:44%;height:40%;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 0 4px var(--rarity));pointer-events:none}
 .beast-actions{display:flex;justify-content:center;align-items:center;gap:8px;flex:1;min-width:0;z-index:30}
