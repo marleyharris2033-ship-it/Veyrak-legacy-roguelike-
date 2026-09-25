@@ -241,3 +241,28 @@
 .art-warcry{background:radial-gradient(circle,#4c321b,#0b111b 70%)}.art-warcry .helm{fill:#b98b4055;stroke:#f2d18e;stroke-width:6}.art-warcry .crest{fill:#edc46e;stroke:#fff0b9}.art-warcry .wave{stroke:#e9b95b;stroke-width:5}
 .art-ancientrelic{background:radial-gradient(circle,#183b36,#07131a 70%)}.art-ancientrelic .relic{fill:#816a3b66;stroke:#e8cf8f;stroke-width:6}.art-ancientrelic .glyph{stroke:#72dabf;stroke-width:5}.art-ancientrelic .gem{fill:#82ead0;stroke:#e7fff8}.art-ancientrelic .runes{stroke:#c0a86c;stroke-width:4}
 .core-count{position:relative}.core-pips{position:absolute;left:4px;right:4px;bottom:-5px;height:4px;display:grid;grid-template-columns:repeat(10,1fr);gap:2px}.core-pips i{display:block;height:3px;border-radius:3px;background:#2b3a4b}.core-pips i.filled{background:#e6bd70;box-shadow:0 0 5px #d8aa50}.core-count>strong small{white-space:nowrap}
+
+/* v7: committed neutral-card PNG artwork */
+img.neutral-card-png{
+ display:block;
+ width:100%;
+ height:auto;
+ max-width:100%;
+ aspect-ratio:auto;
+ object-fit:contain;
+ padding:0;
+ margin:0;
+ border:0;
+ border-radius:0;
+ background:none;
+ box-shadow:none;
+ overflow:visible;
+ color:inherit;
+ container-type:normal;
+ text-align:initial;
+ line-height:normal;
+ pointer-events:none;
+ user-select:none;
+ -webkit-user-drag:none;
+}
+.drag-ghost img.neutral-card-png{width:100%;height:auto}

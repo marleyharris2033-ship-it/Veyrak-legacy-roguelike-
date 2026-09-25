@@ -1,4 +1,4 @@
-import {HEROES,CARDS,MAX_CORE,CORE_REGEN,createRun,enterBattle,playCard,endTurn,advance,intent,restore,serialise,availableNodes,chooseNode,selectTarget,RELICS,resolveRoom,buy,sell,usePotion} from './engine.js?v=6';
+import {HEROES,CARDS,MAX_CORE,CORE_REGEN,createRun,enterBattle,playCard,endTurn,advance,intent,restore,serialise,availableNodes,chooseNode,selectTarget,RELICS,resolveRoom,buy,sell,usePotion} from './engine.js?v=7';
 
 const $=s=>document.querySelector(s),app=$('#app'),modal=$('#modal');
 const keys={run:'veyrak.ascension.run.v4',archive:'veyrak.ascension.archive.v1',settings:'veyrak.ascension.settings.v1'};
@@ -17,31 +17,35 @@ function hero(){return HEROES.find(h=>h.id===(run?.hero||selected));}
 function save(){if(run)write(keys.run,serialise(run));}
 function record(outcome){if(!run||run.recorded)return;history.unshift({seed:run.seed,hero:run.hero,outcome,turns:run.turns,cards:run.cardsPlayed});history=history.slice(0,30);write(keys.archive,JSON.stringify(history));run.recorded=true;save();}
 function persistAction(fn,...args){if(!fn(run,...args))return false;if(run.phase==='won'||run.phase==='lost')record(run.phase);save();return true;}
-function title(){return `<main class="title screen"><div class="title-shade"></div><div class="title-content"><div class="crest">${icon('core')}</div><h1>Veyrak<span>Ascension</span></h1><div class="title-rule"></div><nav aria-label="Main menu">${run&&!['won','lost'].includes(run.phase)?button('Continue ascent','continue'):''}${button('Begin ascent','select')}${button('Archive','archive')}${button('Settings','settings')}</nav></div><footer><span>VEYATHUUN AWAITS</span><span>FIRST ASCENT · v0.6</span></footer></main>`;}
+function title(){return `<main class="title screen"><div class="title-shade"></div><div class="title-content"><div class="crest">${icon('core')}</div><h1>Veyrak<span>Ascension</span></h1><div class="title-rule"></div><nav aria-label="Main menu">${run&&!['won','lost'].includes(run.phase)?button('Continue ascent','continue'):''}${button('Begin ascent','select')}${button('Archive','archive')}${button('Settings','settings')}</nav></div><footer><span>VEYATHUUN AWAITS</span><span>FIRST ASCENT · v0.7</span></footer></main>`;}
 function select(){const h=HEROES.find(x=>x.id===selected);return `<main class="selection screen"><header class="topbar">${button(icon('back')+'<span>Back</span>','title','quiet')}<h1>Choose your Veyrakian</h1><span class="eyebrow council-label">Veyathuun Council</span></header><div class="select-stage"><div class="hero-display"><img class="hero-art" src="assets/${h.id}.png" alt="${h.name}" fetchpriority="high"></div><section class="dossier"><div class="dossier-mark">${icon('core')}</div><p class="eyebrow">Council dossier</p><h2>${h.name}</h2><p class="subtitle">${h.title}</p><div class="gold-rule"></div><div class="traits"><div>${icon(h.id==='kaerun'?'strike':'surge')}<span>${h.weapon}</span></div><div>${icon('guard')}<span>80 Vitality</span></div></div><label class="seed-label" for="seed">Run seed <span>Optional</span></label><input id="seed" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Leave blank for a new ascent"><p class="seed-help">Same seed. Same encounters.</p>${button('Begin ascent','start')}<p class="starter-note">10 starter cards · 10 stages + boss</p></section></div><nav class="hero-roster" aria-label="Choose hero">${HEROES.map(h=>`<button class="hero-choice ${selected===h.id?'selected':''} ${!h.available?'locked':''}" data-action="hero" data-hero="${h.id}" ${h.available?`aria-pressed="${selected===h.id}"`:'aria-disabled="true"'} aria-label="${h.name}${h.available?'':', locked'}"><span class="portrait" style="--portrait-x:${h.portrait}%"></span><span class="hero-name">${h.name}${!h.available?'<small>Locked</small>':''}</span></button>`).join('')}</nav></main>`;}
 function runHeader(label){return `<header class="topbar run-top"><div class="run-brand">Veyrak <span>Ascension</span></div><div class="run-location">${label}<small>SEED ${escape(run.seed)}</small></div>${button(icon('pause')+'<span>Menu</span>','pause','quiet')}</header>`;}
 const nodeNames={battle:'Battle',boss:'Boss',shop:'Shop',chest:'Treasure',mystery:'Mystery',rest:'Sanctuary'};
 const nodeIcons={battle:'⚔',boss:'♛',shop:'¤',chest:'▣',mystery:'?',rest:'✦'};
 function inventoryBar(){return `<div class="inventory-bar"><span>♥ ${run.hp}/${run.maxHp}</span><span>¤ ${run.gold} gold</span>${button(`Deck · ${run.deck.length}`,'cards','quiet')}${button(`Relics · ${run.relics.length}`,'relics','quiet')}${button(`Potion · ${run.potions}`,'potion','quiet',run.potions&&run.hp<run.maxHp?'':'disabled')}${run.blessing?`<span>+${run.blessing} Strength</span>`:''}${run.curse?`<span>Core drain: ${run.curse} turns</span>`:''}</div>`;}
 function map(){const available=availableNodes(run);const pos=n=>({x:60+n.row*110,y:n.type==='boss'?130:45+n.col*85});return `<main class="route screen">${runHeader('Choose your path')}<section class="branch-panel"><div class="map-heading"><h1>The gates of Veyathuun</h1><p>Ten stages, then the Gate Warden. Swipe to explore the route.</p></div>${inventoryBar()}<div class="branch-scroll"><div class="branch-map"><svg viewBox="0 0 1220 270" preserveAspectRatio="none" aria-hidden="true">${run.route.flatMap(n=>n.next.map(id=>{const v=run.route.find(x=>x.id===id),a=pos(n),b=pos(v);return `<path class="${run.visited.includes(n.id)&&run.visited.includes(id)?'travelled':run.current===n.id?'open-path':''}" d="M${a.x} ${a.y} L${b.x} ${b.y}"/>`;})).join('')}</svg>${run.route.map(n=>{const p=pos(n);return `<button class="branch-node ${available.includes(n.id)?'available':''} ${run.visited.includes(n.id)?'visited':''}" style="left:${p.x/12.2}%;top:${p.y/2.7}%" data-action="node" data-id="${n.id}" ${available.includes(n.id)?'':'disabled'} aria-label="Stage ${n.row+1}: ${nodeNames[n.type]}"><b>${run.visited.includes(n.id)?'✓':nodeIcons[n.type]}</b><span>${nodeNames[n.type]}</span></button>`;}).join('')}</div></div><p class="map-legend">⚔ Battle & card reward · ▣ Relic & supplies · ? Risk & reward · ¤ Buy / sell · ✦ Heal</p></section></main>`;}
-function neutralScene(id){
- const scenes={
-  meteor:'<circle cx="168" cy="35" r="3"/><circle cx="40" cy="64" r="2"/><path class="trail" d="M28 20 126 103"/><path class="meteor" d="m130 101 23-9 18 18-10 24-27 3-17-18Z"/><path class="impact" d="m145 142-31 39m43-34 17 34m-39-29-64 12m92-6 45 16"/>',
-  chainlightning:'<path class="bolt" d="M23 54 86 92 65 117 129 139 112 168 192 192"/><path class="bolt thin" d="m90 92 35-37 25 18 30-42"/><circle cx="25" cy="54" r="12"/><circle cx="194" cy="191" r="14"/><circle cx="129" cy="139" r="9"/>',
-  shatterarmour:'<path class="shield" d="M110 27 175 52v58c0 45-28 76-65 96-37-20-65-51-65-96V52Z"/><path class="crack" d="m119 50-17 41 18 18-28 32 12 51m16-83 32-20m-60 52-30 10"/>',
-  lifesiphon:'<circle class="source" cx="55" cy="116" r="30"/><circle class="source target" cx="167" cy="116" r="30"/><path class="siphon" d="M80 107c24-40 50 45 74 1M80 126c24 38 50-44 74-1"/><circle class="orb" cx="111" cy="116" r="10"/>',
-  crystalbarrier:'<path class="crystal" d="m40 183 20-91 28 34 23-96 28 97 29-35 18 91Z"/><path class="facet" d="m60 92 29 91 22-153 28 153 29-91M88 126l23 57 28-56"/>',
-  echocrystal:'<path class="crystal left" d="m72 35 34 64-34 83-34-83Z"/><path class="crystal right" d="m151 35 34 64-34 83-34-83Z"/><path class="echo" d="M105 65c18-14 28-14 47 0M103 140c20 15 31 15 50 0"/>',
-  gravitywell:'<circle class="orbit o1" cx="112" cy="112" r="74"/><circle class="orbit o2" cx="112" cy="112" r="49"/><circle class="well" cx="112" cy="112" r="22"/><path class="debris" d="m25 67 15-5 7 11-10 12Zm154-28 14 5-2 14-16 3Zm8 127 13 8-7 13-16-7Z"/>',
-  finishingblow:'<path class="blade" d="m35 180 119-139 31-11-9 34L56 198Z"/><path class="slash" d="M29 42c62 31 107 79 164 141"/><path class="burst" d="m145 130 52-16m-45 27 45 23m-57-15 12 47"/>',
-  unstablecore:'<circle class="ring" cx="112" cy="112" r="70"/><path class="core" d="m112 43 42 69-42 68-42-68Z"/><path class="fracture" d="m113 44-14 51 18 16-19 31 14 38m5-69 37 1"/><circle class="spark" cx="56" cy="50" r="5"/><circle class="spark" cx="181" cy="78" r="4"/>',
-  vengefulspirit:'<path class="spirit" d="M112 31c-35 0-57 31-57 67 0 26 9 40 18 55l-5 38 25-17 19 23 18-23 26 17-6-38c10-15 19-29 19-55 0-36-22-67-57-67Z"/><path class="eyes" d="m82 99 20 10-23 9Zm60 0-20 10 23 9Z"/>',
-  warcry:'<path class="helm" d="M68 58c20-25 68-25 88 0l15 75-59 58-59-58Z"/><path class="crest" d="m112 27-9 48h18Z"/><path class="wave" d="M33 78c-17 17-17 50 0 67m158-67c17 17 17 50 0 67M16 63c-30 30-30 78 0 98m192-98c30 30 30 78 0 98"/>',
-  ancientrelic:'<path class="relic" d="M78 45h68l-9 30 18 28-10 76H79l-10-76 18-28Z"/><path class="glyph" d="m112 76 24 37-24 38-24-38Z"/><circle class="gem" cx="112" cy="113" r="10"/><path class="runes" d="M63 37h98M55 190h114M92 55l-12-19m52 19 12-19"/>'
- };
- return `<svg class="neutral-scene" viewBox="0 0 224 224" aria-hidden="true"><g>${scenes[id]||''}</g></svg>`;
+const NEUTRAL_CARD_ASSETS={
+ meteor:'meteor_fragment.png',
+ chainlightning:'chain_lightning.png',
+ shatterarmour:'shatter_armour.png',
+ lifesiphon:'life_siphon.png',
+ crystalbarrier:'crystal_barrier.png',
+ echocrystal:'echo_crystal.png',
+ gravitywell:'gravity_well.png',
+ finishingblow:'finishing_blow.png',
+ unstablecore:'unstable_core.png',
+ vengefulspirit:'vengeful_spirit.png',
+ warcry:'war_cry.png',
+ ancientrelic:'ancient_relic.png'
+};
+function cardArt(id,cls=''){
+ const c=CARDS[id],t=c.tile;
+ if(t===undefined){
+  const asset=NEUTRAL_CARD_ASSETS[id];
+  return `<img class="neutral-card neutral-card-png card-${id} ${cls}" src="assets/card-masks/${asset}" alt="${c.name}" draggable="false">`;
+ }
+ return `<span class="sheet-card tile-${t} ${cls}" style="--cx:${t%5};--cy:${Math.floor(t/5)}" role="img" aria-label="${c.name}"></span>`;
 }
-function cardArt(id,cls=''){const c=CARDS[id],t=c.tile;if(t===undefined)return `<span class="neutral-card card-${id} ${c.type} ${cls}" role="img" aria-label="${c.name}"><span class="neutral-header"><b>${c.cost}</b><strong>${c.name}</strong></span><span class="neutral-art art-${id}">${neutralScene(id)}</span><span class="neutral-kind">${c.type}</span><span class="neutral-description">${c.text}</span><span class="neutral-footer">VEYATHUUN · NEUTRAL</span></span>`;return `<span class="sheet-card tile-${t} ${cls}" style="--cx:${t%5};--cy:${Math.floor(t/5)}" role="img" aria-label="${c.name}"></span>`;}
 function cardOffer(id,action,extra=''){const c=CARDS[id];return `<button class="offer-card" data-action="${action}" data-id="${id}" ${extra}>${cardArt(id)}<strong>${c.name}</strong><span>${c.cost} Core · ${c.text}</span></button>`;}
 function room(){const kind=run.phase;let content='';if(kind==='chest'){const t=run.room;content=t.revealed?`<div class="treasure-result ${t.bad?'cursed':'fortunate'}"><p class="eyebrow">${t.bad?'Cursed treasure':'Treasure discovered'}</p><h1>${t.bad?'The vault strikes back':'Fortune favours you'}</h1><p>${escape(t.result)}</p>${!t.bad&&t.relic?`<article class="relic-entry"><b>◆</b><div><strong>${RELICS[t.relic].name}</strong><p>${RELICS[t.relic].text}</p></div></article>`:''}${button('Continue journey','room','gold','data-choice="leave"')}</div>`:`<div class="treasure-result"><p class="eyebrow">A sealed vault</p><h1>The forgotten vault</h1><div class="vault-symbol">◇</div><p>80% chance of a relic, gold and a potion.<br>20% chance of a trap, gold loss or temporary Core drain.</p>${button('Open the chest','room','gold','data-choice="open"')}</div>`;}
 if(kind==='rest')content=`<h1>Sanctuary</h1><p>Rest here to recover 24 Vitality.</p>${button('Rest & continue','room','gold','data-choice="rest"')}`;
