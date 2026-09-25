@@ -280,3 +280,8 @@ img.neutral-card-png{
  object-fit:fill;
 }
 .drag-ghost img.neutral-card-png{height:100%;object-fit:fill}
+
+/* v9: branded title artwork replaces the text/diamond title lockup */
+.title-logo{display:block;width:min(520px,82%);max-height:42vh;object-fit:contain;margin:0 auto -6px;filter:drop-shadow(0 8px 18px #0009)}
+@media(max-width:600px) and (orientation:portrait){.title-logo{width:min(430px,88vw);max-height:31svh;margin-bottom:-4px}.title-rule{margin:10px auto 20px}}
+@media(orientation:landscape) and (max-height:550px){.title-logo{width:min(360px,46vw);max-height:34vh;margin-bottom:-8px}.title-rule{margin:5px auto 10px}}
