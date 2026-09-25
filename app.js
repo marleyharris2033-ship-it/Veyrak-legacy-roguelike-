@@ -36,7 +36,17 @@ const NEUTRAL_CARD_ASSETS={
  unstablecore:'unstable_core.png',
  vengefulspirit:'vengeful_spirit.png',
  warcry:'war_cry.png',
- ancientrelic:'ancient_relic.png'
+ ancientrelic:'ancient_relic.png',
+ sovereignbrand:'sovereign_brand.png',
+ markedforruin:'marked_for_ruin.png',
+ unbrokenguard:'unbroken_guard.png',
+ crushingadvance:'crushing_advance.png',
+ sovereignimpact:'sovereign_impact.png',
+ relentless:'relentless.png',
+ bloodrush:'blood_rush.png',
+ shatterarmourkaerun:'shatter_armour.png',
+ execution:'execution.png',
+ fortressstance:'fortress_stance.png'
 };
 function cardArt(id,cls=''){
  const c=CARDS[id],t=c.tile;
