@@ -9,21 +9,20 @@ function encounter(seed='BEASTS'){
  assert.equal(r.phase,'victory');E.advance(r);assert.ok(E.chooseNode(r,node.id));return r;
 }
 function next(r){r.block=999;E.endTurn(r);}
-test('60% of stages have a single Beast level reachable on every path',()=>{
- const counts={common:0,rare:0,legendary:0},species=new Set(),levels=new Set();let beastRuns=0,emptyRuns=0;
+test('every new stage has one unavoidable Beast level near the boss, with unchanged rarity odds',()=>{
+ const counts={common:0,rare:0,legendary:0},species=new Set(),levels=new Set();
  for(let i=0;i<2000;i++){
   const r=E.createRun('SPAWN'+i);assert.deepEqual(r,E.createRun('SPAWN'+i));const nodes=r.route.filter(n=>n.type==='beast');
-  assert.ok(nodes.length===0||nodes.length===3);
-  if(nodes.length){beastRuns++;const n=nodes[0];assert.ok(n.row>=1&&n.row<=8);assert.ok(nodes.every(x=>x.row===n.row));assert.equal(new Set(nodes.map(x=>x.col)).size,3);levels.add(n.row);species.add(n.enemy.beast);counts[n.enemy.rarity]++;assert.ok(n.next.length);}
-  else emptyRuns++;
+  assert.equal(nodes.length,3);const n=nodes[0];assert.ok(n.row===7||n.row===8);assert.ok(nodes.every(x=>x.row===n.row));assert.equal(new Set(nodes.map(x=>x.col)).size,3);levels.add(n.row);species.add(n.enemy.beast);counts[n.enemy.rarity]++;assert.ok(n.next.length);
  }
- assert.ok(beastRuns>1100&&beastRuns<1300,`beastRuns=${beastRuns}/2000`);
- assert.ok(emptyRuns>700&&emptyRuns<900);assert.equal(levels.size,8);assert.equal(species.size,4);assert.ok(counts.common>counts.rare&&counts.rare>counts.legendary);
+ assert.equal(levels.size,2);assert.equal(species.size,4);assert.ok(counts.common>1200&&counts.common<1400);assert.ok(counts.rare>480&&counts.rare<640);assert.ok(counts.legendary>80&&counts.legendary<200);
+ const later=E.createRun('LATER');later.phase='stage-complete';assert.ok(E.continueStage(later));assert.equal(later.route.filter(n=>n.type==='beast').length,3);
+ const saved=E.createRun('OLDER','kaerun',{beastSystem:3});assert.ok(E.restore(E.serialise(saved)));
 });
 test('new wild beasts are materially tougher even at Common rarity',()=>{
  let e;
  for(let attempt=0;attempt<1000&&!e;attempt++){const r=E.createRun('TOUGH:'+attempt),node=r.route.find(n=>n.type==='beast'&&n.enemy.rarity==='common');if(node)e=node.enemy;}
- assert.ok(e);const base=E.BEASTS[e.beast];assert.ok(e.hp>=Math.round((base.hp+10)*1.35));const attacks=e.moves.filter(m=>m.kind==='attack').map(m=>m.value);assert.ok(attacks.length&&Math.max(...attacks)>=14);
+ assert.ok(e);const base=E.BEASTS[e.beast];assert.ok(e.hp>=Math.round((base.hp+10+7*4)*1.35*1.12));const attacks=e.moves.filter(m=>m.kind==='attack').map(m=>m.value);assert.ok(attacks.length&&Math.max(...attacks)>=18);
 });
 test('capture odds improve with weakening and shard quality; rarity lowers them',()=>{
  const r=encounter(),e=r.battle.enemies[0];
