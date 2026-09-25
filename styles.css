@@ -266,3 +266,17 @@ img.neutral-card-png{
  -webkit-user-drag:none;
 }
 .drag-ghost img.neutral-card-png{width:100%;height:auto}
+
+
+/* v8: neutral card in-game length match — artwork was slightly shorter than legacy cards */
+.battle img.neutral-card-png{
+ width:100%;
+ height:100%;
+ aspect-ratio:307 / 490;
+ object-fit:fill;
+}
+.offer-card>img.neutral-card-png,.shop-stock img.neutral-card-png,.collection-card>img.neutral-card-png,.inspect-card>img.neutral-card-png{
+ aspect-ratio:307 / 490;
+ object-fit:fill;
+}
+.drag-ghost img.neutral-card-png{height:100%;object-fit:fill}
