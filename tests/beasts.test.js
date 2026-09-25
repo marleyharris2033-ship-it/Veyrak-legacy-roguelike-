@@ -10,7 +10,7 @@ function encounter(seed='BEASTS'){
  assert.fail('Could not find a seeded opening beast encounter.');
 }
 function next(r){r.block=999;E.endTurn(r);}
-test('beasts have a 40% seeded chance per stage, never occupy two nodes in one stage, and all variants appear',()=>{
+test('beasts have a 20% seeded chance per stage, never occupy two nodes in one stage, and all variants appear',()=>{
  const counts={common:0,rare:0,legendary:0},species=new Set(),stageHits=Array(10).fill(0);let zeroRuns=0,multiRuns=0;
  for(let i=0;i<1000;i++){
   const r=E.createRun('SPAWN'+i);assert.deepEqual(r,E.createRun('SPAWN'+i));const nodes=r.route.filter(n=>n.type==='beast');
@@ -18,7 +18,7 @@ test('beasts have a 40% seeded chance per stage, never occupy two nodes in one s
   for(let row=0;row<10;row++){const rowNodes=nodes.filter(n=>n.row===row);assert.ok(rowNodes.length<=1);if(rowNodes.length)stageHits[row]++;}
   for(const n of nodes){species.add(n.enemy.beast);counts[n.enemy.rarity]++;assert.ok(n.next.length);}
  }
- assert.equal(species.size,4);for(const hits of stageHits)assert.ok(hits>330&&hits<470,`stage beast rate out of range: ${hits}`);
+ assert.equal(species.size,4);for(const hits of stageHits)assert.ok(hits>150&&hits<260,`stage beast rate out of range: ${hits}`);
  assert.ok(zeroRuns>0&&multiRuns>0);assert.ok(counts.common>counts.rare&&counts.rare>counts.legendary);
 });
 test('new wild beasts are materially tougher even at Common rarity',()=>{
