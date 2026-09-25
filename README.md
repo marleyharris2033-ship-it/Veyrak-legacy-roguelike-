@@ -1,6 +1,6 @@
 # Veyrak: Ascension
 
-A browser roguelike set on Veyathuun. Choose Kaerun or Ilyra, follow ten branching stages and challenge the Gate Warden. Includes draggable cards, treasure, relics, merchants and capturable beast companions.
+A browser roguelike set on Veyathuun. Choose Kaerun or Ilyra, cross the ten branching levels of Stage 1 and challenge the Gate Warden. Includes draggable cards, treasure, relics, merchants and capturable beast companions.
 
 ## Play locally
 
@@ -10,13 +10,13 @@ GitHub Pages publishes from `main` at the repository root. Asset/module paths su
 
 ## First invasion
 
-The first zone (stages 1–4) now uses eight aliens from a single distant ecosystem: Rift Skitter, Mawback, Sable Spore, Gravetusk, Vesperwing, Hollowmaw, Thorncoil and Duskcaller. Each seed offers three different species at stage one. Four smaller species spawn as pairs of distinct invaders; four larger species fight solo with greater health and damage. Any species may appear as a solo elite with the same portrait enlarged by 20%, 40% more health and 25% stronger attacks. Later zones retain their earlier encounters while their own creature sets are developed. Existing saves continue their original seeded route; begin a new ascent to see the invaders.
+Stage 1 is the full ten-level ascent before the Gate Warden. Its enemy pool uses eight aliens from a single distant ecosystem: Rift Skitter, Mawback, Sable Spore, Gravetusk, Vesperwing, Hollowmaw, Thorncoil and Duskcaller. Four smaller species can spawn as pairs of distinct invaders; four larger species fight solo with greater health and damage. Any species may appear as a solo elite with the same portrait enlarged by 20%, 40% more health and 25% stronger attacks. Future stages can introduce different ecosystems and encounter mixes. Existing saves continue their original seeded route; begin a new ascent to use the latest Stage 1 generation.
 
-Unvisited combat nodes are deliberately anonymous on the map: normal battles, elites and wild-beast encounters all appear as **Encounter** until entered. On new ascents, each of the ten pre-boss stages independently has a 20% chance to contain one hidden wild-beast node, with a maximum of one beast node in that stage. Beast rolls replace ordinary battle nodes where possible so shops, treasure, sanctuaries and elites stay available. Beast species are shuffled across a run to reduce immediate repetition. New-system wild beasts have substantially more Vitality and stronger attacks even at Common rarity; capture odds are unchanged.
+Unvisited combat nodes are deliberately anonymous on the map: normal battles, elites and wild-beast encounters all appear as **Encounter** until entered. On new ascents, Stage 1 makes one single 40% Beast roll across all ten pre-boss levels. If the roll succeeds, exactly one ordinary battle node somewhere in those ten levels becomes a hidden wild-beast encounter. If it fails, Stage 1 has no wild Beast encounter. Beast rolls replace ordinary battle nodes where possible so shops, treasure, sanctuaries and elites stay available. Beast species are shuffled across a run to reduce immediate repetition. New-system wild beasts have substantially more Vitality and stronger attacks even at Common rarity; capture odds are unchanged.
 
 ## Beastbound update
 
-- Beast nodes appear at stages 2, 5 and 8 as optional branches. The map reveals rarity and role; the creature is revealed in combat.
+- Beast encounters are hidden among normal encounter nodes. Stage 1 has a 40% chance to contain exactly one Beast encounter somewhere across its ten levels; its identity, rarity and role are only revealed when entered.
 - Rhazek attacks a chosen enemy; Dhoruun grants Block; Vaelith grants Core and boosts the next attack card; Syluun heals at most twice each battle.
 - Each encounter rolls Common (65%), Rare (28%) or Legendary (7%). Rarer beasts have higher health, stronger attacks, better companion abilities and lower capture odds.
 - Each new ascent starts with five Basic Shards. Merchants sell 3 Basic for 18 gold, 2 Refined for 36 gold and 1 Prismatic for 65 gold. Each pack can be purchased once per shop.
