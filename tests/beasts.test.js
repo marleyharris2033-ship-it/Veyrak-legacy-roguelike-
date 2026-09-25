@@ -10,15 +10,15 @@ function encounter(seed='BEASTS'){
 }
 function next(r){r.block=999;E.endTurn(r);}
 test('Stage 1 has a single 40% Beast roll across its ten levels',()=>{
- const counts={common:0,rare:0,legendary:0},species=new Set();let beastRuns=0,emptyRuns=0;
+ const counts={common:0,rare:0,legendary:0},species=new Set(),levels=new Set();let beastRuns=0,emptyRuns=0;
  for(let i=0;i<2000;i++){
   const r=E.createRun('SPAWN'+i);assert.deepEqual(r,E.createRun('SPAWN'+i));const nodes=r.route.filter(n=>n.type==='beast');
   assert.ok(nodes.length<=1);
-  if(nodes.length){beastRuns++;const n=nodes[0];assert.ok(n.row>=0&&n.row<10);species.add(n.enemy.beast);counts[n.enemy.rarity]++;assert.ok(n.next.length);}
+  if(nodes.length){beastRuns++;const n=nodes[0];assert.ok(n.row>=0&&n.row<10);levels.add(n.row);species.add(n.enemy.beast);counts[n.enemy.rarity]++;assert.ok(n.next.length);}
   else emptyRuns++;
  }
  assert.ok(beastRuns>700&&beastRuns<900,`beastRuns=${beastRuns}/2000`);
- assert.ok(emptyRuns>1100&&emptyRuns<1300);assert.equal(species.size,4);assert.ok(counts.common>counts.rare&&counts.rare>counts.legendary);
+ assert.ok(emptyRuns>1100&&emptyRuns<1300);assert.equal(levels.size,10);assert.equal(species.size,4);assert.ok(counts.common>counts.rare&&counts.rare>counts.legendary);
 });
 test('new wild beasts are materially tougher even at Common rarity',()=>{
  let e;
