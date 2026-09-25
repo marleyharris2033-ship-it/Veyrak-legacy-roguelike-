@@ -3,16 +3,28 @@ import assert from 'node:assert/strict';
 import * as E from '../engine.js';
 import {restoreBestiary,addDiscovery} from '../beasts.js';
 function encounter(seed='BEASTS'){
- const r=E.createRun(seed),node=r.route.find(n=>n.type==='beast'),prev=r.route.find(n=>n.row===0&&n.next.includes(node.id));
- E.chooseNode(r,prev.id);r.battle.enemies[0].hp=1;
- for(let i=0;i<10&&r.phase==='combat';i++){const attack=r.battle.hand.findIndex(id=>E.CARDS[id].damage&&E.CARDS[id].cost<=r.core);if(attack>=0)E.playCard(r,attack);else E.endTurn(r);}
- assert.equal(r.phase,'victory');E.advance(r);assert.ok(E.chooseNode(r,node.id));return r;
+ for(let attempt=0;attempt<500;attempt++){
+  const r=E.createRun(seed+':'+attempt),node=r.route.find(n=>n.row===0&&n.type==='beast');
+  if(node){assert.ok(E.chooseNode(r,node.id));return r;}
+ }
+ assert.fail('Could not find a seeded opening beast encounter.');
 }
 function next(r){r.block=999;E.endTurn(r);}
-test('all beasts and rarities spawn deterministically on dedicated nodes',()=>{
- const counts={common:0,rare:0,legendary:0},species=new Set();
- for(let i=0;i<400;i++){const r=E.createRun('SPAWN'+i);assert.deepEqual(r,E.createRun('SPAWN'+i));const nodes=r.route.filter(n=>n.type==='beast');assert.equal(nodes.length,3);for(const n of nodes){species.add(n.enemy.beast);counts[n.enemy.rarity]++;assert.ok(n.next.length);}}
- assert.equal(species.size,4);assert.ok(counts.common>counts.rare&&counts.rare>counts.legendary&&counts.legendary>30);
+test('beasts have a 40% seeded chance per stage, never occupy two nodes in one stage, and all variants appear',()=>{
+ const counts={common:0,rare:0,legendary:0},species=new Set(),stageHits=Array(10).fill(0);let zeroRuns=0,multiRuns=0;
+ for(let i=0;i<1000;i++){
+  const r=E.createRun('SPAWN'+i);assert.deepEqual(r,E.createRun('SPAWN'+i));const nodes=r.route.filter(n=>n.type==='beast');
+  if(nodes.length===0)zeroRuns++;if(nodes.length>1)multiRuns++;
+  for(let row=0;row<10;row++){const rowNodes=nodes.filter(n=>n.row===row);assert.ok(rowNodes.length<=1);if(rowNodes.length)stageHits[row]++;}
+  for(const n of nodes){species.add(n.enemy.beast);counts[n.enemy.rarity]++;assert.ok(n.next.length);}
+ }
+ assert.equal(species.size,4);for(const hits of stageHits)assert.ok(hits>330&&hits<470,`stage beast rate out of range: ${hits}`);
+ assert.ok(zeroRuns>0&&multiRuns>0);assert.ok(counts.common>counts.rare&&counts.rare>counts.legendary);
+});
+test('new wild beasts are materially tougher even at Common rarity',()=>{
+ let r,e;
+ for(let attempt=0;attempt<500;attempt++){r=E.createRun('TOUGH:'+attempt);const node=r.route.find(n=>n.row===0&&n.type==='beast'&&n.enemy.rarity==='common');if(node){E.chooseNode(r,node.id);e=r.battle.enemies[0];break;}}
+ assert.ok(e);const base=E.BEASTS[e.beast];assert.ok(e.maxHp>=Math.round((base.hp+10)*1.35));const attacks=e.moves.filter(m=>m.kind==='attack').map(m=>m.value);assert.ok(attacks.length&&Math.max(...attacks)>=14);
 });
 test('capture odds improve with weakening and shard quality; rarity lowers them',()=>{
  const r=encounter(),e=r.battle.enemies[0];
@@ -48,7 +60,7 @@ test('shops sell shard packs once, require coins and persist remaining stock',()
  const r=E.createRun('SHOP');r.phase='shop';r.room={stock:[{kind:'shard',id:'refined',quantity:2,price:36,sold:false}]};assert.ok(E.buy(r,0));assert.equal(r.gold,24);assert.equal(r.shards.refined,2);assert.equal(E.buy(r,0),false);assert.ok(E.restore(E.serialise(r)));r.room.stock.push({kind:'shard',id:'prismatic',quantity:1,price:65,sold:false});assert.equal(E.buy(r,1),false);
 });
 test('legacy checkpoints retain routes and receive safe beast defaults',()=>{
- const r=E.createRun('LEGACY','kaerun',{legacy:true});for(const key of ['beastRoutes','shards','seenBeasts','capturedBeasts','companion','captureResult'])delete r[key];const loaded=E.restore(E.serialise(r));assert.ok(loaded);assert.deepEqual(loaded.route,r.route);assert.equal(loaded.shards.basic,5);assert.equal(loaded.beastRoutes,false);assert.ok(E.restore(E.serialise(loaded)));
+ const r=E.createRun('LEGACY','kaerun',{legacy:true,beastSystem:1});for(const key of ['beastSystem','beastRoutes','shards','seenBeasts','capturedBeasts','companion','captureResult'])delete r[key];const loaded=E.restore(E.serialise(r));assert.ok(loaded);assert.deepEqual(loaded.route,r.route);assert.equal(loaded.shards.basic,5);assert.equal(loaded.beastRoutes,false);assert.ok(E.restore(E.serialise(loaded)));
 });
 test('bestiary removes corrupt entries, deduplicates variants and locks uncaught selections',()=>{
  const data=restoreBestiary(JSON.stringify({caught:[{id:'rhazek',rarity:'rare'},{id:'rhazek',rarity:'rare'},{id:'evil',rarity:'rare'}],selected:{id:'syluun',rarity:'legendary'}}));assert.equal(data.caught.length,1);assert.equal(data.seen.length,1);assert.equal(data.selected,null);addDiscovery(data.caught,{id:'rhazek',rarity:'legendary'});assert.equal(data.caught.length,2);
