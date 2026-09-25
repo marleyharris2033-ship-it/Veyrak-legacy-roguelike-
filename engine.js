@@ -127,7 +127,7 @@ export function continueStage(r){
 export function availableNodes(r){return r.current?r.route.find(n=>n.id===r.current).next:r.route.filter(n=>n.row===0).map(n=>n.id);}
 function sampleCards(r,n=3){const pool=Object.keys(CARDS).filter(id=>!CARDS[id].kaerun||r.hero==='kaerun');return shuffle(pool,r).slice(0,n);}
 export function chooseNode(r,id){
- if(r.phase!=='map'||!availableNodes(r).includes(id))return false;
+ if(r.phase!=='map'||(!r.debugUnlockAll&&!availableNodes(r).includes(id)))return false;
  const node=r.route.find(n=>n.id===id);r.current=id;r.visited.push(id);r.index=node.row;r.room=null;
  if(['battle','elite','boss','beast'].includes(node.type)){startBattle(r,node);return true;}
  r.phase=node.type;
