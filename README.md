@@ -12,6 +12,8 @@ GitHub Pages publishes from `main` at the repository root. Asset/module paths su
 
 The first zone (stages 1–4) now uses eight aliens from a single distant ecosystem: Rift Skitter, Mawback, Sable Spore, Gravetusk, Vesperwing, Hollowmaw, Thorncoil and Duskcaller. Each seed offers three different species at stage one. Four smaller species spawn as pairs of distinct invaders; four larger species fight solo with greater health and damage. Any species may appear as a solo elite with the same portrait enlarged by 20%, 40% more health and 25% stronger attacks. Later zones retain their earlier encounters while their own creature sets are developed. Existing saves continue their original seeded route; begin a new ascent to see the invaders.
 
+Unvisited combat nodes are deliberately anonymous on the map: normal battles, elites and wild-beast encounters all appear as **Encounter** until entered. On new ascents, each of the ten pre-boss stages independently has a 40% chance to contain one hidden wild-beast node, with a maximum of one beast node in that stage. Beast rolls replace ordinary battle nodes where possible so shops, treasure, sanctuaries and elites stay available. Beast species are shuffled across a run to reduce immediate repetition. New-system wild beasts have substantially more Vitality and stronger attacks even at Common rarity; capture odds are unchanged.
+
 ## Beastbound update
 
 - Beast nodes appear at stages 2, 5 and 8 as optional branches. The map reveals rarity and role; the creature is revealed in combat.
