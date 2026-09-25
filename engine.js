@@ -153,7 +153,7 @@ export function selectTarget(r,i){if(r.phase!=='combat'||!Number.isInteger(i)||!
 function victory(r){
  const b=r.battle;if(!b.enemies.every(e=>e.hp===0))return false;
  const node=r.route.find(n=>n.id===r.current),elite=node.type==='elite',gold=(elite?60:30)+(r.relics.includes('gilded')?10:0);r.gold+=gold;r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;
- if(elite){const relic=randomRelic(r);if(relic)r.relics.push(relic);r.eliteReward=relic;}else r.eliteReward=null;r.phase=node.type==='boss'?'won':'victory';r.rewards=sampleCards(r);log(r,`Victory! Gained ${gold} gold${elite&&r.eliteReward?` and ${RELICS[r.eliteReward].name}`:''}.`);return true;
+ if(elite){const relic=randomRelic(r);if(relic)r.relics.push(relic);r.eliteReward=relic;const shardRoll=random(r);const shard=shardRoll<.2?'prismatic':shardRoll<.7?'refined':'basic';r.shards[shard]++;r.eliteShardReward=shard;}else{r.eliteReward=null;r.eliteShardReward=null;}r.phase=node.type==='boss'?'won':'victory';r.rewards=sampleCards(r);log(r,`Victory! Gained ${gold} gold${elite&&r.eliteReward?` and ${RELICS[r.eliteReward].name}`:''}${elite&&r.eliteShardReward?`, plus 1 ${SHARDS[r.eliteShardReward].name}`:''}.`);return true;
 }
 function hitEnemy(r,e,base,multiplier=1){const b=r.battle,weakMult=b.weak>0?.75:1,vulnMult=e.vulnerable>0?1.5:1,raw=Math.max(0,Math.floor((base+b.strength+(r.relics.includes('hunterlens')&&e.mark>0?2:0))*multiplier*weakMult*vulnMult)),blocked=Math.min(e.block,raw);e.block-=blocked;const damage=Math.min(e.hp,raw-blocked);e.hp-=damage;return damage;}
 export function playCard(r,i){
