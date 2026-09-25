@@ -9,15 +9,30 @@ function encounter(seed='BEASTS'){
  assert.equal(r.phase,'victory');E.advance(r);assert.ok(E.chooseNode(r,node.id));return r;
 }
 function next(r){r.block=999;E.endTurn(r);}
-test('every new stage has one unavoidable Beast level near the boss, with unchanged rarity odds',()=>{
+test('Stage 1 Beast is always Common and every route reaches it near the boss',()=>{
  const counts={common:0,rare:0,legendary:0},species=new Set(),levels=new Set();
  for(let i=0;i<2000;i++){
   const r=E.createRun('SPAWN'+i);assert.deepEqual(r,E.createRun('SPAWN'+i));const nodes=r.route.filter(n=>n.type==='beast');
   assert.equal(nodes.length,3);const n=nodes[0];assert.ok(n.row===7||n.row===8);assert.ok(nodes.every(x=>x.row===n.row));assert.equal(new Set(nodes.map(x=>x.col)).size,3);levels.add(n.row);species.add(n.enemy.beast);counts[n.enemy.rarity]++;assert.ok(n.next.length);
  }
- assert.equal(levels.size,2);assert.equal(species.size,4);assert.ok(counts.common>1200&&counts.common<1400);assert.ok(counts.rare>480&&counts.rare<640);assert.ok(counts.legendary>80&&counts.legendary<200);
+ assert.equal(levels.size,2);assert.equal(species.size,4);assert.deepEqual(counts,{common:2000,rare:0,legendary:0});
  const later=E.createRun('LATER');later.phase='stage-complete';assert.ok(E.continueStage(later));assert.equal(later.route.filter(n=>n.type==='beast').length,3);
  const saved=E.createRun('OLDER','kaerun',{beastSystem:3});assert.ok(E.restore(E.serialise(saved)));
+ const previous=E.createRun('PREVIOUS','kaerun',{beastSystem:4});assert.ok(E.restore(E.serialise(previous)));
+});
+test('Rare and Legendary Beast appearances rise across later stages',()=>{
+ const totals=[];
+ for(const stage of [2,5,10]){
+  const counts={common:0,rare:0,legendary:0};
+  for(let i=0;i<800;i++){
+   const r=E.createRun('RARITY:'+i);r.stage=stage-1;r.phase='stage-complete';assert.ok(E.continueStage(r));const node=r.route.find(n=>n.type==='beast');counts[node.enemy.rarity]++;
+  }
+  totals.push(counts);
+ }
+ assert.equal(totals[0].legendary,0);assert.ok(totals[0].rare>60&&totals[0].rare<135);
+ assert.ok(totals[1].rare>totals[0].rare&&totals[2].rare>totals[1].rare);
+ assert.ok(totals[1].legendary>0&&totals[2].legendary>totals[1].legendary);
+ assert.ok(totals[2].common<totals[1].common);
 });
 test('new wild beasts are materially tougher even at Common rarity',()=>{
  let e;

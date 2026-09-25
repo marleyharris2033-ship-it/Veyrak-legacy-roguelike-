@@ -1,4 +1,4 @@
-import {HEROES,CARDS,MAX_CORE,CORE_REGEN,createRun,continueStage,enterBattle,playCard,endTurn,advance,intent,restore,serialise,availableNodes,chooseNode,selectTarget,RELICS,resolveRoom,buy,sell,usePotion,INVADERS,BEASTS,RARITIES,SHARDS,captureChance,captureBeast,companionReady,useCompanion,equipCompanion} from './engine.js?v=22';
+import {HEROES,CARDS,MAX_CORE,CORE_REGEN,createRun,continueStage,enterBattle,playCard,endTurn,advance,intent,restore,serialise,availableNodes,chooseNode,selectTarget,RELICS,resolveRoom,buy,sell,usePotion,INVADERS,BEASTS,RARITIES,SHARDS,captureChance,captureBeast,companionReady,useCompanion,equipCompanion} from './engine.js?v=23';
 import {validBeast,beastKey,addDiscovery,companionDescription,restoreBestiary} from './beasts.js?v=13';
 
 const $=s=>document.querySelector(s),app=$('#app'),modal=$('#modal');
