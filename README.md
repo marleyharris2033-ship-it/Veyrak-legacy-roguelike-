@@ -8,6 +8,10 @@ Run `npm start`, then open `http://localhost:4173`. Python 3 and Node 20+ are us
 
 GitHub Pages publishes from `main` at the repository root. Asset/module paths support the repository subpath.
 
+## First invasion
+
+The first zone (stages 1–4) now uses eight aliens from a single distant ecosystem: Rift Skitter, Mawback, Sable Spore, Gravetusk, Vesperwing, Hollowmaw, Thorncoil and Duskcaller. Each seed offers three different species at stage one. Four smaller species spawn as pairs of distinct invaders; four larger species fight solo with greater health and damage. Any species may appear as a solo elite with the same portrait enlarged by 20%, 40% more health and 25% stronger attacks. Later zones retain their earlier encounters while their own creature sets are developed. Existing saves continue their original seeded route; begin a new ascent to see the invaders.
+
 ## Beastbound update
 
 - Beast nodes appear at stages 2, 5 and 8 as optional branches. The map reveals rarity and role; the creature is revealed in combat.
