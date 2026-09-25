@@ -361,3 +361,20 @@ img.neutral-card-png{
 .story-controls{display:flex;gap:10px;flex-wrap:wrap;margin-top:17px}.story-controls button{min-width:130px}
 @media(orientation:portrait){.story-art{object-position:center top}.story-vignette{background:linear-gradient(180deg,#0408109c 0%,transparent 38%,#040810ec 70%)}.story-caption{margin:10vh 4vw max(18px,env(safe-area-inset-bottom));padding:17px 18px}.story-controls{gap:7px}.story-controls button{flex:1;min-width:95px;font-size:11px;padding-inline:8px}.story-top{font-size:9px;padding-inline:18px}}
 @media(orientation:landscape) and (max-height:600px){.story{height:100dvh;min-height:0}.story-top{padding-top:10px;font-size:9px}.story-caption{margin:0 3vw max(8px,env(safe-area-inset-bottom));padding:10px 16px;max-width:min(650px,68vw)}.story-caption h1{font-size:24px;margin:3px 0 5px}.story-caption p{font-size:11px;line-height:1.35}.story-controls{margin-top:7px}.story-controls button{min-height:32px;padding:5px 15px;font-size:10px}}
+
+/* Ilyra's illustrated starter cards keep live, accurately rendered labels. */
+.ilyra-card{position:relative;display:block;width:100%;aspect-ratio:2/3;container-type:inline-size;color:#fff2da;filter:drop-shadow(0 4px 7px #0009);pointer-events:none;user-select:none}
+.ilyra-card>img{display:block;width:100%;height:100%;object-fit:fill;pointer-events:none}
+.ilyra-card .ilyra-cost,.ilyra-card .ilyra-name,.ilyra-card .ilyra-type,.ilyra-card .ilyra-effect{position:absolute;display:flex;align-items:center;justify-content:center;text-align:center;margin:0;padding:0;line-height:1.08;text-shadow:0 1px 3px #000;letter-spacing:0;max-width:none}
+.ilyra-card .ilyra-cost{left:3%;top:7%;width:26%;height:19%;font:700 19cqw Georgia,serif}
+.ilyra-card .ilyra-name{left:32%;top:8%;width:60%;height:12%;font:700 7.6cqw Georgia,serif;text-transform:uppercase;white-space:normal}
+.ilyra-card .ilyra-type{left:29%;top:64.5%;width:42%;height:7%;font:700 7cqw Georgia,serif;text-transform:uppercase;font-style:normal}
+.ilyra-card .ilyra-effect{left:17%;top:74%;width:66%;height:16%;font:6.8cqw/1.12 Georgia,serif;overflow:hidden}
+.unaffordable .ilyra-card{filter:brightness(.65)}
+.offer-card>.ilyra-card,.shop-stock .ilyra-card,.collection-card .ilyra-card,.inspect-card .ilyra-card{width:100%;height:auto}
+.offer-card .ilyra-card .ilyra-effect,.shop-stock .ilyra-card .ilyra-effect,.collection-card .ilyra-card .ilyra-effect,.inspect-card .ilyra-card .ilyra-effect{font-size:6.8cqw;line-height:1.12;color:#fff2da}
+.drag-ghost .ilyra-card{width:100%;height:auto}
+.resonance-meter{display:block;width:max-content;margin:5px 0 0;padding:4px 8px;background:#26163bcf;border:1px solid #9b76cd;color:#e0c8ff;font-size:10px;letter-spacing:.03em}
+.resonance-meter b{font-size:13px;letter-spacing:.12em;margin-left:4px;color:#c79bff}
+.ilyra-playstyle{font-size:11px;line-height:1.4;color:#ddc3ff;margin:8px 0 0}
+@media(orientation:landscape) and (max-height:600px){.resonance-meter{font-size:8px;margin-top:2px;padding:2px 5px}.resonance-meter b{font-size:10px}.selection .ilyra-playstyle{display:none}}
