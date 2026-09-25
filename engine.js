@@ -42,7 +42,17 @@ export const CARDS={
  unstablecore:{name:'Unstable Core',cost:0,coreGain:1,coreDebt:1,type:'skill',sigil:'◈',text:'Gain 1 Core now. Have 1 less Core next turn.'},
  vengefulspirit:{name:'Vengeful Spirit',cost:1,damage:5,revengeDamage:12,type:'attack',sigil:'◉',text:'Deal 5 damage, or 12 if you lost Vitality during the previous enemy turn.'},
  warcry:{name:'War Cry',cost:1,power:2,type:'skill',sigil:'✹',text:'Gain 2 Strength for the rest of the battle.'},
- ancientrelic:{name:'Ancient Relic',cost:1,fortune:true,type:'skill',sigil:'⚱',text:'Randomly gain 10 Block, gain 2 Core, or draw 3 cards.'}
+ ancientrelic:{name:'Ancient Relic',cost:1,fortune:true,type:'skill',sigil:'⚱',text:'Randomly gain 10 Block, gain 2 Core, or draw 3 cards.'},
+ sovereignbrand:{name:'Sovereign Brand',cost:1,damage:5,mark:2,type:'attack',kaerun:true,text:'Deal 5 damage. Apply 2 Mark to target.'},
+ markedforruin:{name:'Marked for Ruin',cost:1,requiresMark:true,vulnerable:2,type:'skill',kaerun:true,text:'If the target is Marked, apply 2 Vulnerable.'},
+ unbrokenguard:{name:'Unbroken Guard',cost:1,block:7,markedBonusBlock:4,type:'defence',kaerun:true,text:'Gain 7 Block. If the target is Marked, gain 4 additional Block.'},
+ crushingadvance:{name:'Crushing Advance',cost:2,damage:10,blockComboDamage:16,blockComboVulnerable:2,type:'attack',kaerun:true,text:'Deal 10 damage. If you have 10 or more Block, deal 16 damage and apply 2 Vulnerable.'},
+ sovereignimpact:{name:'Sovereign Impact',cost:3,damage:18,consumeMarkDamage:4,exhaust:true,type:'attack',kaerun:true,text:'Deal 18 damage. Consume all Mark and deal +4 damage per Mark consumed. Exhaust.'},
+ relentless:{name:'Relentless',cost:1,relentless:true,type:'skill',kaerun:true,text:'If you attack a Marked enemy this turn, draw 1 card.'},
+ bloodrush:{name:'Blood Rush',cost:1,strength:2,bloodRush:true,type:'skill',kaerun:true,text:'Gain 2 Strength this turn. If you defeat an enemy this turn, gain 1 Core.'},
+ shatterarmourkaerun:{name:'Shatter Armour',cost:2,damage:8,removeBlock:2,vulnerable:2,type:'attack',kaerun:true,text:'Deal 8 damage. Remove 2 Block from target. Apply 2 Vulnerable.'},
+ execution:{name:'Execution',cost:2,damage:14,executeBonus:10,type:'attack',kaerun:true,text:'Deal 14 damage. If target is below 50% Health, deal an additional 10 damage.'},
+ fortressstance:{name:'Fortress Stance',cost:1,block:10,strength:1,type:'defence',kaerun:true,text:'Gain 10 Block. Gain 1 Strength this turn.'}
 };
 export const STARTER=['strike','strike','strike','strike','guard','guard','guard','guard','targetbreaker','gauntletsmash'];
 export const RELICS={
@@ -75,7 +85,7 @@ export function createRun(seed,hero='kaerun'){
  return {version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80,maxHp:80,block:0,core:0,index:0,route,current:null,visited:[],deck:[...STARTER],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
 }
 export function availableNodes(r){return r.current?r.route.find(n=>n.id===r.current).next:r.route.filter(n=>n.row===0).map(n=>n.id);}
-function sampleCards(r,n=3){return shuffle(Object.keys(CARDS),r).slice(0,n);}
+function sampleCards(r,n=3){const pool=Object.keys(CARDS).filter(id=>!CARDS[id].kaerun||r.hero==='kaerun');return shuffle(pool,r).slice(0,n);}
 export function chooseNode(r,id){
  if(r.phase!=='map'||!availableNodes(r).includes(id))return false;
  const node=r.route.find(n=>n.id===id);r.current=id;r.visited.push(id);r.index=node.row;r.room=null;
@@ -90,7 +100,7 @@ export function enterBattle(r){const id=availableNodes(r).find(id=>['battle','bo
 function startBattle(r,node){
  const enemies=[structuredClone(node.enemy)];if([3,6,8].includes(node.row)&&node.type==='battle'&&node.col===1){const add=structuredClone(ENEMIES[0]);add.hp=16+node.row;enemies.push(add);}
  const es=enemies.map(e=>({...e,maxHp:e.hp,block:0,move:Math.floor(random(r)*e.moves.length),mark:0,weak:0,vulnerable:0,bleed:0,strength:0,stunned:false}));
- r.phase='combat';r.battle={enemies:es,target:0,draw:shuffle(r.deck,r),hand:[],discard:[],exhaust:[],retained:[],turn:0,strength:0,power:0,weak:0,vulnerable:0,bleed:0,barrier:0,stunned:false,echo:false,weaken:0,drawPenalty:0,coreDebt:0,hurtLastTurn:false,firstAttack:true,wardUsed:false};r.log=[`${node.enemy.name} bars your path.`];startTurn(r);if(r.relics.includes('aegis'))r.block+=5;
+ r.phase='combat';r.battle={enemies:es,target:0,draw:shuffle(r.deck,r),hand:[],discard:[],exhaust:[],retained:[],turn:0,strength:0,power:0,relentless:0,bloodRush:false,weak:0,vulnerable:0,bleed:0,barrier:0,stunned:false,echo:false,weaken:0,drawPenalty:0,coreDebt:0,hurtLastTurn:false,firstAttack:true,wardUsed:false};r.log=[`${node.enemy.name} bars your path.`];startTurn(r);if(r.relics.includes('aegis'))r.block+=5;
 }
 function draw(r,n){const b=r.battle;for(let i=0;i<n;i++){if(!b.draw.length){b.draw=shuffle(b.discard,r);b.discard=[];}if(!b.draw.length)break;b.hand.push(b.draw.pop());}}
 function startTurn(r){
@@ -118,19 +128,21 @@ export function playCard(r,i){
  if(r.phase!=='combat'||!Number.isInteger(i)||i<0)return false;
  const b=r.battle,id=b.hand[i],c=CARDS[id],selected=b.enemies[b.target];if(!c||c.cost>r.core||!selected?.hp)return false;
  r.core-=c.cost;r.cardsPlayed++;b.hand.splice(i,1);
- if(c.coreGain)r.core=Math.min(MAX_CORE,r.core+c.coreGain);if(c.block)r.block+=c.block;if(c.strength)b.strength+=c.strength;if(c.mark)selected.mark+=c.mark;
+ if(c.coreGain)r.core=Math.min(MAX_CORE,r.core+c.coreGain);if(c.block)r.block+=c.block;if(c.markedBonusBlock&&selected.mark>0)r.block+=c.markedBonusBlock;if(c.strength)b.strength+=c.strength;if(c.mark)selected.mark+=c.mark;
  if(c.drawPenalty)b.drawPenalty=(b.drawPenalty||0)+c.drawPenalty;if(c.coreDebt)b.coreDebt=(b.coreDebt||0)+c.coreDebt;
- if(c.power){b.power=(b.power||0)+c.power;b.strength+=c.power;}if(c.echo)b.echo=true;if(c.weaken)b.weaken=(b.weaken||0)+c.weaken;
+ if(c.power){b.power=(b.power||0)+c.power;b.strength+=c.power;}if(c.echo)b.echo=true;if(c.weaken)b.weaken=(b.weaken||0)+c.weaken;if(c.relentless)b.relentless=(b.relentless||0)+1;if(c.bloodRush)b.bloodRush=true;
  let detail='';if(c.fortune){const roll=Math.floor(random(r)*3);if(roll===0){r.block+=10;detail='Gained 10 Block.';}else if(roll===1){r.core=Math.min(MAX_CORE,r.core+2);detail='Gained 2 Core.';}else{draw(r,3);detail='Drew 3 cards.';}}
+ if(c.requiresMark&&selected.mark<=0){b.discard.push(id);log(r,`${c.name}: target must be Marked.`);return true;}
  if(c.damage){
-  const repetitions=b.echo?2:1;b.echo=false;const firstBonus=b.firstAttack&&r.relics.includes('emberstone')?3:0;b.firstAttack=false;
+  const markedBefore=selected.mark>0,selectedAliveBefore=selected.hp>0,repetitions=b.echo?2:1;b.echo=false;const firstBonus=b.firstAttack&&r.relics.includes('emberstone')?3:0;b.firstAttack=false;
   for(let n=0;n<repetitions;n++){
    const living=b.enemies.filter(e=>e.hp>0);if(!living.length)break;const target=c.randomTarget?living[Math.floor(random(r)*living.length)]:selected;if(!target?.hp&&!c.all&&!c.splash)break;
    for(const e of c.all?living:c.splash?living:[target]){
-    let base=c.splash&&e!==target?c.splash:c.damage;if(c.markedDamage&&e.mark>0)base=c.markedDamage;if(c.executeDamage&&e.hp<=e.maxHp/2)base=c.executeDamage;if(c.revengeDamage&&b.hurtLastTurn)base=c.revengeDamage;if(c.shatter)e.block=0;
+    let base=c.splash&&e!==target?c.splash:c.damage;if(c.blockComboDamage&&r.block>=10)base=c.blockComboDamage;if(c.executeBonus&&e.hp<e.maxHp/2)base+=c.executeBonus;if(c.consumeMarkDamage&&e===target){base+=c.consumeMarkDamage*(e.mark||0);e.mark=0;}if(c.removeBlock)e.block=Math.max(0,e.block-c.removeBlock);if(c.markedDamage&&e.mark>0)base=c.markedDamage;if(c.executeDamage&&e.hp<=e.maxHp/2)base=c.executeDamage;if(c.revengeDamage&&b.hurtLastTurn)base=c.revengeDamage;if(c.shatter)e.block=0;
     const damage=hitEnemy(r,e,base+firstBonus);if(c.siphon&&damage>0)r.hp=Math.min(r.maxHp,r.hp+c.siphon);if(c.stun&&r.block>=10)e.stunned=true;
    }
   }
+  if(c.blockComboVulnerable&&r.block>=10)selected.vulnerable=(selected.vulnerable||0)+c.blockComboVulnerable;if(markedBefore&&b.relentless>0){draw(r,b.relentless);b.relentless=0;}if(selectedAliveBefore&&!selected.hp&&b.bloodRush){r.core=Math.min(MAX_CORE,r.core+1);b.bloodRush=false;}
  }
  if(c.weak)selected.weak=(selected.weak||0)+c.weak;if(c.vulnerable)selected.vulnerable=(selected.vulnerable||0)+c.vulnerable;if(c.bleed)selected.bleed=(selected.bleed||0)+c.bleed;if(c.barrier)b.barrier=(b.barrier||0)+c.barrier;if(c.retain)b.retained.push(id);else if(c.exhaust)b.exhaust.push(id);else b.discard.push(id);log(r,`${c.name}: ${detail||c.text}`);if(!selected.hp)b.target=b.enemies.findIndex(e=>e.hp>0);victory(r);return true;
 }
@@ -167,6 +179,6 @@ export function restore(raw){try{
  if(!Array.isArray(r.log)||r.log.some(x=>typeof x!=='string'||x.length>300)||!Array.isArray(r.rewards)||r.rewards.some(x=>!CARDS[x]))return null;
  if(['combat','victory','won','lost'].includes(r.phase)){const b=r.battle;if(!b||!Array.isArray(b.enemies)||!b.enemies.length||b.enemies.some(e=>!int(e.hp,0,e.maxHp)||!Array.isArray(e.moves))||!['draw','hand','discard'].every(k=>Array.isArray(b[k])&&b[k].every(c=>Object.hasOwn(CARDS,c))))return null;b.exhaust??=[];b.retained??=[];if(JSON.stringify([...b.draw,...b.hand,...b.discard,...b.exhaust,...b.retained].sort())!==JSON.stringify([...r.deck].sort()))return null;if(r.phase==='combat'&&(!r.hp||!b.enemies[b.target]?.hp))return null;}
  if(['shop','chest','mystery'].includes(r.phase)&&!r.room)return null;if(r.phase==='shop'&&(!Array.isArray(r.room.stock)||r.room.stock.some(x=>!int(x.price,0,1000)||!['card','potion','relic'].includes(x.kind)||(x.kind==='card'&&!CARDS[x.id])||(x.kind==='relic'&&!RELICS[x.id]))))return null;
- if(r.battle){const b=r.battle;b.exhaust??=[];b.retained??=[];b.weak??=0;b.vulnerable??=0;b.bleed??=0;b.barrier??=0;b.stunned??=false;b.enemies.forEach(e=>{e.weak??=0;e.vulnerable??=0;e.bleed??=0;e.strength??=0;});b.power??=0;b.echo??=false;b.weaken??=0;b.drawPenalty??=0;b.coreDebt??=0;b.hurtLastTurn??=false;b.firstAttack??=false;b.wardUsed??=false;}
+ if(r.battle){const b=r.battle;b.exhaust??=[];b.retained??=[];b.relentless??=0;b.bloodRush??=false;b.weak??=0;b.vulnerable??=0;b.bleed??=0;b.barrier??=0;b.stunned??=false;b.enemies.forEach(e=>{e.weak??=0;e.vulnerable??=0;e.bleed??=0;e.strength??=0;});b.power??=0;b.echo??=false;b.weaken??=0;b.drawPenalty??=0;b.coreDebt??=0;b.hurtLastTurn??=false;b.firstAttack??=false;b.wardUsed??=false;}
  return r;
  }catch{return null;}}
