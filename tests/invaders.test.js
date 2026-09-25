@@ -44,7 +44,7 @@ test('small invaders spawn as two different species, large invaders and elites f
  let pairs=0,solos=0;
  for(let i=0;i<70;i++){
   const r=E.createRun('SIZE'+i),elite=r.route.find(n=>n.type==='elite');assert.ok(ids.has(elite.enemy.id));assert.equal(elite.pack,undefined);
-  for(const node of r.route.filter(n=>n.row<=3&&n.type==='battle')){
+  for(const node of r.route.filter(n=>n.row<10&&n.type==='battle')){
    if(node.enemy.size==='small'){pairs++;assert.ok(node.pack);assert.notEqual(node.enemy.id,node.pack.id);assert.equal(node.pack.size,'small');}
    else{solos++;assert.equal(node.enemy.size,'large');assert.equal(node.pack,undefined);}
   }
