@@ -40,3 +40,7 @@ Ilyra uses her own ten-card staff deck: three Arc Bolts, three Crystal Guards, t
 - `tests/`: combat, replay, routing, legacy saves, capture economy, rarity distribution and companion-limit checks.
 
 Run `npm test`. All saves are local to this browser/device; clearing browser storage removes them. The run key remains `veyrak.ascension.run.v4` for compatibility. The permanent collection uses `veyrak.ascension.bestiary.v1`.
+
+## Kaerun combat identity
+
+Kaerun fights with gauntlets and Mark. Target Breaker applies Mark, Gauntlet Smash hits Marked targets harder, and his first attack against a Marked enemy each turn grants 3 Block through Gauntlet Pressure. Mark loses 1 after each enemy action, so his class rewards can extend the setup, defend while pressing forward, or spend Mark on Sovereign Impact. The combat HUD shows whether Gauntlet Pressure is ready.

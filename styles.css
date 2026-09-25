@@ -376,5 +376,7 @@ img.neutral-card-png{
 .drag-ghost .ilyra-card{width:100%;height:auto}
 .resonance-meter{display:block;width:max-content;margin:5px 0 0;padding:4px 8px;background:#26163bcf;border:1px solid #9b76cd;color:#e0c8ff;font-size:10px;letter-spacing:.03em}
 .resonance-meter b{font-size:13px;letter-spacing:.12em;margin-left:4px;color:#c79bff}
-.ilyra-playstyle{font-size:11px;line-height:1.4;color:#ddc3ff;margin:8px 0 0}
-@media(orientation:landscape) and (max-height:600px){.resonance-meter{font-size:8px;margin-top:2px;padding:2px 5px}.resonance-meter b{font-size:10px}.selection .ilyra-playstyle{display:none}}
+.hero-playstyle{font-size:11px;line-height:1.4;color:#f0d5aa;margin:8px 0 0}
+@media(orientation:landscape) and (max-height:600px){.resonance-meter{font-size:8px;margin-top:2px;padding:2px 5px}.resonance-meter b{font-size:10px}.selection .hero-playstyle{display:none}}
+
+.pressure-meter{display:block;width:max-content;margin:5px 0 0;padding:4px 8px;background:#382819df;border:1px solid #cba366;color:#f8dcaa;font-size:10px;letter-spacing:.03em}.pressure-meter b{margin-left:5px;color:#ffe6a9}.pressure-meter.spent{opacity:.65}@media(orientation:landscape) and (max-height:600px){.pressure-meter{font-size:8px;margin-top:2px;padding:2px 5px}}
