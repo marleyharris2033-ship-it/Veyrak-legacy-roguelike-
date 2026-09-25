@@ -1,3 +1,5 @@
+import {BEASTS,RARITIES,SHARDS,validBeast,beastKey,addDiscovery} from './beasts.js?v=13';
+export {BEASTS,RARITIES,SHARDS} from './beasts.js?v=13';
 export const VERSION=4;
 export const MAX_CORE=10;
 export const CORE_REGEN=3;
@@ -79,35 +81,37 @@ function treasureRoom(r,node){
  return {bad:false,relic:pool.length?pool[Math.floor(random(rng)*pool.length)]:null,gold:25+Math.floor(random(rng)*21),revealed:false};
 }
 function randomRelic(r){const pool=Object.keys(RELICS).filter(id=>!r.relics.includes(id));return pool.length?pool[Math.floor(random(r)*pool.length)]:null;}
-export function createRun(seed,hero='kaerun'){
+export function createRun(seed,hero='kaerun',options={}){
  if(!HEROES.some(h=>h.id===hero&&h.available))throw Error('This hero is locked.');
  seed=normaliseSeed(seed);const state={rng:hash(seed+':route')};
  const route=[];const layouts=[['battle','battle','battle'],['battle','mystery','chest'],['shop','battle','mystery'],['battle','elite','battle'],['mystery','battle','chest'],['rest','shop','battle'],['battle','elite','battle'],['chest','mystery','battle'],['battle','elite','battle'],['rest','shop','mystery'],['boss']];
- layouts.forEach((types,row)=>{const ordered=shuffle(types,state);ordered.forEach((type,col)=>{const id=`${row}-${col}`;let enemy=structuredClone(type==='boss'?BOSS:type==='elite'?ELITES[Math.floor(random(state)*ELITES.length)]:ENEMIES[Math.floor(random(state)*4)]);if(!['boss','elite'].includes(type)){enemy.hp+=4+row*3;enemy.moves=enemy.moves.map(m=>({...m,value:m.kind==='attack'?m.value+1+Math.floor(row/3):m.value}));}enemy.boss=type==='boss';route.push({id,row,col,type,enemy,next:[]});});});
+ if(!options.legacy){layouts[1]=['battle','beast','chest'];layouts[4]=['mystery','beast','battle'];layouts[7]=['chest','beast','battle'];}
+ layouts.forEach((types,row)=>{const ordered=shuffle(types,state);ordered.forEach((type,col)=>{const id=`${row}-${col}`;let enemy=structuredClone(type==='boss'?BOSS:type==='elite'?ELITES[Math.floor(random(state)*ELITES.length)]:ENEMIES[Math.floor(random(state)*4)]);if(!['boss','elite'].includes(type)){enemy.hp+=4+row*3;enemy.moves=enemy.moves.map(m=>({...m,value:m.kind==='attack'?m.value+1+Math.floor(row/3):m.value}));}if(type==='beast')enemy=createBeastEnemy(seed,id,row);enemy.boss=type==='boss';route.push({id,row,col,type,enemy,next:[]});});});
  for(const n of route)n.next=route.filter(v=>v.row===n.row+1&&(v.type==='boss'||Math.abs(v.col-n.col)<=1)).map(v=>v.id);
- return {version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80,maxHp:80,block:0,core:0,index:0,route,current:null,visited:[],deck:[...STARTER],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
+ return {beastRoutes:!options.legacy,shards:{basic:5,refined:0,prismatic:0},seenBeasts:[],capturedBeasts:[],companion:validBeast(options.companion)?{id:options.companion.id,rarity:options.companion.rarity}:null,captureResult:null,version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80,maxHp:80,block:0,core:0,index:0,route,current:null,visited:[],deck:[...STARTER],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
 }
 export function availableNodes(r){return r.current?r.route.find(n=>n.id===r.current).next:r.route.filter(n=>n.row===0).map(n=>n.id);}
 function sampleCards(r,n=3){const pool=Object.keys(CARDS).filter(id=>!CARDS[id].kaerun||r.hero==='kaerun');return shuffle(pool,r).slice(0,n);}
 export function chooseNode(r,id){
  if(r.phase!=='map'||!availableNodes(r).includes(id))return false;
  const node=r.route.find(n=>n.id===id);r.current=id;r.visited.push(id);r.index=node.row;r.room=null;
- if(['battle','elite','boss'].includes(node.type)){startBattle(r,node);return true;}
+ if(['battle','elite','boss','beast'].includes(node.type)){startBattle(r,node);return true;}
  r.phase=node.type;
  if(node.type==='chest')r.room=treasureRoom(r,node);
  if(node.type==='mystery')r.room={kind:['cache','shrine','rift'][Math.floor(random(r)*3)],cards:sampleCards(r)};
- if(node.type==='shop')r.room={stock:sampleCards(r).map(id=>({kind:'card',id,price:35+CARDS[id].cost*10,sold:false})).concat([{kind:'potion',price:25,sold:false},{kind:'relic',id:randomRelic(r),price:85,sold:false}]).filter(x=>x.kind!=='relic'||x.id)};
+ if(node.type==='shop')r.room={stock:sampleCards(r).map(id=>({kind:'card',id,price:35+CARDS[id].cost*10,sold:false})).concat([{kind:'potion',price:25,sold:false},{kind:'relic',id:randomRelic(r),price:85,sold:false},...Object.entries(SHARDS).map(([id,s])=>({kind:'shard',id,price:s.price,quantity:s.quantity,sold:false}))]).filter(x=>x.kind!=='relic'||x.id)};
  return true;
 }
 export function enterBattle(r){const id=availableNodes(r).find(id=>['battle','elite','boss'].includes(r.route.find(n=>n.id===id).type));return id?chooseNode(r,id):false;}
 function startBattle(r,node){
+ r.captureResult=null;if(node.enemy.beast)addDiscovery(r.seenBeasts,{id:node.enemy.beast,rarity:node.enemy.rarity});
  const enemies=[structuredClone(node.enemy)];if([3,6,8].includes(node.row)&&node.type==='battle'&&node.col===1){const add=structuredClone(ENEMIES[0]);add.hp=16+node.row;enemies.push(add);}
  const es=enemies.map(e=>({...e,maxHp:e.hp,block:0,move:Math.floor(random(r)*e.moves.length),mark:0,weak:0,vulnerable:0,bleed:0,strength:0,stunned:false}));
- r.phase='combat';r.battle={enemies:es,target:0,draw:shuffle(r.deck,r),hand:[],discard:[],exhaust:[],retained:[],turn:0,strength:0,power:0,relentless:0,bloodRush:false,weak:0,vulnerable:0,bleed:0,barrier:0,stunned:false,echo:false,weaken:0,drawPenalty:0,coreDebt:0,hurtLastTurn:false,firstAttack:true,wardUsed:false};r.log=[`${node.enemy.name} bars your path.`];startTurn(r);if(r.relics.includes('aegis'))r.block+=5;
+ r.phase='combat';r.battle={enemies:es,target:0,draw:shuffle(r.deck,r),hand:[],discard:[],exhaust:[],retained:[],turn:0,strength:0,power:0,relentless:0,bloodRush:false,weak:0,vulnerable:0,bleed:0,barrier:0,stunned:false,echo:false,weaken:0,drawPenalty:0,coreDebt:0,hurtLastTurn:false,firstAttack:true,wardUsed:false,companionCooldown:0,companionUses:0,companionBoost:0};r.log=[`${node.enemy.name} bars your path.`];startTurn(r);if(r.relics.includes('aegis'))r.block+=5;
 }
 function draw(r,n){const b=r.battle;for(let i=0;i<n;i++){if(!b.draw.length){b.draw=shuffle(b.discard,r);b.discard=[];}if(!b.draw.length)break;b.hand.push(b.draw.pop());}}
 function startTurn(r){
- const b=r.battle;r.block=b.barrier||0;b.barrier=0;if(b.bleed>0){r.hp=Math.max(0,r.hp-b.bleed);b.bleed=Math.max(0,b.bleed-1);}if(!r.hp){r.phase='lost';r.core=0;return;}if(b.retained?.length){b.hand.push(...b.retained);b.retained=[];}r.core=Math.min(MAX_CORE,(r.core||0)+CORE_REGEN);b.strength=(r.relics.includes('fist')?1:0)+r.blessing+(b.power||0);b.echo=false;b.weaken=0;b.turn++;r.turns++;
+ const b=r.battle;b.companionCooldown=Math.max(0,(b.companionCooldown||0)-1);b.companionBoost=0;r.block=b.barrier||0;b.barrier=0;if(b.bleed>0){r.hp=Math.max(0,r.hp-b.bleed);b.bleed=Math.max(0,b.bleed-1);}if(!r.hp){r.phase='lost';r.core=0;return;}if(b.retained?.length){b.hand.push(...b.retained);b.retained=[];}r.core=Math.min(MAX_CORE,(r.core||0)+CORE_REGEN);b.strength=(r.relics.includes('fist')?1:0)+r.blessing+(b.power||0);b.echo=false;b.weaken=0;b.turn++;r.turns++;
  let count=Math.max(0,5-(b.drawPenalty||0));b.drawPenalty=0;
  if(b.turn===1){if(r.relics.includes('wayfarer'))count++;if(r.relics.includes('coreprism'))r.core=Math.min(MAX_CORE,r.core+1);}
  if(r.relics.includes('hourglass')&&b.turn%3===0)r.block+=3;
@@ -117,7 +121,7 @@ function startTurn(r){
 }
 export function intent(r,index=r.battle?.target??0){
  const e=r.battle?.enemies[index];if(!e)return null;if(e.stunned)return {kind:'stun',value:0};
- const m=e.moves[e.move%e.moves.length];return m.kind==='attack'?{...m,value:Math.max(0,Math.floor((m.value+(e.strength||0)-(r.battle.weaken||0))*(e.weak>0?.75:1)*(r.battle.vulnerable>0?1.5:1)))}:m;
+ const m=e.moves[e.move%e.moves.length];if(m.kind==='heal'&&(e.healUses||0)>=2)return {kind:'charge',value:0};return m.kind==='attack'?{...m,value:Math.max(0,Math.floor((m.value+(e.strength||0)-(r.battle.weaken||0))*(e.weak>0?.75:1)*(r.battle.vulnerable>0?1.5:1)))}:m;
 }
 function log(r,text){r.log=[...r.log.slice(-5),text];}
 export function selectTarget(r,i){if(r.phase!=='combat'||!Number.isInteger(i)||!r.battle.enemies[i]?.hp)return false;r.battle.target=i;return true;}
@@ -126,7 +130,7 @@ function victory(r){
  const node=r.route.find(n=>n.id===r.current),elite=node.type==='elite',gold=(elite?60:30)+(r.relics.includes('gilded')?10:0);r.gold+=gold;r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;
  if(elite){const relic=randomRelic(r);if(relic)r.relics.push(relic);r.eliteReward=relic;}else r.eliteReward=null;r.phase=node.type==='boss'?'won':'victory';r.rewards=sampleCards(r);log(r,`Victory! Gained ${gold} gold${elite&&r.eliteReward?` and ${RELICS[r.eliteReward].name}`:''}.`);return true;
 }
-function hitEnemy(r,e,base){const b=r.battle,weakMult=b.weak>0?.75:1,vulnMult=e.vulnerable>0?1.5:1,raw=Math.max(0,Math.floor((base+b.strength+(r.relics.includes('hunterlens')&&e.mark>0?2:0))*weakMult*vulnMult)),blocked=Math.min(e.block,raw);e.block-=blocked;const damage=Math.min(e.hp,raw-blocked);e.hp-=damage;return damage;}
+function hitEnemy(r,e,base,multiplier=1){const b=r.battle,weakMult=b.weak>0?.75:1,vulnMult=e.vulnerable>0?1.5:1,raw=Math.max(0,Math.floor((base+b.strength+(r.relics.includes('hunterlens')&&e.mark>0?2:0))*multiplier*weakMult*vulnMult)),blocked=Math.min(e.block,raw);e.block-=blocked;const damage=Math.min(e.hp,raw-blocked);e.hp-=damage;return damage;}
 export function playCard(r,i){
  if(r.phase!=='combat'||!Number.isInteger(i)||i<0)return false;
  const b=r.battle,id=b.hand[i],c=CARDS[id],selected=b.enemies[b.target];if(!c||c.cost>r.core||!selected?.hp||c.requiresMark&&selected.mark<=0)return false;
@@ -136,12 +140,13 @@ export function playCard(r,i){
  if(c.power){b.power=(b.power||0)+c.power;b.strength+=c.power;}if(c.echo)b.echo=true;if(c.weaken)b.weaken=(b.weaken||0)+c.weaken;if(c.relentless)b.relentless=(b.relentless||0)+1;if(c.bloodRush)b.bloodRush=true;
  let detail='';if(c.fortune){const roll=Math.floor(random(r)*3);if(roll===0){r.block+=10;detail='Gained 10 Block.';}else if(roll===1){r.core=Math.min(MAX_CORE,r.core+2);detail='Gained 2 Core.';}else{draw(r,3);detail='Drew 3 cards.';}}
  if(c.damage){
+  const companionMultiplier=1+(b.companionBoost||0)/100;b.companionBoost=0;
   const markedBefore=selected.mark>0,selectedAliveBefore=selected.hp>0,repetitions=b.echo?2:1;b.echo=false;const firstBonus=b.firstAttack&&r.relics.includes('emberstone')?3:0;b.firstAttack=false;
   for(let n=0;n<repetitions;n++){
    const living=b.enemies.filter(e=>e.hp>0);if(!living.length)break;const target=c.randomTarget?living[Math.floor(random(r)*living.length)]:selected;if(!target?.hp&&!c.all&&!c.splash)break;
    for(const e of c.all?living:c.splash?living:[target]){
     let base=c.splash&&e!==target?c.splash:c.damage;if(c.blockComboDamage&&r.block>=10)base=c.blockComboDamage;if(c.executeBonus&&e.hp<e.maxHp/2)base+=c.executeBonus;if(c.consumeMarkDamage&&e===target){base+=c.consumeMarkDamage*(e.mark||0);e.mark=0;}if(c.removeBlock)e.block=Math.max(0,e.block-c.removeBlock);if(c.markedDamage&&e.mark>0)base=c.markedDamage;if(c.executeDamage&&e.hp<=e.maxHp/2)base=c.executeDamage;if(c.revengeDamage&&b.hurtLastTurn)base=c.revengeDamage;if(c.shatter)e.block=0;
-    const damage=hitEnemy(r,e,base+firstBonus);if(c.siphon&&damage>0)r.hp=Math.min(r.maxHp,r.hp+c.siphon);if(c.stun&&r.block>=10)e.stunned=true;
+    const damage=hitEnemy(r,e,base+firstBonus,companionMultiplier);if(c.siphon&&damage>0)r.hp=Math.min(r.maxHp,r.hp+c.siphon);if(c.stun&&r.block>=10)e.stunned=true;
    }
   }
   if(c.mark)selected.mark+=c.mark;if(c.blockComboVulnerable&&r.block>=10)selected.vulnerable=(selected.vulnerable||0)+c.blockComboVulnerable;if(markedBefore&&b.relentless>0){draw(r,b.relentless);b.relentless=0;}if(selectedAliveBefore&&!selected.hp&&b.bloodRush){r.core=Math.min(MAX_CORE,r.core+1);b.bloodRush=false;}
@@ -153,7 +158,7 @@ export function endTurn(r){
  for(const e of b.enemies.filter(e=>e.hp>0)){
   e.block=0;if(e.bleed>0){e.hp=Math.max(0,e.hp-e.bleed);e.bleed=Math.max(0,e.bleed-1);if(!e.hp)continue;}if(e.stunned){e.stunned=false;continue;}const m=e.moves[e.move%e.moves.length];
   if(m.kind==='attack'){const incoming=Math.max(0,Math.floor((m.value+(e.strength||0)-(b.weaken||0))*(e.weak>0?.75:1)*(b.vulnerable>0?1.5:1))),blocked=Math.min(r.block,incoming);r.block-=blocked;let damage=incoming-blocked;if(damage>0&&r.relics.includes('wardstone')&&!b.wardUsed){damage=Math.max(0,damage-3);b.wardUsed=true;}if(damage>0)b.hurtLastTurn=true;r.hp=Math.max(0,r.hp-damage);if(r.relics.includes('thorncrown')){const thornBlocked=Math.min(e.block,2);e.block-=thornBlocked;e.hp=Math.max(0,e.hp-2+thornBlocked);}}
-  if(m.kind==='guard')e.block=m.value;e.move=(e.move+1)%e.moves.length;e.mark=Math.max(0,e.mark-1);e.weak=Math.max(0,(e.weak||0)-1);e.vulnerable=Math.max(0,(e.vulnerable||0)-1);if(!r.hp){r.phase='lost';r.core=0;return true;}
+  if(m.kind==='empower')e.strength=(e.strength||0)+m.value;if(m.kind==='heal'&&(e.healUses||0)<2){e.hp=Math.min(e.maxHp,e.hp+m.value);e.healUses=(e.healUses||0)+1;}if(m.kind==='guard')e.block=m.value;e.move=(e.move+1)%e.moves.length;e.mark=Math.max(0,e.mark-1);e.weak=Math.max(0,(e.weak||0)-1);e.vulnerable=Math.max(0,(e.vulnerable||0)-1);if(!r.hp){r.phase='lost';r.core=0;return true;}
  }
  b.weak=Math.max(0,(b.weak||0)-1);b.vulnerable=Math.max(0,(b.vulnerable||0)-1);if(victory(r))return true;if(!b.enemies[b.target]?.hp)b.target=b.enemies.findIndex(e=>e.hp>0);startTurn(r);log(r,'Your turn. Choose a card.');return true;
 }
@@ -168,7 +173,7 @@ export function resolveRoom(r,choice){
  if(r.phase==='rest'&&choice==='rest'){r.hp=Math.min(r.maxHp,r.hp+24);return leave(r);}if(r.phase==='shop'&&choice==='leave')return leave(r);if(r.phase!=='mystery')return false;if(choice==='leave')return leave(r);
  if(r.room.kind==='cache'&&r.room.cards.includes(choice)){r.deck.push(choice);return leave(r);}if(r.room.kind==='shrine'&&choice==='accept'&&r.hp>8){r.hp-=8;r.blessing++;return leave(r);}if(r.room.kind==='rift'&&choice==='accept'){r.deck.push(r.room.cards[0]);r.gold+=45;r.curse+=2;return leave(r);}return false;
 }
-export function buy(r,i){if(r.phase!=='shop'||!Number.isInteger(i))return false;const x=r.room.stock[i];if(!x||x.sold||r.gold<x.price)return false;r.gold-=x.price;x.sold=true;if(x.kind==='card')r.deck.push(x.id);if(x.kind==='potion')r.potions++;if(x.kind==='relic')r.relics.push(x.id);return true;}
+export function buy(r,i){if(r.phase!=='shop'||!Number.isInteger(i))return false;const x=r.room.stock[i];if(!x||x.sold||r.gold<x.price)return false;r.gold-=x.price;x.sold=true;if(x.kind==='card')r.deck.push(x.id);if(x.kind==='potion')r.potions++;if(x.kind==='shard')r.shards[x.id]+=x.quantity;if(x.kind==='relic')r.relics.push(x.id);return true;}
 export function sell(r,kind,i){if(r.phase!=='shop')return false;if(kind==='potion'&&r.potions>0){r.potions--;r.gold+=12;return true;}if(kind==='card'&&Number.isInteger(i)&&r.deck[i]&&r.deck.length>5){r.deck.splice(i,1);r.gold+=10;return true;}return false;}
 export function usePotion(r){if(!['combat','map'].includes(r.phase)||r.potions<1||r.hp>=r.maxHp)return false;r.potions--;r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('moonchalice')?28:20));return true;}
 export function serialise(r){return JSON.stringify(r);}
@@ -176,11 +181,56 @@ export function restore(raw){try{
  const r=JSON.parse(raw),int=(x,min,max)=>Number.isInteger(x)&&x>=min&&x<=max;
  if(!r||r.version!==VERSION||typeof r.seed!=='string'||r.seed!==normaliseSeed(r.seed)||!HEROES.some(h=>h.id===r.hero&&h.available))return null;
  if(!['map','combat','victory','won','lost','shop','chest','mystery','rest'].includes(r.phase)||!int(r.rng,0,4294967295)||!int(r.hp,0,80)||r.maxHp!==80||!int(r.gold,0,100000)||!int(r.potions,0,1000)||!int(r.core,0,MAX_CORE)||!int(r.block,0,999)||!int(r.blessing,0,20)||!int(r.curse,0,20))return null;
- if(JSON.stringify(r.route)!==JSON.stringify(createRun(r.seed,r.hero).route)||!Array.isArray(r.deck)||r.deck.length<5||r.deck.length>100||r.deck.some(c=>!Object.hasOwn(CARDS,c))||!Array.isArray(r.relics)||r.relics.some(id=>!Object.hasOwn(RELICS,id)))return null;
+ if(JSON.stringify(r.route)!==JSON.stringify(createRun(r.seed,r.hero,{legacy:!r.beastRoutes}).route)||!Array.isArray(r.deck)||r.deck.length<5||r.deck.length>100||r.deck.some(c=>!Object.hasOwn(CARDS,c))||!Array.isArray(r.relics)||r.relics.some(id=>!Object.hasOwn(RELICS,id)))return null;
  if(!Array.isArray(r.visited)||r.visited.length>11)return null;let prev=null;for(const id of r.visited){const n=r.route.find(n=>n.id===id);if(!n||(prev?!prev.next.includes(id):n.row!==0))return null;prev=n;}if(r.current!==(prev?.id??null))return null;
  if(!Array.isArray(r.log)||r.log.some(x=>typeof x!=='string'||x.length>300)||!Array.isArray(r.rewards)||r.rewards.some(x=>!CARDS[x]))return null;
  if(['combat','victory','won','lost'].includes(r.phase)){const b=r.battle;if(!b||!Array.isArray(b.enemies)||!b.enemies.length||b.enemies.some(e=>!int(e.hp,0,e.maxHp)||!Array.isArray(e.moves))||!['draw','hand','discard'].every(k=>Array.isArray(b[k])&&b[k].every(c=>Object.hasOwn(CARDS,c))))return null;b.exhaust??=[];b.retained??=[];if(JSON.stringify([...b.draw,...b.hand,...b.discard,...b.exhaust,...b.retained].sort())!==JSON.stringify([...r.deck].sort()))return null;if(r.phase==='combat'&&(!r.hp||!b.enemies[b.target]?.hp))return null;}
- if(['shop','chest','mystery'].includes(r.phase)&&!r.room)return null;if(r.phase==='shop'&&(!Array.isArray(r.room.stock)||r.room.stock.some(x=>!int(x.price,0,1000)||!['card','potion','relic'].includes(x.kind)||(x.kind==='card'&&!CARDS[x.id])||(x.kind==='relic'&&!RELICS[x.id]))))return null;
+ if(['shop','chest','mystery'].includes(r.phase)&&!r.room)return null;if(r.phase==='shop'&&(!Array.isArray(r.room.stock)||r.room.stock.some(x=>!int(x.price,0,1000)||!['card','potion','relic','shard'].includes(x.kind)||(x.kind==='card'&&!CARDS[x.id])||(x.kind==='relic'&&!RELICS[x.id])||(x.kind==='shard'&&(!Object.hasOwn(SHARDS,x.id)||x.quantity!==SHARDS[x.id].quantity)))))return null;
  if(r.battle){const b=r.battle;b.exhaust??=[];b.retained??=[];b.relentless??=0;b.bloodRush??=false;b.weak??=0;b.vulnerable??=0;b.bleed??=0;b.barrier??=0;b.stunned??=false;b.enemies.forEach(e=>{e.weak??=0;e.vulnerable??=0;e.bleed??=0;e.strength??=0;});b.power??=0;b.echo??=false;b.weaken??=0;b.drawPenalty??=0;b.coreDebt??=0;b.hurtLastTurn??=false;b.firstAttack??=false;b.wardUsed??=false;}
+ r.shards??={basic:5,refined:0,prismatic:0};r.seenBeasts??=[];r.capturedBeasts??=[];r.companion??=null;r.captureResult??=null;r.beastRoutes??=false;
+ if(!Object.keys(SHARDS).every(id=>int(r.shards[id],0,1000))||![r.seenBeasts,r.capturedBeasts].every(a=>Array.isArray(a)&&a.length<=12&&a.every(validBeast))||(r.companion!==null&&!validBeast(r.companion)))return null;
+ if(r.battle){const b=r.battle;b.companionCooldown??=0;b.companionUses??=0;b.companionBoost??=0;if(!int(b.companionCooldown,0,4)||!int(b.companionUses,0,10000)||![0,25,40,50].includes(b.companionBoost))return null;
+ for(const e of b.enemies)if(e.beast&&(!validBeast({id:e.beast,rarity:e.rarity})||!int(e.healUses||0,0,2)))return null;}
  return r;
  }catch{return null;}}
+
+// Use an independent seeded stream so ordinary encounters retain their established randomness.
+function createBeastEnemy(seed,nodeId,row){
+ const state={rng:hash(seed+':beast:'+nodeId)},ids=Object.keys(BEASTS),id=ids[Math.floor(random(state)*ids.length)],roll=random(state)*100;
+ const rarity=roll<65?'common':roll<93?'rare':'legendary',b=BEASTS[id],s=RARITIES[rarity];
+ return {id,beast:id,rarity,name:b.name,hp:Math.round((b.hp+row*3)*s.hp),colour:b.colour,healUses:0,moves:b.moves.map(m=>({...m,value:Math.round((m.value+(m.kind==='attack'?Math.floor(row/3):0))*(m.kind==='attack'?s.attack:m.kind==='heal'?s.heal/6:1))}))};
+}
+export function captureChance(r,shard='basic',index=r.battle?.target??0){
+ const e=r.battle?.enemies[index];if(r.phase!=='combat'||!e?.hp||!e.beast||!Object.hasOwn(SHARDS,shard)||!Object.hasOwn(RARITIES,e.rarity))return 0;
+ const s=RARITIES[e.rarity],weakening=Math.min(1,Math.max(0,(1-e.hp/e.maxHp)/.75));
+ return Math.round(Math.min(.9,(s.floor+(s.capture-s.floor)*weakening)*SHARDS[shard].multiplier)*100);
+}
+export function captureBeast(r,shard='basic'){
+ const chance=captureChance(r,shard);if(!chance||r.core<1||!(r.shards?.[shard]>0))return false;
+ const e=r.battle.enemies[r.battle.target];r.core--;r.shards[shard]--;
+ const caught=random(r)*100<chance;
+ r.captureResult={id:e.beast,rarity:e.rarity,caught,chance};
+ if(caught){const companion={id:e.beast,rarity:e.rarity};addDiscovery(r.capturedBeasts,companion);if(!r.companion)r.companion={...companion};e.hp=0;e.captured=true;victory(r);log(r,`${RARITIES[e.rarity].name} ${e.name} captured! Added to your bestiary.`);}
+ else{e.strength=(e.strength||0)+2;log(r,`${e.name} broke free! The shard is spent. Rage: +2 attack damage.`);}
+ return true;
+}
+export function companionReady(r){return r.phase==='combat'&&validBeast(r.companion)&&!r.battle.companionCooldown&&(r.companion.id!=='syluun'||r.battle.companionUses<2&&r.hp<r.maxHp);}
+export function useCompanion(r){
+ if(!companionReady(r))return false;
+ const {id,rarity}=r.companion,b=r.battle,s=RARITIES[rarity],target=b.enemies[b.target];
+ if(id==='rhazek'){
+  if(!target?.hp)return false;
+  // Companion attacks are independent of the hero's Strength and next-card bonuses.
+  const damage=Math.floor(s.damage*(target.vulnerable>0?1.5:1)),blocked=Math.min(target.block,damage);target.block-=blocked;target.hp=Math.max(0,target.hp-damage+blocked);
+  if(!target.hp)b.target=b.enemies.findIndex(e=>e.hp>0);
+ }
+ if(id==='dhoruun')r.block+=s.block;
+ if(id==='vaelith'){r.core=Math.min(MAX_CORE,r.core+s.energy);b.companionBoost=s.boost;}
+ if(id==='syluun')r.hp=Math.min(r.maxHp,r.hp+s.heal);
+ b.companionCooldown=BEASTS[id].cooldown;b.companionUses++;log(r,`${BEASTS[id].name} used ${BEASTS[id].ability}.`);victory(r);return true;
+}
+export function equipCompanion(r,companion,collection){
+ if(!['map','victory','shop','rest','chest','mystery'].includes(r.phase))return false;
+ if(companion!==null&&(!validBeast(companion)||!collection.some(x=>validBeast(x)&&beastKey(x)===beastKey(companion))))return false;
+ r.companion=companion?{id:companion.id,rarity:companion.rarity}:null;return true;
+}

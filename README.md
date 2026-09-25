@@ -1,33 +1,32 @@
 # Veyrak: Ascension
 
-Stage-one playable foundation. A static browser game with the approved Veyathuun title and Council selection artwork, real responsive controls, and a short deterministic combat run.
+A browser roguelike set on Veyathuun. Choose Kaerun or Ilyra, follow ten branching stages and challenge the Gate Warden. Includes draggable cards, treasure, relics, merchants and capturable beast companions.
 
 ## Play locally
 
-Run `npm start` (Python 3 required), then open `http://localhost:4173`. No build step or third-party JavaScript dependencies. Serve over HTTP rather than opening `index.html` directly, because the game uses JavaScript modules.
+Run `npm start`, then open `http://localhost:4173`. Python 3 and Node 20+ are used for local serving and tests. No build step or third-party game dependencies. Serve over HTTP because the game uses JavaScript modules.
 
-For GitHub Pages, select **Settings → Pages → Deploy from a branch → main → /(root)**. All asset and module paths are relative and support the repository subpath.
+GitHub Pages publishes from `main` at the repository root. Asset/module paths support the repository subpath.
 
-## This stage
+## Beastbound update
 
-- Usable title menu, selection, archive, settings and pause dialog.
-- Kaerun and Ilyra available; four other heroes visibly locked.
-- Optional 32-character seed. Same seed and decisions reproduce enemy order, draws, and outcomes.
-- Five linear encounters: four varied crystal guardians and a Gate Warden boss.
-- Shared starter deck: five Strikes, four Guards and one Core surge. Draw five; three Core per turn; discard and reshuffle.
-- Visible enemy intentions, Block, health, victory/defeat and an end-of-run summary.
-- Browser-local autosave after every action; exact mid-battle resumption including RNG state and all piles.
-- Archive of the last 30 ended runs, sound and reduced-motion settings.
-- Responsive landscape and portrait layouts with keyboard-focusable controls and labelled health meters.
+- Beast nodes appear at stages 2, 5 and 8 as optional branches. The map reveals rarity and role; the creature is revealed in combat.
+- Rhazek attacks a chosen enemy; Dhoruun grants Block; Vaelith grants Core and boosts the next attack card; Syluun heals at most twice each battle.
+- Each encounter rolls Common (65%), Rare (28%) or Legendary (7%). Rarer beasts have higher health, stronger attacks, better companion abilities and lower capture odds.
+- Each new ascent starts with five Basic Shards. Merchants sell 3 Basic for 18 gold, 2 Refined for 36 gold and 1 Prismatic for 65 gold. Each pack can be purchased once per shop.
+- Capture costs one Core and one shard. Odds increase down to 25% beast health. At that threshold Basic odds are 65% / 35% / 15% by rarity. Refined multiplies odds by 1.55; Prismatic by 2.3; all odds cap at 90%. The exact rounded chance is shown and used by the seeded roll.
+- Failure gives the beast +2 Strength. Catching ends the encounter and awards its normal gold/card reward. Defeating a beast also earns the normal reward, but does not unlock it.
+- Caught variants remain in the device-local bestiary, including after defeat or abandoning a run. Select one to start a new ascent, or swap between encounters. Swapping during combat is disabled. Duplicate catches do not create duplicate entries.
+- Companion abilities are free, manual and have three-turn cooldowns (four for Vaelith). Cooldowns and uses reset at the next battle. Support's attack bonus expires at the end of the turn. Enemy artwork is horizontally mirrored to face the player; companions face enemies.
+- Old v4 checkpoints preserve their existing routes; **start a new ascent for beast nodes**. Existing saves receive default shard/companion fields on restore.
 
-Stage two adds distinct hero mechanics, signature skills and hero-specific cards. The current two heroes intentionally share combat rules. Stage three adds branching events, rewards, relics and upgrades. Capture, companions and progression unlocks are not implemented in this stage. The current five encounters have no healing or rewards between battles.
+## Code and verification
 
-## Code
+- `engine.js`: DOM-free seeded gameplay and checkpoint validation.
+- `beasts.js`: shared species, rarity, shard and bestiary definitions.
+- `app.js`: menus, combat controls, autosave, bestiary and effects.
+- `styles.css`: portrait/landscape layouts.
+- `assets/beasts/`: the four approved creature illustrations, reused across rarity variants with UI rarity colours.
+- `tests/`: combat, replay, routing, legacy saves, capture economy, rarity distribution and companion-limit checks.
 
-- `engine.js`: DOM-free deterministic state machine and save validation.
-- `app.js`: menu flow, accessible DOM controls, autosave, archive and effects.
-- `styles.css`: responsive layout and visual styling.
-- `assets/`: generated artwork derived from approved concepts and supplied character references. The approved selection sheet is displayed through CSS for the roster thumbnails; controls remain actual HTML buttons.
-- `tests/engine.test.js`: deterministic replay, checkpoint restoration, action rules, damage, terminal states, corrupt saves and a 30-seed playthrough sample.
-
-Run `npm test` with Node 20+. Save keys are namespaced and versioned (`veyrak.ascension.*.v1`) to avoid touching Veyrak: Legacy saves. Saves are local to each browser/device; clearing browser data removes them. This is a prototype foundation, not a content-complete release.
+Run `npm test`. All saves are local to this browser/device; clearing browser storage removes them. The run key remains `veyrak.ascension.run.v4` for compatibility. The permanent collection uses `veyrak.ascension.bestiary.v1`.
