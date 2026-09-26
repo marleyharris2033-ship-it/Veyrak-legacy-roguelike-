@@ -488,3 +488,16 @@ img.neutral-card-png{
 .portrait{background-size:850% auto!important;background-position:var(--portrait-x) 76.5%!important}
 @media(min-width:1000px) and (max-height:800px){.portrait{background-size:850% auto!important;background-position:var(--portrait-x) 76.5%!important}}
 @media(max-width:600px) and (orientation:portrait){.portrait{background-size:850% auto!important;background-position:var(--portrait-x) 76.5%!important}}
+
+/* v40: character roster cards use portrait proportions instead of shallow crops. */
+.hero-roster{align-items:end}
+.hero-choice{min-width:0}
+.hero-choice .portrait{aspect-ratio:1/1.05!important;background-size:983.529% auto!important;background-position:var(--portrait-x) 80%!important}
+@media(orientation:landscape) and (max-height:600px){
+ .selection .hero-roster{align-items:end}
+ .selection .hero-choice .portrait{aspect-ratio:1/1.05!important;background-size:983.529% auto!important;background-position:var(--portrait-x) 80%!important}
+ .selection .hero-name{padding:4px 2px!important;font-size:9px!important}
+}
+@media(orientation:portrait){
+ .hero-choice .portrait{aspect-ratio:1/1.05!important;background-size:983.529% auto!important;background-position:var(--portrait-x) 80%!important}
+}
