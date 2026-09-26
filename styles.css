@@ -505,3 +505,12 @@ img.neutral-card-png{
 /* v42: each stage can own one persistent combat backdrop. */
 .battle{background-size:cover;background-position:center;background-repeat:no-repeat}
 .battle.stage-1{background-image:linear-gradient(rgba(3,8,16,.32),rgba(2,6,13,.52)),url('assets/story/stage1.jpg')}
+
+/* v44: keep hero mechanic meters in the HUD, clear of character faces. */
+.battle .fighter.player .fighter-info{z-index:6}
+.battle .fighter.player .pressure-meter{position:relative!important;z-index:7;margin-top:3px!important}
+@media(orientation:landscape) and (max-height:600px){
+ .battle .fighter.player .fighter-info{position:absolute;top:4px;left:4px;right:auto;width:min(280px,32vw);z-index:8}
+ .battle .fighter.player .pressure-meter{margin-top:2px!important}
+ .battle .fighter.player .combat-hero{z-index:2}
+}
