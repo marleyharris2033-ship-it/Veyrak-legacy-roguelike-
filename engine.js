@@ -99,6 +99,27 @@ export const CARDS={
  ricochet:{name:'Ricochet',cost:1,damage:5,splash:3,type:'attack',modernArt:'ricochet',text:'Deal 5 damage to target and 3 to all other enemies.'},
  sundering:{name:'Sundering',cost:2,damage:9,vulnerable:2,type:'attack',modernArt:'sunder',text:'Deal 9 damage. Apply 2 Vulnerable to target.'}
 };
+export const CARD_UPGRADES={
+ strike:'strike_up',guard:'guard_up',targetbreaker:'targetbreaker_up',gauntletsmash:'gauntletsmash_up',
+ arcbolt:'arcbolt_up',crystalguard:'crystalguard_up',corespark:'corespark_up',resonantstrike:'resonantstrike_up',prismward:'prismward_up'
+};
+Object.assign(CARDS,{
+ strike_up:{...CARDS.strike,name:'Strike+',damage:9,text:'Deal 9 damage.',upgradeOf:'strike'},
+ guard_up:{...CARDS.guard,name:'Guard+',block:9,text:'Gain 9 Block this turn.',upgradeOf:'guard'},
+ targetbreaker_up:{...CARDS.targetbreaker,name:'Target Breaker+',mark:4,text:'Apply 4 Mark to target.',upgradeOf:'targetbreaker'},
+ gauntletsmash_up:{...CARDS.gauntletsmash,name:'Gauntlet Smash+',damage:15,markedDamage:22,text:'Deal 15 damage. If the target is Marked, deal 22 instead.',upgradeOf:'gauntletsmash'},
+ arcbolt_up:{...CARDS.arcbolt,name:'Arc Bolt+',damage:8,text:'Deal 8 damage. Gain 1 Resonance.',upgradeOf:'arcbolt'},
+ crystalguard_up:{...CARDS.crystalguard,name:'Crystal Guard+',block:9,text:'Gain 9 Block. Gain 1 Resonance.',upgradeOf:'crystalguard'},
+ corespark_up:{...CARDS.corespark,name:'Core Spark+',resonanceGain:2,text:'Gain 1 Core and 2 Resonance.',upgradeOf:'corespark'},
+ resonantstrike_up:{...CARDS.resonantstrike,name:'Resonant Strike+',damage:12,resonanceDamage:4,text:'Deal 12 damage, plus 4 per Resonance. Spend all Resonance.',upgradeOf:'resonantstrike'},
+ prismward_up:{...CARDS.prismward,name:'Prism Ward+',block:9,resonanceBarrier:3,text:'Gain 9 Block. Gain 3 next-turn Barrier per Resonance spent.',upgradeOf:'prismward'}
+});
+export function upgradeCard(r,i){
+ if(r.phase!=='rest'||!Number.isInteger(i)||i<0||i>=r.deck.length)return false;
+ const next=CARD_UPGRADES[r.deck[i]];if(!next)return false;
+ r.deck[i]=next;return leave(r);
+}
+
 export const STARTER=['strike','strike','strike','strike','guard','guard','guard','guard','targetbreaker','gauntletsmash'];
 export const ILYRA_STARTER=['arcbolt','arcbolt','arcbolt','crystalguard','crystalguard','crystalguard','corespark','corespark','resonantstrike','prismward'];
 export const RELICS={
