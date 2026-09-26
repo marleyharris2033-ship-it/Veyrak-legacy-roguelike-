@@ -455,3 +455,8 @@ img.neutral-card-png{
  .selection .hero-progression-wrap .progression-hint{top:4px}
  .selection .hero-progression-wrap .hero-display{height:100%}
 }
+
+/* v36: roster portraits show the whole head instead of cropping at the hairline. */
+.portrait{background-position:var(--portrait-x) 77.5%}
+@media(min-width:1000px) and (max-height:800px){.portrait{background-position:var(--portrait-x) 77.5%}}
+@media(max-width:600px) and (orientation:portrait){.portrait{background-position:var(--portrait-x) 77.5%}}
