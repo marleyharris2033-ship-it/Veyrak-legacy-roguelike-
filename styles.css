@@ -410,3 +410,20 @@ img.neutral-card-png{
 .level-readout .character-xp{display:block;white-space:nowrap;font-size:13px;line-height:1.1;color:#e5c783}
 .level-readout small{grid-column:1/-1;display:block;white-space:normal;text-align:center;font-size:10px;line-height:1.25;color:#bfc7d2}
 @media(orientation:landscape) and (max-height:600px){.hero-progression-wrap{height:100%}.hero-progression-wrap .progression-hint{top:2px}.level-readout{margin-top:5px;column-gap:8px}.level-readout .character-level{font-size:16px}.level-readout .character-xp{font-size:10px}.level-readout small{font-size:8px}}
+
+/* v33: restore landscape character-select fit after adding mastery wrapper. */
+@media(orientation:landscape) and (max-height:600px){
+ .selection .hero-progression-wrap{height:100%;min-height:0;overflow:hidden;display:flex;align-items:stretch;justify-content:center}
+ .selection .hero-progression-wrap .hero-display{height:100%;min-height:0;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
+ .selection .hero-progression-wrap .hero-art{height:100%;max-height:100%;width:100%;object-fit:contain;object-position:center bottom}
+ .selection .hero-progression-wrap .progression-hint{top:5px;bottom:auto}
+ .selection .dossier{display:grid!important;visibility:visible!important;opacity:1!important;grid-template-columns:1fr 1fr;grid-template-rows:auto auto auto auto auto;align-content:center}
+ .selection .level-readout{grid-column:1/-1;display:grid!important;width:100%;grid-template-columns:max-content max-content;justify-content:center;margin:1px 0 2px;column-gap:8px;row-gap:1px}
+ .selection .level-readout .character-level{font-size:14px}
+ .selection .level-readout .character-xp{font-size:9px}
+ .selection .level-readout small{grid-column:1/-1;font-size:7px;line-height:1.1}
+ .selection .traits{grid-column:1/-1;grid-row:auto;justify-content:center}
+ .selection #seed{grid-column:1/-1}
+ .selection .dossier>.gold{grid-column:1/-1}
+ .selection .dossier>.companion-select{grid-column:1/-1;display:block!important}
+}
