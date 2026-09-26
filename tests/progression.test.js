@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {kaerunLevelFromXp,kaerunBonuses,xpForNextKaerunLevel} from '../progression.js';
+import {kaerunLevelFromXp,kaerunBonuses,xpForNextKaerunLevel,ilyraLevelFromXp,ilyraBonuses} from '../progression.js';
 
 test('Kaerun begins at level 1 and caps at 20',()=>{
  assert.equal(kaerunLevelFromXp(0).level,1);
@@ -27,3 +27,5 @@ test('milestone passives scale without damage inflation',()=>{
  assert.equal(l20.sovereign,true);
  assert.equal('damage' in l20,false);
 });
+
+test('Ilyra progression expands Resonance without direct damage inflation',()=>{assert.equal(ilyraLevelFromXp(0).level,1);assert.equal(ilyraBonuses(1).resonanceCap,3);assert.equal(ilyraBonuses(10).resonanceCap,4);assert.equal(ilyraBonuses(20).resonanceCap,5);assert.equal(ilyraBonuses(5).startingResonance,1);assert.equal(ilyraBonuses(15).spendBarrier,3);assert.equal('damage' in ilyraBonuses(20),false);});
