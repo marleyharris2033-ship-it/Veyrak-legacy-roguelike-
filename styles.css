@@ -460,3 +460,12 @@ img.neutral-card-png{
 .portrait{background-position:var(--portrait-x) 77.5%}
 @media(min-width:1000px) and (max-height:800px){.portrait{background-position:var(--portrait-x) 77.5%}}
 @media(max-width:600px) and (orientation:portrait){.portrait{background-position:var(--portrait-x) 77.5%}}
+
+/* v37: progression label is an actual control; mastery explains hero playstyle. */
+.progression-open{appearance:none;-webkit-appearance:none;cursor:pointer}
+.hero-progression-wrap .progression-open{pointer-events:auto!important}
+.mastery-playstyle{margin:2px 0 18px;padding:12px 14px;border:1px solid #9d83566b;background:#111a28;text-align:left}
+.mastery-playstyle>span{display:block;margin-bottom:6px;font-size:9px;font-weight:700;letter-spacing:.18em;color:#e5c783}
+.mastery-playstyle p{font-size:12px;line-height:1.5;color:#d6dce5}
+.mastery-playstyle strong{color:#f1d49c}
+@media(orientation:landscape) and (max-height:600px){.mastery-playstyle{margin-bottom:10px;padding:8px 10px}.mastery-playstyle p{font-size:10px;line-height:1.35}}
