@@ -1,7 +1,7 @@
 import {kaerunBonuses,kaerunXpForEncounter} from './progression.js?v=1';
 import {BEASTS,RARITIES,SHARDS,validBeast,beastKey,addDiscovery} from './beasts.js?v=13';
 export {BEASTS,RARITIES,SHARDS} from './beasts.js?v=13';
-export const VERSION=5;
+export const VERSION=4;
 export const MAX_CORE=10;
 export const CORE_REGEN=3;
 export const HEROES = [
@@ -285,7 +285,7 @@ export function captureBeast(r,shard='basic'){
  const e=r.battle.enemies[r.battle.target];r.core--;r.shards[shard]--;
  const caught=random(r)*100<chance;
  r.captureResult={id:e.beast,rarity:e.rarity,caught,chance};
- if(caught){const companion={id:e.beast,rarity:e.rarity};addDiscovery(r.capturedBeasts,companion);if(!r.companion)r.companion={...companion};e.hp=0;e.captured=true;victory(r);log(r,`${RARITIES[e.rarity].name} ${e.name} captured! Added to your bestiary.`);}
+ if(caught){if(r.hero==='kaerun')r.characterXpEarned=(r.characterXpEarned||0)+(e.rarity==='legendary'?40:e.rarity==='rare'?25:15);const companion={id:e.beast,rarity:e.rarity};addDiscovery(r.capturedBeasts,companion);if(!r.companion)r.companion={...companion};e.hp=0;e.captured=true;victory(r);log(r,`${RARITIES[e.rarity].name} ${e.name} captured! Added to your bestiary.`);}
  else{e.strength=(e.strength||0)+2;log(r,`${e.name} broke free! The shard is spent. Rage: +2 attack damage.`);}
  return true;
 }
