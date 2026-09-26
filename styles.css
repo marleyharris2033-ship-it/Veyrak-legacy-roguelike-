@@ -521,3 +521,10 @@ img.neutral-card-png{
  .battle .combat-toolbar{position:relative}
  .battle .combat-message{position:absolute!important;left:50%!important;top:2px!important;transform:translateX(-50%)!important;width:max-content!important;max-width:260px!important;font-size:8px!important;z-index:30!important}
 }
+
+/* v49: make Kaerun's Mark state unmistakable on enemies. */
+.enemy-mark-sigil{position:absolute;z-index:12;left:50%;top:30%;transform:translate(-50%,-50%);display:grid;place-items:center;pointer-events:none;filter:drop-shadow(0 0 8px #f2c66a)}
+.enemy-mark-sigil b{display:grid;place-items:center;width:48px;height:48px;border:2px solid #f1c86e;border-radius:50%;background:#160f08a8;color:#ffe29a;font:700 35px/1 Georgia,serif;box-shadow:inset 0 0 0 4px #9e692c66,0 0 18px #d89b3c88}
+.enemy-mark-sigil strong{margin-top:4px;padding:3px 7px;border:1px solid #d7aa56;background:#171006e8;color:#ffe4a6;font-size:9px;letter-spacing:.1em;white-space:nowrap}
+.status-mark{border-color:#d9aa55!important;color:#ffe09a!important;background:#35230ddd!important}
+@media(orientation:landscape) and (max-height:600px){.enemy-mark-sigil{top:35%}.enemy-mark-sigil b{width:38px;height:38px;font-size:28px}.enemy-mark-sigil strong{font-size:8px;padding:2px 5px}}
