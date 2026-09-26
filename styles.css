@@ -514,3 +514,10 @@ img.neutral-card-png{
  .battle .fighter.player .pressure-meter{margin-top:2px!important}
  .battle .fighter.player .combat-hero{z-index:2}
 }
+
+/* v45: combat instruction is a compact floating pill, never a full-width scene band. */
+.battle .combat-message{display:inline-flex!important;flex:0 0 auto!important;width:max-content!important;max-width:min(300px,42vw)!important;min-height:0!important;margin:0 auto!important;padding:3px 10px!important;background:#07111ab8!important;border:1px solid #c4a76a45!important;border-radius:999px!important;white-space:nowrap!important;line-height:1.2!important}
+@media(orientation:landscape) and (max-height:600px){
+ .battle .combat-toolbar{position:relative}
+ .battle .combat-message{position:absolute!important;left:50%!important;top:2px!important;transform:translateX(-50%)!important;width:max-content!important;max-width:260px!important;font-size:8px!important;z-index:30!important}
+}
