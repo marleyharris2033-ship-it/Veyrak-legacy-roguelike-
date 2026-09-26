@@ -35,3 +35,27 @@ export function kaerunBonuses(level=1){level=Math.max(1,Math.min(KAERUN_MAX_LEVE
  sovereign:level>=20
 };}
 export function kaerunXpForEncounter(type,captureRarity=null){let xp=type==='boss'?100:type==='elite'?25:type==='beast'?10:12;if(captureRarity)xp+=captureRarity==='legendary'?40:captureRarity==='rare'?25:15;return xp;}
+
+export const ILYRA_MAX_LEVEL=20;
+export const ILYRA_LEVEL_REWARDS=[
+ null,'Base Ilyra','+2 Max Vitality','Start battle with 2 Barrier','+2 Max Vitality',
+ 'Resonant Awakening: start each battle with 1 Resonance',
+ '+2 Max Vitality','Start each battle with +1 Core','+2 Max Vitality','Start battle with 3 additional Barrier',
+ 'Expanded Lattice: maximum Resonance increases to 4',
+ '+2 Max Vitality','Draw +1 card on the first turn','+2 Max Vitality','Start each battle with 2 Resonance instead of 1',
+ 'Resonant Aegis: first time you spend Resonance each turn, gain 3 next-turn Barrier',
+ '+2 Max Vitality','Start each battle with +1 additional Core','+2 Max Vitality','Resonant Aegis improves to 4 Barrier',
+ 'Perfect Resonance: maximum Resonance increases to 5'
+];
+export function xpForNextIlyraLevel(level){return level>=ILYRA_MAX_LEVEL?0:120+(level-1)*35;}
+export function ilyraLevelFromXp(xp=0){xp=Math.max(0,Math.floor(Number(xp)||0));let level=1,spent=0;while(level<ILYRA_MAX_LEVEL){const need=xpForNextIlyraLevel(level);if(xp<spent+need)break;spent+=need;level++;}return {level,totalXp:xp,intoLevel:level>=ILYRA_MAX_LEVEL?0:xp-spent,next:xpForNextIlyraLevel(level)};}
+export function ilyraBonuses(level=1){level=Math.max(1,Math.min(ILYRA_MAX_LEVEL,Math.floor(level)||1));return {
+ maxHp:2*[2,4,6,8,11,13,16,18].filter(x=>level>=x).length,
+ startingBarrier:(level>=9?5:level>=3?2:0),
+ startingCore:(level>=17?2:level>=7?1:0),
+ firstTurnDraw:level>=12?1:0,
+ startingResonance:level>=14?2:level>=5?1:0,
+ resonanceCap:level>=20?5:level>=10?4:3,
+ spendBarrier:level>=19?4:level>=15?3:0
+};}
+export function ilyraXpForEncounter(type,captureRarity=null){let xp=type==='boss'?100:type==='elite'?25:type==='beast'?10:12;if(captureRarity)xp+=captureRarity==='legendary'?40:captureRarity==='rare'?25:15;return xp;}
