@@ -528,3 +528,20 @@ img.neutral-card-png{
 .enemy-mark-sigil strong{margin-top:4px;padding:3px 7px;border:1px solid #d7aa56;background:#171006e8;color:#ffe4a6;font-size:9px;letter-spacing:.1em;white-space:nowrap}
 .status-mark{border-color:#d9aa55!important;color:#ffe09a!important;background:#35230ddd!important}
 @media(orientation:landscape) and (max-height:600px){.enemy-mark-sigil{top:35%}.enemy-mark-sigil b{width:38px;height:38px;font-size:28px}.enemy-mark-sigil strong{font-size:8px;padding:2px 5px}}
+
+/* v50: first-tier run card upgrades */
+.sanctuary-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:20px 0}
+.upgrade-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:58vh;overflow-y:auto;padding:4px}
+.upgrade-choice{display:grid;grid-template-columns:1fr auto;gap:3px 12px;text-align:left;align-items:center;padding:11px 13px;background:#0b1420;border:1px solid #8d7449;color:#eee2ca;border-radius:7px}
+.upgrade-choice:hover{border-color:#efc66e;box-shadow:0 0 14px #d5a74d33}
+.upgrade-choice b{color:#f1c86e}.upgrade-choice small{grid-column:1/-1;color:#aeb9c7;font-size:10px;line-height:1.35}
+.upgrade-preview{display:grid;grid-template-columns:minmax(0,1fr) 42px minmax(0,1fr);gap:14px;align-items:center;margin:8px 0 18px}
+.upgrade-preview section{text-align:center}.upgrade-preview section>strong{display:block;margin-top:8px}.upgrade-preview section>p:last-child{font-size:11px;line-height:1.4;color:#bac3cf}
+.upgrade-preview .sheet-card,.upgrade-preview .ilyra-card,.upgrade-preview .tech-card,.upgrade-preview .neutral-card,.upgrade-preview .upgraded-card-art{width:min(150px,100%);margin:auto}
+.upgrade-arrow{font-size:30px;color:#d8b15f;text-align:center}
+.upgraded-card-art{position:relative;display:block;width:100%;height:100%;filter:drop-shadow(0 0 7px #dcae55aa)}
+.upgraded-card-art:after{content:"";position:absolute;inset:1px;border:2px solid #e3b95f;border-radius:7px;box-shadow:inset 0 0 10px #e3b95f55,0 0 8px #dcae5555;pointer-events:none}
+.upgraded-card-art>.sheet-card,.upgraded-card-art>.ilyra-card,.upgraded-card-art>.tech-card,.upgraded-card-art>.neutral-card{width:100%!important;height:100%!important;margin:0!important}
+.upgrade-plus{position:absolute;z-index:5;right:5%;top:3%;display:grid;place-items:center;width:22px;height:22px;border:1px solid #ffe3a1;border-radius:50%;background:#6f4916;color:#fff0b9;font:bold 17px/1 Georgia,serif;box-shadow:0 0 8px #e6b758}
+.upgrade-effect{position:absolute;z-index:4;left:7%;right:7%;bottom:5%;min-height:17%;display:flex;align-items:center;justify-content:center;padding:3px 5px;background:#130e08ed;border:1px solid #d6aa55;color:#ffe4a1;text-align:center;font-size:clamp(5px,.62vw,8px);line-height:1.15}
+@media(max-width:650px){.upgrade-list{grid-template-columns:1fr}.upgrade-preview{grid-template-columns:1fr 24px 1fr;gap:6px}.upgrade-preview .sheet-card,.upgrade-preview .ilyra-card,.upgrade-preview .tech-card,.upgrade-preview .neutral-card,.upgrade-preview .upgraded-card-art{width:min(118px,100%)}.upgrade-arrow{font-size:22px}}
