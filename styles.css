@@ -483,3 +483,8 @@ img.neutral-card-png{
  .modal-card:has(.mastery){width:min(1180px,96vw)!important;max-width:96vw!important}
  .mastery{max-height:68vh!important}
 }
+
+/* v39: zoom roster portraits out while keeping the existing card dimensions. */
+.portrait{background-size:850% auto!important;background-position:var(--portrait-x) 76.5%!important}
+@media(min-width:1000px) and (max-height:800px){.portrait{background-size:850% auto!important;background-position:var(--portrait-x) 76.5%!important}}
+@media(max-width:600px) and (orientation:portrait){.portrait{background-size:850% auto!important;background-position:var(--portrait-x) 76.5%!important}}
