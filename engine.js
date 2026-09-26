@@ -197,7 +197,7 @@ export function playCard(r,i){
  if(r.phase!=='combat'||!Number.isInteger(i)||i<0)return false;
  const b=r.battle,id=b.hand[i],c=CARDS[id],selected=b.enemies[b.target];if(!c||c.cost>r.core||!selected?.hp||c.requiresMark&&selected.mark<=0)return false;
  r.core-=c.cost;r.cardsPlayed++;b.hand.splice(i,1);
- if(c.coreGain)r.core=Math.min(MAX_CORE,r.core+c.coreGain);if(c.block)r.block+=c.block;if(c.nextBarrier)b.barrier=(b.barrier||0)+c.nextBarrier;if(c.markedBonusBlock&&selected.mark>0)r.block+=c.markedBonusBlock;if(c.strength)b.strength+=c.strength;if(c.markedStrength&&selected.mark>0)b.strength+=c.markedStrength;if(c.mark&&!c.damage){let mark=c.mark;if(r.hero==='kaerun'){if(!b.markAppliedThisTurn){r.block+=r.levelBonuses?.markBlock||0;b.markAppliedThisTurn=true;}if(r.levelBonuses?.sovereign&&!b.sovereignUsed){mark++;r.core=Math.min(MAX_CORE,r.core+1);b.sovereignUsed=true;}}selected.mark+=mark;}if(c.draw)draw(r,c.draw);
+ if(c.coreGain)r.core=Math.min(MAX_CORE,r.core+c.coreGain);if(c.block)r.block+=c.block;if(c.nextBarrier)b.barrier=(b.barrier||0)+c.nextBarrier;if(c.markedBonusBlock&&selected.mark>0)r.block+=c.markedBonusBlock;if(c.strength)b.strength+=c.strength;if(c.markedStrength&&selected.mark>0)b.strength+=c.markedStrength;if(c.draw)draw(r,c.draw);
  if(c.resonanceGain)b.resonance=Math.min(3,(b.resonance||0)+c.resonanceGain);
  const spentResonance=c.resonanceDamage||c.resonanceBarrier||c.resonanceHeal?b.resonance||0:0;if(spentResonance)b.resonance=0;
  if(c.resonanceBarrier)b.barrier=(b.barrier||0)+spentResonance*c.resonanceBarrier;
