@@ -427,3 +427,19 @@ img.neutral-card-png{
  .selection .dossier>.gold{grid-column:1/-1}
  .selection .dossier>.companion-select{grid-column:1/-1;display:block!important}
 }
+
+/* v34: level, XP and current perk are deliberately separate lines. */
+.level-readout,
+.selection .level-readout{display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:3px!important;width:100%!important;max-width:100%!important;margin:12px auto 8px!important;text-align:center!important}
+.level-readout .character-level,
+.selection .level-readout .character-level{display:block!important;width:100%;font-size:clamp(26px,3vw,36px)!important;line-height:1!important;letter-spacing:.06em;white-space:nowrap;color:#f6e8c9}
+.level-readout .character-xp,
+.selection .level-readout .character-xp{display:block!important;width:100%;font-size:14px!important;line-height:1.25!important;white-space:nowrap;color:#e5c783}
+.level-readout .character-perk,
+.selection .level-readout .character-perk{display:block!important;width:100%;font-size:10px!important;line-height:1.25!important;white-space:normal!important;color:#aeb8c6}
+@media(orientation:landscape) and (max-height:600px){
+ .selection .level-readout{grid-column:1/-1!important;display:flex!important;margin:2px 0 3px!important;gap:1px!important}
+ .selection .level-readout .character-level{font-size:22px!important}
+ .selection .level-readout .character-xp{font-size:10px!important}
+ .selection .level-readout .character-perk{font-size:8px!important}
+}
