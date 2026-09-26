@@ -61,6 +61,13 @@ const NEUTRAL_CARD_ASSETS={
  execution:'execution.png',
  fortressstance:'fortress_stance.png'
 };
+const FINISHED_CARD_ASSETS={
+ targetbreaker:'targetbreaker.png',focus:'focus.png',shatterarmour:'armourbreak.png',fortressstance:'fortress.png',
+ arcsplit:'arcsplit.png',prismstudy:'prismstudy.png',latticeward:'latticeward.png',crystallance:'crystallance.png',
+ fracturefield:'fracturefield.png',corechannel:'corechannel.png',resonantmend:'resonantmend.png',shieldbash:'shieldbash.png',
+ starfall:'starfall.png',fortify:'fortify.png',piercingray:'piercingray.png',suppress:'suppress.png',scout:'scout.png',
+ ricochet:'ricochet.png',sundering:'sundering.png'
+};
 const TECH_PATHS={
  mark:'M50 18v19m0 26v19M18 50h19m26 0h19M50 30a20 20 0 1 0 0 40 20 20 0 0 0 0-40Zm0 15a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z',
  core:'M50 14 75 50 50 86 25 50 50 14Zm0 13v46M32 50h36',
@@ -84,6 +91,8 @@ const TECH_PATHS={
 };
 function cardArt(id,cls=''){
  const c=CARDS[id],t=c.tile;
+ const finished=FINISHED_CARD_ASSETS[id];
+ if(finished)return `<img class="neutral-card neutral-card-png finished-card card-${id} ${cls}" src="assets/card-masks/${finished}" alt="${c.name}" draggable="false">`;
  if(c.modernArt)return `<span class="tech-card tech-${c.ilyra?'ilyra':c.kaerun?'kaerun':'shared'} tech-${c.type} ${cls}" role="img" aria-label="${c.name}, ${c.cost} Core. ${c.text}"><b class="tech-cost">${c.cost}</b><strong class="tech-name">${c.name}</strong><span class="tech-scene" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="37"/><path d="${TECH_PATHS[c.modernArt]}"/></svg></span><em class="tech-kind">${c.type}</em><span class="tech-effect">${c.text}</span></span>`;
  if(c.ilyra)return `<span class="ilyra-card ${cls}" role="img" aria-label="${c.name}, ${c.cost} Core. ${c.text}"><img src="assets/ilyra-cards/${id}.webp" alt="" draggable="false"><b class="ilyra-cost">${c.cost}</b><strong class="ilyra-name">${c.name}</strong><em class="ilyra-type">${c.type}</em><span class="ilyra-effect">${c.text}</span></span>`;
  if(t===undefined){
