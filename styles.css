@@ -504,4 +504,4 @@ img.neutral-card-png{
 
 /* v42: each stage can own one persistent combat backdrop. */
 .battle{background-size:cover;background-position:center;background-repeat:no-repeat}
-.battle.stage-1{background-image:linear-gradient(rgba(3,8,16,.32),rgba(2,6,13,.52)),url('assets/stages/stage-1.jpg')}
+.battle.stage-1{background-image:linear-gradient(rgba(3,8,16,.32),rgba(2,6,13,.52)),url('assets/story/stage1.jpg')}
