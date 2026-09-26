@@ -443,3 +443,15 @@ img.neutral-card-png{
  .selection .level-readout .character-xp{font-size:10px!important}
  .selection .level-readout .character-perk{font-size:8px!important}
 }
+
+/* v35: reserve a dedicated strip above hero artwork for the progression prompt. */
+@media(orientation:landscape) and (max-height:600px){
+ .selection .hero-progression-wrap{display:grid!important;grid-template-rows:28px minmax(0,1fr)!important;align-items:stretch!important;overflow:hidden}
+ .selection .hero-progression-wrap .progression-hint{position:static!important;transform:none!important;justify-self:center;align-self:center;margin:0!important}
+ .selection .hero-progression-wrap .hero-display{grid-row:2;height:100%!important;min-height:0}
+}
+@media(orientation:portrait){
+ .selection .hero-progression-wrap{padding-top:38px}
+ .selection .hero-progression-wrap .progression-hint{top:4px}
+ .selection .hero-progression-wrap .hero-display{height:100%}
+}
