@@ -501,3 +501,7 @@ img.neutral-card-png{
 @media(orientation:portrait){
  .hero-choice .portrait{aspect-ratio:1/1.05!important;background-size:983.529% auto!important;background-position:var(--portrait-x) 80%!important}
 }
+
+/* v42: each stage can own one persistent combat backdrop. */
+.battle{background-size:cover;background-position:center;background-repeat:no-repeat}
+.battle.stage-1{background-image:linear-gradient(rgba(3,8,16,.32),rgba(2,6,13,.52)),url('assets/stages/stage-1.jpg')}
