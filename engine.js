@@ -32,6 +32,26 @@ export const INVADERS=[
  {id:'thorncoil',name:'Thorncoil',size:'large',hp:35,colour:'#b46a67',moves:[{kind:'empower',value:1},{kind:'attack',value:8},{kind:'attack',value:9}]},
  {id:'duskcaller',name:'Duskcaller',size:'small',hp:24,colour:'#70aca6',moves:[{kind:'empower',value:2},{kind:'attack',value:7},{kind:'attack',value:8}]}
 ];
+// Stage 2: tougher subterranean excavation ecosystem. Uses only combat mechanics already supported by the engine.
+export const STAGE2_INVADERS=[
+ {id:'riftclaw',name:'Riftclaw',size:'small',art:'stage2_monster_01.png',hp:31,colour:'#9f55ff',moves:[{kind:'attack',value:7,name:'Raking Claw'},{kind:'guard',value:7,name:'Burrow Guard'},{kind:'attack',value:11,name:'Erupting Slash'}]},
+ {id:'kharvex',name:'Kharvex',size:'large',art:'stage2_monster_02.png',hp:52,colour:'#ff7a2d',moves:[{kind:'guard',value:13,name:'Brace'},{kind:'charge',value:0,name:'Bore Charge'},{kind:'attack',value:18,name:'Bore Rush'}]},
+ {id:'lithophage',name:'Lithophage',size:'large',art:'stage2_monster_03.png',hp:48,colour:'#46bfff',moves:[{kind:'empower',value:1,name:'Harden'},{kind:'attack',value:12,name:'Crystal Rake'},{kind:'guard',value:10,name:'Stone Hide'}]},
+ {id:'veylisk',name:'Veylisk',size:'small',art:'stage2_monster_04.png',hp:30,colour:'#5ee5a0',moves:[{kind:'weaken',value:2,name:'Corrosive Spit'},{kind:'attack',value:10,name:'Needle Strike'},{kind:'attack',value:8,name:'Rend'}]},
+ {id:'tremor_stalker',name:'Tremor Stalker',size:'small',art:'stage2_monster_05.png',hp:32,colour:'#e7b743',moves:[{kind:'attack',value:9,name:'Tremor Cut'},{kind:'guard',value:8,name:'Vibration Guard'},{kind:'attack',value:12,name:'Seismic Lunge'}]},
+ {id:'grindscale',name:'Grindscale',size:'large',art:'stage2_monster_06.png',hp:56,colour:'#e24c43',moves:[{kind:'guard',value:15,name:'Layered Armour'},{kind:'attack',value:13,name:'Crushing Swipe'},{kind:'attack',value:15,name:'Horn Rush'}]},
+ {id:'shardburrower',name:'Shardburrower',size:'small',art:'stage2_monster_07.png',hp:29,colour:'#35d6d0',moves:[{kind:'empower',value:1,name:'Excavation Frenzy'},{kind:'guard',value:8,name:'Shard Guard'},{kind:'attack',value:9,name:'Hook Claw'}]},
+ {id:'voruun',name:'Voruun',size:'large',art:'stage2_monster_08.png',hp:61,colour:'#e14b9b',moves:[{kind:'attack',value:13,name:'Tunnel Crush'},{kind:'empower',value:2,name:'Deep Dig'},{kind:'attack',value:17,name:'Rupture'}]}
+];
+function stage2Partner(seed,nodeId,row,excluded){const pool=STAGE2_INVADERS.filter(x=>x.size==='small'&&x.id!==excluded),state={rng:hash(seed+':stage2-pack:'+nodeId)};return stage2Variant(pool[Math.floor(random(state)*pool.length)],row);}
+function stage2Variant(species,row,elite=false){
+ const enemy=structuredClone(species);enemy.elite=elite;enemy.stage2=true;
+ enemy.hp=Math.round((enemy.hp+row*2)*(elite?1.35:1));
+ enemy.moves=enemy.moves.map(m=>({...m,value:Math.round((m.value+(['attack','siphon'].includes(m.kind)?Math.floor(row/4):0))*(elite&&['attack','siphon','guard'].includes(m.kind)?1.2:1))}));
+ if(elite)enemy.name=`Elite ${enemy.name}`;
+ return enemy;
+}
+const STAGE2_BOSS={id:'kharvex_prime',name:'Kharvex Prime',hp:285,colour:'#e3ad4e',boss:true,stage2:true,art:'EF449213-4894-48F5-9B22-E53CA59C4318.png',phase:1,moves:[{kind:'guard',value:20,name:'Anchor Plating'},{kind:'charge',value:0,name:'Bore Charge'},{kind:'attack',value:24,name:'Drill Impact'},{kind:'attack',value:11,hits:2,name:'Twin Bore'}]};
 function packPartner(seed,nodeId,row,excluded){const pool=INVADERS.filter(x=>x.size==='small'&&x.id!==excluded),state={rng:hash(seed+':pack:'+nodeId)};return invaderVariant(pool[Math.floor(random(state)*pool.length)],row);}
 function invaderVariant(species,row,elite=false){
  const enemy=structuredClone(species);enemy.elite=elite;
@@ -206,7 +226,14 @@ function buildRoute(seed,enemyRoster,beastSystem,legacy=false,stage=1){
   else{const beastRouteState={rng:hash(seed+':beast-stage:'+stage)};const row=7+Math.floor(random(beastRouteState)*2);const candidates=layouts[row].map((type,col)=>({type,col})).filter(x=>x.type==='battle');const pool=candidates.length?candidates:layouts[row].map((type,col)=>({type,col}));const pick=pool[Math.floor(random(beastRouteState)*pool.length)];layouts[row][pick.col]='beast';}
  }
 const beastSpecies=beastSystem>=2?shuffle(Object.keys(BEASTS),{rng:hash(seed+':beast-species:'+stage)}):null;let beastEncounter=0;
- layouts.forEach((types,row)=>{const ordered=shuffle(types,state);ordered.forEach((type,col)=>{const id=`${stage}-${row}-${col}`;let enemy;if(enemyRoster===2&&row<10&&['battle','elite'].includes(type)){const species=row===0?firstThree[col]:INVADERS[Math.floor(random(state)*INVADERS.length)];enemy=invaderVariant(species,row,type==='elite');}else{enemy=structuredClone(type==='boss'?BOSS:type==='elite'?LEGACY_ELITES[Math.floor(random(state)*LEGACY_ELITES.length)]:LEGACY_ENEMIES[Math.floor(random(state)*4)]);if(!['boss','elite'].includes(type)){enemy.hp+=4+row*3;enemy.moves=enemy.moves.map(m=>({...m,value:m.kind==='attack'?m.value+1+Math.floor(row/3):m.value}));}}if(type==='beast')enemy=createBeastEnemy(seed,id,row,beastSystem>=2?beastSpecies[beastEncounter++%beastSpecies.length]:null,beastSystem>=2,beastSystem>=4,beastSystem>=5?stage:null);enemy.boss=type==='boss';const pack=enemyRoster===2&&type==='battle'&&row<10&&enemy.size==='small'?packPartner(seed,id,row,enemy.id):null;route.push(pack?{id,row,col,type,enemy,pack,next:[]}:{id,row,col,type,enemy,next:[]});});});
+ layouts.forEach((types,row)=>{const ordered=shuffle(types,state);ordered.forEach((type,col)=>{const id=`${stage}-${row}-${col}`;let enemy,pack=null;
+ if(stage===2&&type==='boss')enemy=structuredClone(STAGE2_BOSS);
+ else if(stage===2&&row<10&&['battle','elite'].includes(type)){const species=row===0?STAGE2_INVADERS[col%STAGE2_INVADERS.length]:STAGE2_INVADERS[Math.floor(random(state)*STAGE2_INVADERS.length)];enemy=stage2Variant(species,row,type==='elite');if(type==='battle'&&enemy.size==='small')pack=stage2Partner(seed,id,row,enemy.id);}
+ else if(enemyRoster===2&&row<10&&['battle','elite'].includes(type)){const species=row===0?firstThree[col]:INVADERS[Math.floor(random(state)*INVADERS.length)];enemy=invaderVariant(species,row,type==='elite');}
+ else{enemy=structuredClone(type==='boss'?BOSS:type==='elite'?LEGACY_ELITES[Math.floor(random(state)*LEGACY_ELITES.length)]:LEGACY_ENEMIES[Math.floor(random(state)*4)]);if(!['boss','elite'].includes(type)){enemy.hp+=4+row*3;enemy.moves=enemy.moves.map(m=>({...m,value:m.kind==='attack'?m.value+1+Math.floor(row/3):m.value}));}}
+ if(type==='beast')enemy=createBeastEnemy(seed,id,row,beastSystem>=2?beastSpecies[beastEncounter++%beastSpecies.length]:null,beastSystem>=2,beastSystem>=4,beastSystem>=5?stage:null);enemy.boss=type==='boss';
+ if(!pack&&enemyRoster===2&&stage!==2&&type==='battle'&&row<10&&enemy.size==='small')pack=packPartner(seed,id,row,enemy.id);
+ route.push(pack?{id,row,col,type,enemy,pack,next:[]}:{id,row,col,type,enemy,next:[]});});});
  for(const n of route)n.next=route.filter(v=>v.row===n.row+1&&(v.type==='boss'||Math.abs(v.col-n.col)<=1)).map(v=>v.id);
  return route;
 }
@@ -237,7 +264,7 @@ export function chooseNode(r,id){
 }
 export function enterBattle(r){const id=availableNodes(r).find(id=>['battle','elite','boss'].includes(r.route.find(n=>n.id===id).type));return id?chooseNode(r,id):false;}
 function bossPhase(r){
- const b=r.battle,boss=b?.enemies.find(e=>e.boss&&e.hp>0);if(!boss||boss.phase===2||boss.hp>boss.maxHp/2)return false;
+ const b=r.battle,boss=b?.enemies.find(e=>e.boss&&e.hp>0);if(!boss||boss.id!=='warden'||boss.phase===2||boss.hp>boss.maxHp/2)return false;
  boss.phase=2;boss.moves=[{kind:'attack',value:15,name:'Void Claw'},{kind:'guard',value:14,name:'Rift Shield'},{kind:'attack',value:8,hits:2,name:'Twin Slash'},{kind:'charge',value:0,name:'Rift Charge'},{kind:'attack',value:28,name:'Rift Breaker'}];boss.move=0;boss.block=Math.max(boss.block||0,12);
  const species=INVADERS.find(x=>x.id==='rift_skitter'),minion=invaderVariant(species,4);minion.hp=minion.maxHp=18;minion.name='Riftbound Skitter';minion.riftBond=true;minion.block=0;minion.move=0;minion.mark=0;minion.weak=0;minion.vulnerable=0;minion.bleed=0;minion.strength=0;minion.stunned=false;b.enemies.push(minion);log(r,'The Gate Warden tears open the rift! A Riftbound Skitter emerges. Rift Bond empowers the Warden while it lives.');return true;
 }
