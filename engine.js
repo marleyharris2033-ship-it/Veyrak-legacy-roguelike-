@@ -362,7 +362,7 @@ export function captureBeast(r,shard='basic'){
  const chance=captureChance(r,shard);if(!chance||r.core<1||!(r.shards?.[shard]>0))return false;
  const e=r.battle.enemies[r.battle.target];r.core--;r.shards[shard]--;
  const caught=random(r)*100<chance;
- r.captureResult={id:e.beast,rarity:e.rarity,caught,chance};
+ const duplicate=!!r.capturedBeasts?.some(x=>beastKey(x)===beastKey({id:e.beast,rarity:e.rarity})),duplicateXp=duplicate?(e.rarity==='legendary'?100:e.rarity==='rare'?65:40):0;r.captureResult={id:e.beast,rarity:e.rarity,caught,chance,duplicate,duplicateXp};if(caught&&duplicateXp)r.beastDuplicateXp=(r.beastDuplicateXp||0)+duplicateXp;
  if(caught){if(['kaerun','ilyra'].includes(r.hero))r.characterXpEarned=(r.characterXpEarned||0)+(e.rarity==='legendary'?40:e.rarity==='rare'?25:15);const companion={id:e.beast,rarity:e.rarity};addDiscovery(r.capturedBeasts,companion);if(!r.companion)r.companion={...companion};e.hp=0;e.captured=true;victory(r);log(r,`${RARITIES[e.rarity].name} ${e.name} captured! Added to your bestiary.`);}
  else{e.strength=(e.strength||0)+2;log(r,`${e.name} broke free! The shard is spent. Rage: +2 attack damage.`);}
  return true;
