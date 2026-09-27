@@ -545,3 +545,14 @@ img.neutral-card-png{
 .upgrade-plus{position:absolute;z-index:5;right:5%;top:3%;display:grid;place-items:center;width:22px;height:22px;border:1px solid #ffe3a1;border-radius:50%;background:#6f4916;color:#fff0b9;font:bold 17px/1 Georgia,serif;box-shadow:0 0 8px #e6b758}
 .upgrade-effect{position:absolute;z-index:4;left:7%;right:7%;bottom:5%;min-height:17%;display:flex;align-items:center;justify-content:center;padding:3px 5px;background:#130e08ed;border:1px solid #d6aa55;color:#ffe4a1;text-align:center;font-size:clamp(5px,.62vw,8px);line-height:1.15}
 @media(max-width:650px){.upgrade-list{grid-template-columns:1fr}.upgrade-preview{grid-template-columns:1fr 24px 1fr;gap:6px}.upgrade-preview .sheet-card,.upgrade-preview .ilyra-card,.upgrade-preview .tech-card,.upgrade-preview .neutral-card,.upgrade-preview .upgraded-card-art{width:min(118px,100%)}.upgrade-arrow{font-size:22px}}
+
+/* v51: card sizing + compact Mark presentation */
+.offer-card>.sheet-card,.offer-card>.neutral-card,.offer-card>.ilyra-card,.offer-card>.tech-card,.offer-card>.upgraded-card-art{width:110px!important;height:auto!important;aspect-ratio:307/490;flex:0 0 auto}
+.offer-card>.upgraded-card-art>.sheet-card,.offer-card>.upgraded-card-art>.neutral-card,.offer-card>.upgraded-card-art>.ilyra-card,.offer-card>.upgraded-card-art>.tech-card{width:100%!important;height:100%!important}
+.upgraded-card-art{aspect-ratio:307/490;height:auto!important;overflow:visible}
+.upgraded-card-art:after{inset:0;border-width:2px;border-radius:7px;box-shadow:0 0 7px #dcae5570;inset:auto;position:absolute;left:0;right:0;top:0;bottom:0}
+.upgrade-plus{width:19px;height:19px;font-size:14px;right:4%;top:3%;box-shadow:0 0 5px #e6b75880}
+.upgrade-effect{display:none!important}
+.enemy-mark-sigil{display:none!important}
+.enemy-target .status-row{position:relative;z-index:14}
+.enemy-target .status-mark{min-height:20px;padding:3px 7px;font-size:8px;border:1px solid #d9aa55!important;background:#171006e8!important;box-shadow:0 2px 6px #0008}
