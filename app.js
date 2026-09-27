@@ -1,4 +1,4 @@
-import {HEROES,CARDS,MAX_CORE,CORE_REGEN,createRun,continueStage,enterBattle,playCard,endTurn,advance,intent,restore,serialise,availableNodes,chooseNode,selectTarget,RELICS,resolveRoom,buy,sell,usePotion,INVADERS,BEASTS,RARITIES,SHARDS,captureChance,captureBeast,companionReady,useCompanion,equipCompanion,CARD_UPGRADES,upgradeCard,shopUpgradeCard} from './engine.js?v=59';
+import {HEROES,CARDS,MAX_CORE,CORE_REGEN,createRun,continueStage,enterBattle,playCard,endTurn,advance,intent,restore,serialise,availableNodes,chooseNode,selectTarget,RELICS,resolveRoom,buy,sell,usePotion,INVADERS,BEASTS,RARITIES,SHARDS,captureChance,captureBeast,companionReady,useCompanion,equipCompanion,CARD_UPGRADES,upgradeCard,shopUpgradeCard} from './engine.js?v=60';
 import {validBeast,beastKey,addDiscovery,companionDescription,restoreBestiary, beastLevelFromXp, beastBonuses} from './beasts.js?v=15';
 import {kaerunLevelFromXp,kaerunBonuses,KAERUN_LEVEL_REWARDS,ilyraLevelFromXp,ilyraBonuses,ILYRA_LEVEL_REWARDS} from './progression.js?v=2';
 
