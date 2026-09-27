@@ -560,3 +560,6 @@ img.neutral-card-png{
 /* v53: merchant card forge */
 .merchant-forge{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:14px auto 18px;padding:10px 14px;max-width:720px;border:1px solid #b9904f80;background:#161107cc;border-radius:8px}
 .merchant-forge strong{color:#f0ce89;letter-spacing:.08em;text-transform:uppercase}.merchant-forge span{font-size:10px;color:#c8b995}
+
+/* v56: beast mastery */
+.beast-level{display:flex;align-items:center;gap:8px;margin:5px 0 7px}.beast-level strong{color:#e8c77f}.beast-level span{font-size:9px;color:#aeb9bd;border:1px solid #ffffff20;border-radius:999px;padding:2px 7px}
