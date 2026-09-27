@@ -169,7 +169,10 @@ export function continueStage(r){
  r.stage=(r.stage||1)+1;r.stagesCleared=r.stage-1;r.route=buildRoute(r.seed,r.enemyRoster??2,r.beastSystem??5,!!r.legacy,r.stage);r.current=null;r.visited=[];r.index=0;r.phase='map';r.battle=null;r.room=null;r.block=0;r.core=0;r.rewards=[];r.eliteReward=null;r.eliteShardReward=null;r.captureResult=null;return true;
 }
 export function availableNodes(r){return r.current?r.route.find(n=>n.id===r.current).next:r.route.filter(n=>n.row===0).map(n=>n.id);}
-function sampleCards(r,n=3){const pool=Object.keys(CARDS).filter(id=>!['strike','guard'].includes(id)&&(!CARDS[id].kaerun||r.hero==='kaerun')&&(!CARDS[id].ilyra||r.hero==='ilyra'));return shuffle(pool,r).slice(0,n);}
+function sampleCards(r,n=3,upgradeChance=0){
+ const pool=Object.keys(CARDS).filter(id=>!CARDS[id].upgradeOf&&!['strike','guard'].includes(id)&&(!CARDS[id].kaerun||r.hero==='kaerun')&&(!CARDS[id].ilyra||r.hero==='ilyra'));
+ return shuffle(pool,r).slice(0,n).map(id=>CARD_UPGRADES[id]&&random(r)<upgradeChance?CARD_UPGRADES[id]:id);
+}
 export function chooseNode(r,id){
  if(r.phase!=='map'||(!r.debugUnlockAll&&!availableNodes(r).includes(id)))return false;
  const node=r.route.find(n=>n.id===id);r.current=id;r.visited.push(id);r.index=node.row;r.room=null;
@@ -211,7 +214,7 @@ export function selectTarget(r,i){if(r.phase!=='combat'||!Number.isInteger(i)||!
 function victory(r){
  const b=r.battle;if(!b.enemies.every(e=>e.hp===0))return false;
  const node=r.route.find(n=>n.id===r.current),elite=node.type==='elite',boss=node.type==='boss',gold=(boss?90:elite?60:30)+(r.relics.includes('gilded')?10:0);r.gold+=gold;if(r.hero==='kaerun'){r.characterXpEarned=(r.characterXpEarned||0)+kaerunXpForEncounter(node.type);if(elite)r.hp=Math.min(r.maxHp,r.hp+(r.levelBonuses?.eliteHeal||0));}else if(r.hero==='ilyra')r.characterXpEarned=(r.characterXpEarned||0)+ilyraXpForEncounter(node.type);r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;if(boss)r.hp=Math.min(r.maxHp,r.hp+Math.round(r.maxHp*.25));
- if(elite){const relic=randomRelic(r);if(relic)r.relics.push(relic);r.eliteReward=relic;const shardRoll=random(r);const shard=shardRoll<.10?'prismatic':shardRoll<.35?'refined':shardRoll<.85?'basic':null;if(shard)r.shards[shard]++;r.eliteShardReward=shard;}else{r.eliteReward=null;r.eliteShardReward=null;}r.phase=node.type==='boss'?((r.stage||1)>=10?'won':'stage-complete'):'victory';r.rewards=sampleCards(r,boss?3:3);log(r,`Victory! Gained ${gold} gold${elite&&r.eliteReward?` and ${RELICS[r.eliteReward].name}`:''}${elite&&r.eliteShardReward?`, plus 1 ${SHARDS[r.eliteShardReward].name}`:''}.`);return true;
+ if(elite){const relic=randomRelic(r);if(relic)r.relics.push(relic);r.eliteReward=relic;const shardRoll=random(r);const shard=shardRoll<.10?'prismatic':shardRoll<.35?'refined':shardRoll<.85?'basic':null;if(shard)r.shards[shard]++;r.eliteShardReward=shard;}else{r.eliteReward=null;r.eliteShardReward=null;}r.phase=node.type==='boss'?((r.stage||1)>=10?'won':'stage-complete'):'victory';r.rewards=sampleCards(r,3,elite?.20:.10);log(r,`Victory! Gained ${gold} gold${elite&&r.eliteReward?` and ${RELICS[r.eliteReward].name}`:''}${elite&&r.eliteShardReward?`, plus 1 ${SHARDS[r.eliteShardReward].name}`:''}.`);return true;
 }
 function hitEnemy(r,e,base,multiplier=1){const b=r.battle,weakMult=b.weak>0?.75:1,vulnMult=e.vulnerable>0?1.5:1,raw=Math.max(0,Math.floor((base+b.strength+(r.relics.includes('hunterlens')&&e.mark>0?2:0))*multiplier*weakMult*vulnMult)),blocked=Math.min(e.block,raw);e.block-=blocked;const damage=Math.min(e.hp,raw-blocked);e.hp-=damage;return damage;}
 export function playCard(r,i){
@@ -258,6 +261,11 @@ export function resolveRoom(r,choice){
  }
  if(r.phase==='rest'&&choice==='rest'){r.hp=Math.min(r.maxHp,r.hp+24);return leave(r);}if(r.phase==='shop'&&choice==='leave')return leave(r);if(r.phase!=='mystery')return false;if(choice==='leave')return leave(r);
  if(r.room.kind==='cache'&&r.room.cards.includes(choice)){r.deck.push(choice);return leave(r);}if(r.room.kind==='shrine'&&choice==='accept'&&r.hp>8){r.hp-=8;r.blessing++;return leave(r);}if(r.room.kind==='rift'&&choice==='accept'){r.deck.push(r.room.cards[0]);r.gold+=45;r.curse+=2;return leave(r);}return false;
+}
+export function shopUpgradeCard(r,i,price=50){
+ if(r.phase!=='shop'||!Number.isInteger(i)||i<0||i>=r.deck.length||r.gold<price)return false;
+ const next=CARD_UPGRADES[r.deck[i]];if(!next)return false;
+ r.gold-=price;r.deck[i]=next;return true;
 }
 export function buy(r,i){if(r.phase!=='shop'||!Number.isInteger(i))return false;const x=r.room.stock[i];if(!x||x.sold||r.gold<x.price)return false;r.gold-=x.price;x.sold=true;if(x.kind==='card')r.deck.push(x.id);if(x.kind==='potion')r.potions++;if(x.kind==='shard')r.shards[x.id]+=x.quantity;if(x.kind==='relic')r.relics.push(x.id);return true;}
 export function sell(r,kind,i){if(r.phase!=='shop')return false;if(kind==='potion'&&r.potions>0){r.potions--;r.gold+=12;return true;}if(kind==='card'&&Number.isInteger(i)&&r.deck[i]&&r.deck.length>5){r.deck.splice(i,1);r.gold+=10;return true;}return false;}
