@@ -1,4 +1,4 @@
-import {HEROES,CARDS,MAX_CORE,CORE_REGEN,createRun,continueStage,enterBattle,playCard,endTurn,advance,intent,restore,serialise,availableNodes,chooseNode,selectTarget,RELICS,resolveRoom,buy,sell,usePotion,INVADERS,BEASTS,RARITIES,SHARDS,captureChance,captureBeast,companionReady,useCompanion,equipCompanion,CARD_UPGRADES,upgradeCard,shopUpgradeCard} from './engine.js?v=62';
+import {HEROES,CARDS,MAX_CORE,CORE_REGEN,createRun,continueStage,enterBattle,playCard,endTurn,advance,intent,restore,serialise,availableNodes,chooseNode,selectTarget,RELICS,resolveRoom,buy,sell,usePotion,INVADERS,BEASTS,RARITIES,SHARDS,captureChance,captureBeast,companionReady,useCompanion,equipCompanion,CARD_UPGRADES,upgradeCard,shopUpgradeCard} from './engine.js?v=63';
 import {validBeast,beastKey,addDiscovery,companionDescription,restoreBestiary, beastLevelFromXp, beastBonuses} from './beasts.js?v=15';
 import {kaerunLevelFromXp,kaerunBonuses,KAERUN_LEVEL_REWARDS,ilyraLevelFromXp,ilyraBonuses,ILYRA_LEVEL_REWARDS} from './progression.js?v=2';
 
@@ -26,9 +26,9 @@ function persistAction(fn,...args){if(!fn(run,...args))return false;if(run.phase
 function title(){return `<main class="title screen"><div class="title-shade"></div><div class="title-content"><img class="title-logo" src="assets/6FBB8F62-9010-4EC2-8342-E73B43951CB7.png" alt="Veyrak: Ascension"><div class="title-rule"></div><nav aria-label="Main menu">${run&&!['won','lost'].includes(run.phase)?button('Continue ascent','continue'):''}${button('Begin ascent','select')}${button('Bestiary','bestiary')}${button('Archive','archive')}${button('Settings','settings')}</nav></div><footer><span>VEYATHUUN AWAITS</span><span>BEASTBOUND · v0.18</span></footer></main>`;}
 const storyPages={
  1:[
-  {src:'assets/story/1B2E0ED6-7F91-4355-BB01-72EB0A4368F5.png',alt:'Veyathuun before the impact, the anomaly is discovered and the Council responds.'},
-  {src:'assets/story/DDF46E97-E6E6-4984-9189-6B1C21BD73B6.png',alt:'The meteor strikes Veyathuun and Kaerun and Ilyra enter the ruined district.'},
-  {src:'assets/story/59C50C17-A4FE-4F12-B467-E1C06750E9FC.png',alt:'Alien beasts emerge beneath Veyathuun as Kaerun and Ilyra begin their ascent.'}
+  {src:'assets/story/DDF46E97-E6E6-4984-9189-6B1C21BD73B6.png',alt:'Veyathuun before the impact, the anomaly is discovered and the Council responds.'},
+  {src:'assets/story/59C50C17-A4FE-4F12-B467-E1C06750E9FC.png',alt:'The meteor strikes Veyathuun and Kaerun and Ilyra enter the ruined district.'},
+  {src:'assets/story/1B2E0ED6-7F91-4355-BB01-72EB0A4368F5.png',alt:'Alien beasts emerge beneath Veyathuun as Kaerun and Ilyra begin their ascent.'}
  ],
  2:[
   {src:'assets/story/18D98338-4014-48B0-BA0A-D718433CE20E.png',alt:'Kaerun and Ilyra discover the entrance to the Shattered Depths beneath the impact site.'},
