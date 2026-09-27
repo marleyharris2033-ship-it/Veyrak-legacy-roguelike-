@@ -1,5 +1,5 @@
 import {kaerunBonuses,kaerunXpForEncounter,ilyraBonuses,ilyraXpForEncounter} from './progression.js?v=2';
-import {BEASTS,RARITIES,SHARDS,validBeast,beastKey,addDiscovery} from './beasts.js?v=13';
+import {BEASTS,RARITIES,SHARDS,validBeast,beastKey,addDiscovery, beastBonuses, BEAST_XP_REWARDS} from './beasts.js?v=14';
 export {BEASTS,RARITIES,SHARDS} from './beasts.js?v=13';
 export const VERSION=4;
 export const MAX_CORE=10;
@@ -214,7 +214,7 @@ export function createRun(seed,hero='kaerun',options={}){
  if(!HEROES.some(h=>h.id===hero&&h.available))throw Error('This hero is locked.');
  seed=normaliseSeed(seed);const enemyRoster=options.enemyRoster??2,beastSystem=options.beastSystem??5,stage=1;
  const route=buildRoute(seed,enemyRoster,beastSystem,!!options.legacy,stage);const characterLevel=['kaerun','ilyra'].includes(hero)?Math.max(1,Math.min(20,Math.floor(options.characterLevel)||1)):1,levelBonuses=hero==='kaerun'?kaerunBonuses(characterLevel):hero==='ilyra'?ilyraBonuses(characterLevel):{};
- return {characterLevel,characterXpEarned:0,characterXpBanked:0,levelBonuses,enemyRoster,beastSystem,beastRoutes:!options.legacy,legacy:!!options.legacy,stage,maxStage:10,stagesCleared:0,shards:{basic:5,refined:0,prismatic:0},seenBeasts:[],capturedBeasts:[],companion:validBeast(options.companion)?{id:options.companion.id,rarity:options.companion.rarity}:null,captureResult:null,version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80+(levelBonuses.maxHp||0),maxHp:80+(levelBonuses.maxHp||0),block:0,core:0,index:0,route,current:null,visited:[],deck:[...(hero==='ilyra'?ILYRA_STARTER:STARTER)],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
+ return {characterLevel,characterXpEarned:0,characterXpBanked:0,levelBonuses,enemyRoster,beastSystem,beastRoutes:!options.legacy,legacy:!!options.legacy,stage,maxStage:10,stagesCleared:0,shards:{basic:5,refined:0,prismatic:0},seenBeasts:[],capturedBeasts:[],companion:validBeast(options.companion)?{id:options.companion.id,rarity:options.companion.rarity}:null,companionLevel:Math.max(1,Math.min(10,Math.floor(options.companionLevel)||1)),beastXpEarned:0,beastXpBanked:0,captureResult:null,version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80+(levelBonuses.maxHp||0),maxHp:80+(levelBonuses.maxHp||0),block:0,core:0,index:0,route,current:null,visited:[],deck:[...(hero==='ilyra'?ILYRA_STARTER:STARTER)],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
 }
 export function continueStage(r){
  if(r.phase!=='stage-complete'||(r.stage||1)>=10)return false;
@@ -265,7 +265,7 @@ function log(r,text){r.log=[...r.log.slice(-5),text];}
 export function selectTarget(r,i){if(r.phase!=='combat'||!Number.isInteger(i)||!r.battle.enemies[i]?.hp)return false;r.battle.target=i;return true;}
 function victory(r){
  const b=r.battle;if(!b.enemies.every(e=>e.hp===0))return false;
- const node=r.route.find(n=>n.id===r.current),elite=node.type==='elite',boss=node.type==='boss',gold=(boss?90:elite?60:30)+(r.relics.includes('gilded')?10:0);r.gold+=gold;if(r.hero==='kaerun'){r.characterXpEarned=(r.characterXpEarned||0)+kaerunXpForEncounter(node.type);if(elite)r.hp=Math.min(r.maxHp,r.hp+(r.levelBonuses?.eliteHeal||0));}else if(r.hero==='ilyra')r.characterXpEarned=(r.characterXpEarned||0)+ilyraXpForEncounter(node.type);r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;if(boss)r.hp=Math.min(r.maxHp,r.hp+Math.round(r.maxHp*.25));
+ const node=r.route.find(n=>n.id===r.current),elite=node.type==='elite',boss=node.type==='boss';if(validBeast(r.companion))r.beastXpEarned=(r.beastXpEarned||0)+(BEAST_XP_REWARDS[node.type]||0);const gold=(boss?90:elite?60:30)+(r.relics.includes('gilded')?10:0);r.gold+=gold;if(r.hero==='kaerun'){r.characterXpEarned=(r.characterXpEarned||0)+kaerunXpForEncounter(node.type);if(elite)r.hp=Math.min(r.maxHp,r.hp+(r.levelBonuses?.eliteHeal||0));}else if(r.hero==='ilyra')r.characterXpEarned=(r.characterXpEarned||0)+ilyraXpForEncounter(node.type);r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;if(boss)r.hp=Math.min(r.maxHp,r.hp+Math.round(r.maxHp*.25));
  if(elite){const relic=randomRelic(r);if(relic)r.relics.push(relic);r.eliteReward=relic;const shardRoll=random(r);const shard=shardRoll<.10?'prismatic':shardRoll<.35?'refined':shardRoll<.85?'basic':null;if(shard)r.shards[shard]++;r.eliteShardReward=shard;}else{r.eliteReward=null;r.eliteShardReward=null;}r.phase=node.type==='boss'?((r.stage||1)>=10?'won':'stage-complete'):'victory';r.rewards=sampleCards(r,3,elite?.20:.10);log(r,`Victory! Gained ${gold} gold${elite&&r.eliteReward?` and ${RELICS[r.eliteReward].name}`:''}${elite&&r.eliteShardReward?`, plus 1 ${SHARDS[r.eliteShardReward].name}`:''}.`);return true;
 }
 function hitEnemy(r,e,base,multiplier=1){const b=r.battle,weakMult=b.weak>0?.75:1,vulnMult=e.vulnerable>0?1.5:1,raw=Math.max(0,Math.floor((base+b.strength+(r.relics.includes('hunterlens')&&e.mark>0?2:0))*multiplier*weakMult*vulnMult)),blocked=Math.min(e.block,raw);e.block-=blocked;const damage=Math.min(e.hp,raw-blocked);e.hp-=damage;return damage;}
@@ -370,17 +370,17 @@ export function captureBeast(r,shard='basic'){
 export function companionReady(r){return r.phase==='combat'&&validBeast(r.companion)&&!r.battle.companionCooldown&&(r.companion.id!=='syluun'||r.battle.companionUses<2&&r.hp<r.maxHp);}
 export function useCompanion(r){
  if(!companionReady(r))return false;
- const {id,rarity}=r.companion,b=r.battle,s=RARITIES[rarity],target=b.enemies[b.target];
+ const {id,rarity}=r.companion,b=r.battle,s=RARITIES[rarity],target=b.enemies[b.target],bonuses=beastBonuses(r.companionLevel||1),scale=n=>Math.max(1,Math.round(n*bonuses.multiplier));
  if(id==='rhazek'){
   if(!target?.hp)return false;
   // Companion attacks are independent of the hero's Strength and next-card bonuses.
-  const damage=Math.floor(s.damage*(target.vulnerable>0?1.5:1)),blocked=Math.min(target.block,damage);target.block-=blocked;target.hp=Math.max(0,target.hp-damage+blocked);
+  let damage=Math.floor(scale(s.damage)*(target.vulnerable>0?1.5:1));if(bonuses.minor&&b.companionUses===0)damage=Math.floor(damage*1.2),blocked=Math.min(target.block,damage);target.block-=blocked;target.hp=Math.max(0,target.hp-damage+blocked);
   if(!target.hp)b.target=b.enemies.findIndex(e=>e.hp>0);
  }
- if(id==='dhoruun')r.block+=s.block;
- if(id==='vaelith'){r.core=Math.min(MAX_CORE,r.core+s.energy);b.companionBoost=s.boost;}
- if(id==='syluun')r.hp=Math.min(r.maxHp,r.hp+s.heal);
- bossPhase(r);b.companionCooldown=BEASTS[id].cooldown;b.companionUses++;log(r,`${BEASTS[id].name} used ${BEASTS[id].ability}.`);victory(r);return true;
+ if(id==='dhoruun')r.block+=scale(s.block)+(bonuses.minor?2:0);
+ if(id==='vaelith'){r.core=Math.min(MAX_CORE,r.core+s.energy+(bonuses.mastery?1:0));b.companionBoost=scale(s.boost);}
+ if(id==='syluun')r.hp=Math.min(r.maxHp,r.hp+scale(s.heal)+(bonuses.minor?1:0));
+ bossPhase(r);b.companionCooldown=Math.max(1,BEASTS[id].cooldown-(bonuses.enhanced?1:0));b.companionUses++;log(r,`${BEASTS[id].name} used ${BEASTS[id].ability}.`);victory(r);return true;
 }
 export function equipCompanion(r,companion,collection){
  if(!['map','victory','shop','rest','chest','mystery'].includes(r.phase))return false;
