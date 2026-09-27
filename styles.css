@@ -570,3 +570,7 @@ img.neutral-card-png{
 .comic-story-controls{position:fixed;left:50%;bottom:max(8px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:30;display:flex;gap:6px;padding:5px 7px;border:1px solid #c7a45a55;border-radius:999px;background:#05090de6;box-shadow:0 3px 18px #000}
 .comic-story-controls button{min-height:30px;padding:5px 10px;font-size:10px}
 @media(orientation:portrait){.story-comic-page{width:100%;height:auto;max-height:none}.story.comic-story{align-items:flex-start}}
+
+/* v60: clean comic navigation — suppress decorative button glyphs */
+.comic-story-controls button::before,.comic-story-controls button::after{content:none!important;display:none!important}
+.comic-story-controls button{background-image:none!important;text-shadow:none!important}
