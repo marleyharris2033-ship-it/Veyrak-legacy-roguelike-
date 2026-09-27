@@ -314,7 +314,7 @@ export function resolveRoom(r,choice){
  if(r.phase==='rest'&&choice==='rest'){r.hp=Math.min(r.maxHp,r.hp+24);return leave(r);}if(r.phase==='shop'&&choice==='leave')return leave(r);if(r.phase!=='mystery')return false;if(choice==='leave')return leave(r);
  if(r.room.kind==='cache'&&r.room.cards.includes(choice)){r.deck.push(choice);return leave(r);}if(r.room.kind==='shrine'&&choice==='accept'&&r.hp>8){r.hp-=8;r.blessing++;return leave(r);}if(r.room.kind==='rift'&&choice==='accept'){r.deck.push(r.room.cards[0]);r.gold+=45;r.curse+=2;return leave(r);}return false;
 }
-export function shopUpgradeCard(r,i,price=50){
+export function shopUpgradeCard(r,i,price=75){
  if(r.phase!=='shop'||!Number.isInteger(i)||i<0||i>=r.deck.length||r.gold<price)return false;
  const next=CARD_UPGRADES[r.deck[i]];if(!next)return false;
  r.gold-=price;r.deck[i]=next;return true;
