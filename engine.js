@@ -40,7 +40,7 @@ function invaderVariant(species,row,elite=false){
  if(elite)enemy.name=`Elite ${enemy.name}`;
  return enemy;
 }
-const BOSS={id:'warden',name:'The Gate Warden',hp:140,colour:'#b05cff',boss:true,phase:1,moves:[{kind:'attack',value:12,name:'Void Claw'},{kind:'guard',value:12,name:'Rift Shield'},{kind:'attack',value:6,hits:2,name:'Twin Slash'},{kind:'charge',value:0,name:'Rift Charge'},{kind:'attack',value:22,name:'Rift Breaker'}]};
+const BOSS={id:'warden',name:'The Gate Warden',hp:210,colour:'#b05cff',boss:true,phase:1,moves:[{kind:'attack',value:13,name:'Void Claw'},{kind:'guard',value:16,name:'Rift Shield'},{kind:'attack',value:7,hits:2,name:'Twin Slash'},{kind:'charge',value:0,name:'Rift Charge'},{kind:'attack',value:24,name:'Rift Breaker'}]};
 export function normaliseSeed(s){return String(s).trim().slice(0,32)||'VEYATHUUN';}
 function hash(text){let n=2166136261;for(const c of text){n^=c.charCodeAt(0);n=Math.imul(n,16777619);}return n>>>0;}
 function random(state){state.rng=(state.rng+0x6D2B79F5)>>>0;let t=state.rng;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;}
@@ -151,7 +151,7 @@ function buildRoute(seed,enemyRoster,beastSystem,legacy=false,stage=1){
   if(beastSystem===1){layouts[1]=['battle','beast','chest'];layouts[4]=['mystery','beast','battle'];layouts[7]=['chest','beast','battle'];}
   else if(beastSystem===2){const beastRouteState={rng:hash(seed+':beast-route:'+stage)};for(let row=0;row<layouts.length-1;row++){if(random(beastRouteState)<.2){let choices=layouts[row].map((type,col)=>({type,col})).filter(x=>x.type==='battle');if(!choices.length)choices=layouts[row].map((type,col)=>({type,col})).filter(x=>x.type==='mystery');if(!choices.length)choices=layouts[row].map((type,col)=>({type,col}));const pick=choices[Math.floor(random(beastRouteState)*choices.length)];layouts[row][pick.col]='beast';}}}
   else if(beastSystem===3){const beastRouteState={rng:hash(seed+':beast-stage:'+stage)};if(random(beastRouteState)<.6){const row=1+Math.floor(random(beastRouteState)*8);layouts[row]=['beast','beast','beast'];}}
-  else{const beastRouteState={rng:hash(seed+':beast-stage:'+stage)};const row=7+Math.floor(random(beastRouteState)*2);layouts[row]=['beast','beast','beast'];}
+  else{const beastRouteState={rng:hash(seed+':beast-stage:'+stage)};const row=7+Math.floor(random(beastRouteState)*2);const candidates=layouts[row].map((type,col)=>({type,col})).filter(x=>x.type==='battle');const pool=candidates.length?candidates:layouts[row].map((type,col)=>({type,col}));const pick=pool[Math.floor(random(beastRouteState)*pool.length)];layouts[row][pick.col]='beast';}
  }
 const beastSpecies=beastSystem>=2?shuffle(Object.keys(BEASTS),{rng:hash(seed+':beast-species:'+stage)}):null;let beastEncounter=0;
  layouts.forEach((types,row)=>{const ordered=shuffle(types,state);ordered.forEach((type,col)=>{const id=`${stage}-${row}-${col}`;let enemy;if(enemyRoster===2&&row<10&&['battle','elite'].includes(type)){const species=row===0?firstThree[col]:INVADERS[Math.floor(random(state)*INVADERS.length)];enemy=invaderVariant(species,row,type==='elite');}else{enemy=structuredClone(type==='boss'?BOSS:type==='elite'?LEGACY_ELITES[Math.floor(random(state)*LEGACY_ELITES.length)]:LEGACY_ENEMIES[Math.floor(random(state)*4)]);if(!['boss','elite'].includes(type)){enemy.hp+=4+row*3;enemy.moves=enemy.moves.map(m=>({...m,value:m.kind==='attack'?m.value+1+Math.floor(row/3):m.value}));}}if(type==='beast')enemy=createBeastEnemy(seed,id,row,beastSystem>=2?beastSpecies[beastEncounter++%beastSpecies.length]:null,beastSystem>=2,beastSystem>=4,beastSystem>=5?stage:null);enemy.boss=type==='boss';const pack=enemyRoster===2&&type==='battle'&&row<10&&enemy.size==='small'?packPartner(seed,id,row,enemy.id):null;route.push(pack?{id,row,col,type,enemy,pack,next:[]}:{id,row,col,type,enemy,next:[]});});});
@@ -183,7 +183,7 @@ export function chooseNode(r,id){
 export function enterBattle(r){const id=availableNodes(r).find(id=>['battle','elite','boss'].includes(r.route.find(n=>n.id===id).type));return id?chooseNode(r,id):false;}
 function bossPhase(r){
  const b=r.battle,boss=b?.enemies.find(e=>e.boss&&e.hp>0);if(!boss||boss.phase===2||boss.hp>boss.maxHp/2)return false;
- boss.phase=2;boss.moves=[{kind:'attack',value:14,name:'Void Claw'},{kind:'guard',value:8,name:'Rift Shield'},{kind:'attack',value:8,hits:2,name:'Twin Slash'},{kind:'charge',value:0,name:'Rift Charge'},{kind:'attack',value:26,name:'Rift Breaker'}];boss.move=0;
+ boss.phase=2;boss.moves=[{kind:'attack',value:15,name:'Void Claw'},{kind:'guard',value:14,name:'Rift Shield'},{kind:'attack',value:8,hits:2,name:'Twin Slash'},{kind:'charge',value:0,name:'Rift Charge'},{kind:'attack',value:28,name:'Rift Breaker'}];boss.move=0;boss.block=Math.max(boss.block||0,12);
  const species=INVADERS.find(x=>x.id==='rift_skitter'),minion=invaderVariant(species,4);minion.hp=minion.maxHp=18;minion.name='Riftbound Skitter';minion.riftBond=true;minion.block=0;minion.move=0;minion.mark=0;minion.weak=0;minion.vulnerable=0;minion.bleed=0;minion.strength=0;minion.stunned=false;b.enemies.push(minion);log(r,'The Gate Warden tears open the rift! A Riftbound Skitter emerges. Rift Bond empowers the Warden while it lives.');return true;
 }
 function startBattle(r,node){
