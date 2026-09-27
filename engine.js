@@ -1,5 +1,5 @@
 import {kaerunBonuses,kaerunXpForEncounter,ilyraBonuses,ilyraXpForEncounter} from './progression.js?v=2';
-import {BEASTS,RARITIES,SHARDS,validBeast,beastKey,addDiscovery, beastBonuses, BEAST_XP_REWARDS} from './beasts.js?v=14';
+import {BEASTS,RARITIES,SHARDS,validBeast,beastKey,addDiscovery, beastBonuses, BEAST_XP_REWARDS} from './beasts.js?v=15';
 export {BEASTS,RARITIES,SHARDS} from './beasts.js?v=13';
 export const VERSION=4;
 export const MAX_CORE=10;
@@ -367,7 +367,7 @@ export function captureBeast(r,shard='basic'){
  else{e.strength=(e.strength||0)+2;log(r,`${e.name} broke free! The shard is spent. Rage: +2 attack damage.`);}
  return true;
 }
-export function companionReady(r){return r.phase==='combat'&&validBeast(r.companion)&&!r.battle.companionCooldown&&(r.companion.id!=='syluun'||r.battle.companionUses<2&&r.hp<r.maxHp);}
+export function companionReady(r){return r.phase==='combat'&&validBeast(r.companion)&&!r.battle.companionCooldown&&(r.companion.id!=='syluun'||r.hp<r.maxHp);}
 export function useCompanion(r){
  if(!companionReady(r))return false;
  const {id,rarity}=r.companion,b=r.battle,s=RARITIES[rarity],target=b.enemies[b.target],bonuses=beastBonuses(r.companionLevel||1),scale=n=>Math.max(1,Math.round(n*bonuses.multiplier));
