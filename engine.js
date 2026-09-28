@@ -2,6 +2,7 @@ import {kaerunBonuses,kaerunXpForEncounter,ilyraBonuses,ilyraXpForEncounter} fro
 import {BEASTS,RARITIES,SHARDS,validBeast,beastKey,addDiscovery, beastBonuses, BEAST_XP_REWARDS} from './beasts.js?v=15';
 export {BEASTS,RARITIES,SHARDS} from './beasts.js?v=13';
 export const VERSION=4;
+const COMPATIBLE_VERSIONS=new Set([4]);
 export const MAX_CORE=10;
 export const CORE_REGEN=3;
 export const HEROES = [
@@ -352,9 +353,11 @@ export function usePotion(r){if(!['combat','map'].includes(r.phase)||r.potions<1
 export function serialise(r){return JSON.stringify(r);}
 export function restore(raw){try{
  const r=JSON.parse(raw),int=(x,min,max)=>Number.isInteger(x)&&x>=min&&x<=max;
- if(!r||r.version!==VERSION||typeof r.seed!=='string'||r.seed!==normaliseSeed(r.seed)||!HEROES.some(h=>h.id===r.hero&&h.available))return null;
+ if(!r||!COMPATIBLE_VERSIONS.has(r.version)||typeof r.seed!=='string'||r.seed!==normaliseSeed(r.seed)||!HEROES.some(h=>h.id===r.hero&&h.available))return null;
+ // Preserve active ascents across content updates. Missing additive fields are migrated below instead of invalidating the whole run.
+ r.version=VERSION;
  if(!['map','combat','victory','stage-complete','won','lost','shop','chest','mystery','rest'].includes(r.phase)||!int(r.rng,0,4294967295)||!int(r.hp,0,80)||r.maxHp!==80||!int(r.gold,0,100000)||!int(r.potions,0,1000)||!int(r.core,0,MAX_CORE)||!int(r.block,0,999)||!int(r.blessing,0,20)||!int(r.curse,0,20))return null;
- const stage=r.stage??1;if(!int(stage,1,10))return null;r.stage=stage;r.maxStage=10;r.stagesCleared??=Math.max(0,stage-1);const expectedRoute=buildRoute(r.seed,r.enemyRoster??1,r.beastSystem??1,!r.beastRoutes,stage);const staleStage2=stage===2&&Array.isArray(r.route)&&r.route.some(n=>['battle','elite','boss'].includes(n?.type)&&n?.enemy&&!n.enemy.stage2&&!n.enemy.beast);if(staleStage2){r.route=expectedRoute;r.visited=[];r.current=null;r.index=0;r.phase='map';r.battle=null;r.room=null;r.block=0;r.core=0;r.rewards=[];r.eliteReward=null;r.eliteShardReward=null;r.captureResult=null;}if(JSON.stringify(r.route)!==JSON.stringify(expectedRoute)||!Array.isArray(r.deck)||r.deck.length<5||r.deck.length>100||r.deck.some(c=>!Object.hasOwn(CARDS,c))||!Array.isArray(r.relics)||r.relics.some(id=>!Object.hasOwn(RELICS,id)))return null;
+ const stage=r.stage??1;if(!int(stage,1,10))return null;r.stage=stage;r.maxStage=10;r.stagesCleared??=Math.max(0,stage-1);const expectedRoute=buildRoute(r.seed,r.enemyRoster??1,r.beastSystem??1,!r.beastRoutes,stage);const staleStage2=stage===2&&Array.isArray(r.route)&&r.route.some(n=>['battle','elite','boss'].includes(n?.type)&&n?.enemy&&!n.enemy.stage2&&!n.enemy.beast);if(staleStage2){r.route=expectedRoute;r.visited=[];r.current=null;r.index=0;r.phase='map';r.battle=null;r.room=null;r.block=0;r.core=0;r.rewards=[];r.eliteReward=null;r.eliteShardReward=null;r.captureResult=null;}if(!Array.isArray(r.route)||!r.route.length||!Array.isArray(r.deck)||r.deck.length<5||r.deck.length>100||r.deck.some(c=>!Object.hasOwn(CARDS,c))||!Array.isArray(r.relics)||r.relics.some(id=>!Object.hasOwn(RELICS,id)))return null;
  if(!Array.isArray(r.visited)||r.visited.length>11)return null;let prev=null;for(const id of r.visited){const n=r.route.find(n=>n.id===id);if(!n||(prev?!prev.next.includes(id):n.row!==0))return null;prev=n;}if(r.current!==(prev?.id??null))return null;
  if(!Array.isArray(r.log)||r.log.some(x=>typeof x!=='string'||x.length>300)||!Array.isArray(r.rewards)||r.rewards.some(x=>!CARDS[x]))return null;
  if(['combat','victory','stage-complete','won','lost'].includes(r.phase)){const b=r.battle;if(!b||!Array.isArray(b.enemies)||!b.enemies.length||b.enemies.some(e=>!int(e.hp,0,e.maxHp)||!Array.isArray(e.moves))||!['draw','hand','discard'].every(k=>Array.isArray(b[k])&&b[k].every(c=>Object.hasOwn(CARDS,c))))return null;b.exhaust??=[];b.retained??=[];if(JSON.stringify([...b.draw,...b.hand,...b.discard,...b.exhaust,...b.retained].sort())!==JSON.stringify([...r.deck].sort()))return null;if(r.phase==='combat'&&(!r.hp||!b.enemies[b.target]?.hp))return null;}
