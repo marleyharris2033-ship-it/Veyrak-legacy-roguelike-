@@ -574,3 +574,36 @@ img.neutral-card-png{
 /* v60: clean comic navigation — suppress decorative button glyphs */
 .comic-story-controls button::before,.comic-story-controls button::after{content:none!important;display:none!important}
 .comic-story-controls button{background-image:none!important;text-shadow:none!important}
+
+/* The upgraded card displays its actual stats over the existing illustration. */
+.upgraded-card-art{container-type:inline-size;isolation:isolate;overflow:hidden;border-radius:7px;background:#101522;box-shadow:0 0 0 2px #dfb85e,0 0 12px #dcae5570;filter:none}
+.upgraded-card-art:after{inset:0;border:2px solid #e4bf70;border-radius:7px;box-shadow:inset 0 0 0 2px #18131b,0 0 9px #dfb95d99}
+.upgraded-card-art>.upgrade-base{position:absolute;inset:0;display:block;pointer-events:none}
+.upgraded-card-art>.upgrade-base>.sheet-card,.upgraded-card-art>.upgrade-base>.ilyra-card,.upgraded-card-art>.upgrade-base>.tech-card,.upgraded-card-art>.upgrade-base>.neutral-card{display:block;width:100%!important;height:100%!important;aspect-ratio:auto!important;margin:0!important}
+.upgrade-dialog .upgrade-preview .upgraded-card-art>.upgrade-base>.sheet-card,.upgrade-dialog .upgrade-preview .upgraded-card-art>.upgrade-base>.ilyra-card,.upgrade-dialog .upgrade-preview .upgraded-card-art>.upgrade-base>.tech-card,.upgrade-dialog .upgrade-preview .upgraded-card-art>.upgrade-base>.neutral-card{width:100%!important;height:100%!important;aspect-ratio:auto!important}
+.upgrade-card-cost,.upgrade-card-name,.upgrade-card-effect{position:absolute;z-index:3;display:flex;align-items:center;justify-content:center;text-align:center;color:#fff0c9;text-shadow:0 1px 3px #000;font-family:Georgia,serif}
+.upgrade-card-cost{top:3%;left:1%;width:26%;height:17%;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);background:linear-gradient(135deg,#f2d68b,#8b621f 14%,#10192b 23% 78%,#d9a94f 88%,#fff2b5);font-size:19cqw;font-weight:bold}
+.upgrade-card-name{top:6%;left:29%;right:4%;height:13%;padding:1% 2%;background:linear-gradient(90deg,#070e1bdc,#10151de0);border-block:1px solid #d6ac5d;font-size:8.8cqw;line-height:1.05;text-transform:uppercase}
+.upgrade-card-effect{left:7%;right:7%;bottom:3%;height:23%;padding:2% 3%;background:#0b0e17f5;border:1px solid #d9b76c;border-radius:3px;font-size:7.2cqw;line-height:1.12;overflow:hidden}
+.offer-card .upgraded-card-art .upgrade-card-cost{font-size:19cqw}.offer-card .upgraded-card-art .upgrade-card-name{font-size:8.8cqw}.offer-card .upgraded-card-art .upgrade-card-effect{font-size:7.2cqw}
+.upgraded-card-art .upgrade-plus{z-index:5;right:2%;top:2%;width:19%;height:12%;font-size:11cqw;border-radius:50%;background:#79531e}
+.shop-stock .upgraded-card-art{width:95px;max-width:100%}.collection-card>.upgraded-card-art{width:76px;max-width:100%}
+
+/* One comparison flow for the Sanctuary and the merchant. */
+dialog.upgrade-dialog{width:min(760px,94vw);max-height:min(90svh,860px);overflow-y:auto}
+.upgrade-dialog .upgrade-intro{font-size:13px;line-height:1.5;color:#cfdae5;margin-bottom:14px}
+.upgrade-dialog .upgrade-intro strong{color:#f2ce81}
+.upgrade-dialog .upgrade-list{max-height:min(60svh,560px);grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.upgrade-dialog .upgrade-choice{min-width:0;min-height:75px;padding:11px 13px}
+.upgrade-dialog .upgrade-choice>span,.upgrade-dialog .upgrade-choice>b{min-width:0;overflow-wrap:anywhere}
+.upgrade-dialog .upgrade-choice>span small{font:11px Inter,system-ui,sans-serif;color:#d8b96f}
+.upgrade-dialog .upgrade-choice:disabled{opacity:.5}
+.upgrade-dialog .upgrade-note{color:#efb7a6;font-size:12px;margin:4px 0 12px}
+.upgrade-dialog .upgrade-preview{gap:18px;margin:8px 0 16px;grid-template-columns:minmax(0,1fr) 40px minmax(0,1fr)}
+.upgrade-dialog .upgrade-preview section{min-width:0}.upgrade-dialog .upgrade-preview section>.eyebrow{margin-bottom:12px}
+.upgrade-dialog .upgrade-preview .sheet-card,.upgrade-dialog .upgrade-preview .ilyra-card,.upgrade-dialog .upgrade-preview .tech-card,.upgrade-dialog .upgrade-preview .neutral-card,.upgrade-dialog .upgrade-preview .upgraded-card-art{width:min(170px,100%);height:auto!important;aspect-ratio:307/490}
+.upgrade-dialog .upgrade-preview section>strong{font-size:16px}.upgrade-dialog .upgrade-preview section>p:last-child{font-size:12px;line-height:1.45;min-height:42px;margin-top:5px}
+.upgrade-dialog-actions{display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap}
+.upgrade-dialog-actions .gold{min-width:min(290px,100%)}
+@media(max-width:600px){dialog.upgrade-dialog{width:95vw;padding:15px;max-height:90dvh}.upgrade-dialog .modal-heading{margin-bottom:12px;padding-bottom:10px}.upgrade-dialog .modal-heading h2{font-size:19px}.upgrade-dialog .upgrade-list{grid-template-columns:1fr;max-height:57dvh}.upgrade-dialog .upgrade-choice{min-height:62px}.upgrade-dialog .upgrade-preview{grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr);gap:5px}.upgrade-dialog .upgrade-preview .sheet-card,.upgrade-dialog .upgrade-preview .ilyra-card,.upgrade-dialog .upgrade-preview .tech-card,.upgrade-dialog .upgrade-preview .neutral-card,.upgrade-dialog .upgrade-preview .upgraded-card-art{width:min(125px,100%)}.upgrade-dialog .upgrade-preview section>p:last-child{font-size:10px}.upgrade-dialog-actions .gold{width:100%;min-width:0}}
+@media(orientation:landscape) and (max-height:550px){dialog.upgrade-dialog{width:min(820px,95vw);max-height:92dvh;padding:14px}.upgrade-dialog .upgrade-preview .sheet-card,.upgrade-dialog .upgrade-preview .ilyra-card,.upgrade-dialog .upgrade-preview .tech-card,.upgrade-dialog .upgrade-preview .neutral-card,.upgrade-dialog .upgrade-preview .upgraded-card-art{width:min(100px,100%)}.upgrade-dialog .upgrade-preview section>.eyebrow{margin-bottom:4px}.upgrade-dialog .upgrade-preview section>p:last-child{min-height:0}.upgrade-dialog .upgrade-list{max-height:48dvh}}
