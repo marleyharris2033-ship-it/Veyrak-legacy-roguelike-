@@ -589,6 +589,20 @@ img.neutral-card-png{
 .upgraded-card-art .upgrade-plus{z-index:5;right:2%;top:2%;width:19%;height:12%;font-size:11cqw;border-radius:50%;background:#79531e}
 .shop-stock .upgraded-card-art{width:95px;max-width:100%}.collection-card>.upgraded-card-art{width:76px;max-width:100%}
 
+
+/* v69: polished upgraded cards + Stage 2 supplied PNG presentation */
+.upgraded-card-art>.upgrade-base{z-index:1}
+.upgrade-card-cost{z-index:6;top:0;left:0;width:29%;height:22%;font-size:18cqw;box-shadow:0 2px 8px #000b}
+.upgrade-card-name{z-index:5;top:4%;left:22%;right:2%;height:17%;padding:2% 10% 2% 5%;font-size:8.4cqw;background:#080d18f8;border:1px solid #d6ac5d;border-left:0;overflow:hidden}
+.upgrade-card-effect{z-index:5;left:3%;right:3%;bottom:1.5%;height:29%;padding:3% 4%;font-size:6.8cqw;line-height:1.12;background:#090d16fc;border:1px solid #e0bb69;box-shadow:0 -2px 10px #000b}
+.upgraded-card-art .upgrade-plus{z-index:8;right:2%;top:2%}
+.stage2-art{object-fit:contain!important;object-position:center bottom!important;filter:drop-shadow(0 12px 10px #000b) drop-shadow(0 0 8px #0007);transform-origin:50% 100%}
+.enemy-target .stage2-art.invader-small{width:min(92%,190px);height:62%;max-width:190px}
+.enemy-target .stage2-art.invader-large{width:min(100%,230px);height:72%;max-width:230px}
+.enemy-target.elite-target .stage2-art{transform:scale(1.08)}
+.enemy-target.targeted .stage2-art{filter:drop-shadow(0 12px 10px #000b) drop-shadow(0 0 10px #e7c17e99)}
+@media(orientation:landscape) and (max-height:550px){.battle .enemy-target .stage2-art.invader-small{height:60%;max-width:145px}.battle .enemy-target .stage2-art.invader-large{height:70%;max-width:170px}}
+
 /* One comparison flow for the Sanctuary and the merchant. */
 dialog.upgrade-dialog{width:min(760px,94vw);max-height:min(90svh,860px);overflow-y:auto}
 .upgrade-dialog .upgrade-intro{font-size:13px;line-height:1.5;color:#cfdae5;margin-bottom:14px}
