@@ -11,6 +11,13 @@ let run=restore(read(keys.run)),selected='kaerun',screen='title',settings={sound
 try{const s=JSON.parse(read(keys.settings));if(s&&typeof s.sound==='boolean'&&typeof s.motion==='boolean')settings=s;}catch{}
 try{const a=JSON.parse(read(keys.archive));if(Array.isArray(a))history=a.filter(x=>x&&typeof x.seed==='string'&&HEROES.some(h=>h.id===x.hero)&&['won','lost','abandoned'].includes(x.outcome)&&Number.isInteger(x.turns)).slice(0,30);}catch{}
 let bestiary=restoreBestiary(read(keys.bestiary)),bestiaryReturn='title',progression={kaerunXp:0,ilyraXp:0};try{const p=JSON.parse(read(keys.progression));if(p&&Number.isFinite(p.kaerunXp)&&p.kaerunXp>=0)progression.kaerunXp=Math.floor(p.kaerunXp);if(p&&Number.isFinite(p.ilyraXp)&&p.ilyraXp>=0)progression.ilyraXp=Math.floor(p.ilyraXp);}catch{}
+const transparentEnemyCache=new Map();
+function stripEnemyWhiteBackground(img){
+ if(!img?.classList?.contains('stage2-art')||img.dataset.cleaned==='1')return;
+ const src=img.getAttribute('src');if(transparentEnemyCache.has(src)){img.dataset.cleaned='1';img.src=transparentEnemyCache.get(src);return;}
+ try{const c=document.createElement('canvas'),w=img.naturalWidth,h=img.naturalHeight;if(!w||!h)return;c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0);const d=x.getImageData(0,0,w,h),p=d.data,seen=new Uint8Array(w*h),q=new Int32Array(w*h),push=(i)=>{if(!seen[i]){const k=i*4,r=p[k],g=p[k+1],b=p[k+2];if(r>=232&&g>=232&&b>=232&&Math.max(r,g,b)-Math.min(r,g,b)<=22){seen[i]=1;q[tail++]=i;}}};let head=0,tail=0;for(let xx=0;xx<w;xx++){push(xx);push((h-1)*w+xx);}for(let yy=0;yy<h;yy++){push(yy*w);push(yy*w+w-1);}while(head<tail){const i=q[head++],k=i*4;p[k+3]=0;const xx=i%w,yy=(i/w)|0;if(xx)push(i-1);if(xx<w-1)push(i+1);if(yy)push(i-w);if(yy<h-1)push(i+w);}x.putImageData(d,0,0);const clean=c.toDataURL('image/png');transparentEnemyCache.set(src,clean);img.dataset.cleaned='1';img.src=clean;}catch{}
+}
+app.addEventListener('load',e=>stripEnemyWhiteBackground(e.target),true);
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function icon(kind){const paths={strike:'M7 25 23 9m-1-5 6 6M4 28l6-2-4-4-2 6Z',guard:'M16 3 27 8v9c0 6-11 12-11 12S5 23 5 17V8Z',surge:'m18 2-12 17h9l-1 11 12-18h-9Z',lock:'M9 14V9a7 7 0 0 1 14 0v5M6 14h20v16H6Zm10 6v5',core:'m16 2 12 14-12 14L4 16Z',back:'m20 6-10 10 10 10',pause:'M11 7v18m10-18v18',sound:'M5 13h6l8-7v20l-8-7H5Zm19-3q7 6 0 12'};return `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="${paths[kind]||paths.core}"/></svg>`;}
 function button(label,action,cls='gold',extra=''){return `<button class="${cls}" data-action="${action}" ${extra}>${label}</button>`;}
