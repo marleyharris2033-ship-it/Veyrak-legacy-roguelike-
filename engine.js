@@ -356,7 +356,11 @@ export function restore(raw){try{
  if(!r||!COMPATIBLE_VERSIONS.has(r.version)||typeof r.seed!=='string'||r.seed!==normaliseSeed(r.seed)||!HEROES.some(h=>h.id===r.hero&&h.available))return null;
  // Preserve active ascents across content updates. Missing additive fields are migrated below instead of invalidating the whole run.
  r.version=VERSION;
- if(!['map','combat','victory','stage-complete','won','lost','shop','chest','mystery','rest'].includes(r.phase)||!int(r.rng,0,4294967295)||!int(r.hp,0,80)||r.maxHp!==80||!int(r.gold,0,100000)||!int(r.potions,0,1000)||!int(r.core,0,MAX_CORE)||!int(r.block,0,999)||!int(r.blessing,0,20)||!int(r.curse,0,20))return null;
+ const characterLevel=r.characterLevel??1;
+ if(!int(characterLevel,1,20))return null;
+ const expectedMaxHp=80+(r.hero==='ilyra'?ilyraBonuses(characterLevel):kaerunBonuses(characterLevel)).maxHp;
+ if(!['map','combat','victory','stage-complete','won','lost','shop','chest','mystery','rest'].includes(r.phase)||!int(r.rng,0,4294967295)||!int(r.hp,0,expectedMaxHp)||r.maxHp!==expectedMaxHp||!int(r.gold,0,100000)||!int(r.potions,0,1000)||!int(r.core,0,MAX_CORE)||!int(r.block,0,999)||!int(r.blessing,0,20)||!int(r.curse,0,20))return null;
+ r.characterLevel=characterLevel;
  const stage=r.stage??1;if(!int(stage,1,10))return null;r.stage=stage;r.maxStage=10;r.stagesCleared??=Math.max(0,stage-1);const expectedRoute=buildRoute(r.seed,r.enemyRoster??1,r.beastSystem??1,!r.beastRoutes,stage);const staleStage2=stage===2&&Array.isArray(r.route)&&r.route.some(n=>['battle','elite','boss'].includes(n?.type)&&n?.enemy&&!n.enemy.stage2&&!n.enemy.beast);if(staleStage2){r.route=expectedRoute;r.visited=[];r.current=null;r.index=0;r.phase='map';r.battle=null;r.room=null;r.block=0;r.core=0;r.rewards=[];r.eliteReward=null;r.eliteShardReward=null;r.captureResult=null;}if(!Array.isArray(r.route)||!r.route.length||!Array.isArray(r.deck)||r.deck.length<5||r.deck.length>100||r.deck.some(c=>!Object.hasOwn(CARDS,c))||!Array.isArray(r.relics)||r.relics.some(id=>!Object.hasOwn(RELICS,id)))return null;
  if(!Array.isArray(r.visited)||r.visited.length>11)return null;let prev=null;for(const id of r.visited){const n=r.route.find(n=>n.id===id);if(!n||(prev?!prev.next.includes(id):n.row!==0))return null;prev=n;}if(r.current!==(prev?.id??null))return null;
  if(!Array.isArray(r.log)||r.log.some(x=>typeof x!=='string'||x.length>300)||!Array.isArray(r.rewards)||r.rewards.some(x=>!CARDS[x]))return null;
