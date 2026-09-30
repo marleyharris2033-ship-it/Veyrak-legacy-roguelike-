@@ -245,7 +245,7 @@ export function createRun(seed,hero='kaerun',options={}){
  if(!HEROES.some(h=>h.id===hero&&h.available))throw Error('This hero is locked.');
  seed=normaliseSeed(seed);const enemyRoster=options.enemyRoster??2,beastSystem=options.beastSystem??5,stage=1;
  const route=buildRoute(seed,enemyRoster,beastSystem,!!options.legacy,stage);const characterLevel=['kaerun','ilyra'].includes(hero)?Math.max(1,Math.min(20,Math.floor(options.characterLevel)||1)):1,levelBonuses=hero==='kaerun'?kaerunBonuses(characterLevel):hero==='ilyra'?ilyraBonuses(characterLevel):{};
- return {characterLevel,characterXpEarned:0,characterXpBanked:0,levelBonuses,enemyRoster,beastSystem,beastRoutes:!options.legacy,legacy:!!options.legacy,stage,maxStage:10,stagesCleared:0,shards:{basic:5,refined:0,prismatic:0},seenBeasts:[],capturedBeasts:[],companion:validBeast(options.companion)?{id:options.companion.id,rarity:options.companion.rarity}:null,companionLevel:Math.max(1,Math.min(10,Math.floor(options.companionLevel)||1)),beastXpEarned:0,beastXpBanked:0,captureResult:null,version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80+(levelBonuses.maxHp||0),maxHp:80+(levelBonuses.maxHp||0),block:0,core:0,index:0,route,current:null,visited:[],deck:[...(hero==='ilyra'?ILYRA_STARTER:STARTER)],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
+ return {eventCorePenalty:0,characterLevel,characterXpEarned:0,characterXpBanked:0,levelBonuses,enemyRoster,beastSystem,beastRoutes:!options.legacy,legacy:!!options.legacy,stage,maxStage:10,stagesCleared:0,shards:{basic:5,refined:0,prismatic:0},seenBeasts:[],capturedBeasts:[],companion:validBeast(options.companion)?{id:options.companion.id,rarity:options.companion.rarity}:null,companionLevel:Math.max(1,Math.min(10,Math.floor(options.companionLevel)||1)),beastXpEarned:0,beastXpBanked:0,captureResult:null,version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80+(levelBonuses.maxHp||0),maxHp:80+(levelBonuses.maxHp||0),block:0,core:0,index:0,route,current:null,visited:[],deck:[...(hero==='ilyra'?ILYRA_STARTER:STARTER)],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
 }
 export function continueStage(r){
  if(r.phase!=='stage-complete'||(r.stage||1)>=10)return false;
@@ -262,7 +262,7 @@ export function chooseNode(r,id){
  if(['battle','elite','boss','beast'].includes(node.type)){startBattle(r,node);return true;}
  r.phase=node.type;
  if(node.type==='chest')r.room=treasureRoom(r,node);
- if(node.type==='mystery')r.room={kind:['cache','shrine','rift'][Math.floor(random(r)*3)],cards:sampleCards(r)};
+ if(node.type==='mystery')r.room=mysteryRoom(r,node);
  if(node.type==='shop')r.room={stock:sampleCards(r).map(id=>({kind:'card',id,price:35+CARDS[id].cost*10,sold:false})).concat([{kind:'potion',price:25,sold:false},{kind:'relic',id:randomRelic(r),price:85,sold:false},...Object.entries(SHARDS).map(([id,s])=>({kind:'shard',id,price:s.price,quantity:s.quantity,sold:false}))]).filter(x=>x.kind!=='relic'||x.id)};
  return true;
 }
@@ -284,9 +284,9 @@ function draw(r,n){const b=r.battle;for(let i=0;i<n;i++){if(!b.draw.length){b.dr
 function startTurn(r){
  const b=r.battle;b.companionCooldown=Math.max(0,(b.companionCooldown||0)-1);b.companionBoost=0;r.block=b.barrier||0;b.barrier=0;if(b.bleed>0){emitFeedback(r,{kind:'hit',source:'player',target:'player',damage:Math.min(r.hp,b.bleed),blocked:0});r.hp=Math.max(0,r.hp-b.bleed);b.bleed=Math.max(0,b.bleed-1);}if(!r.hp){r.phase='lost';r.core=0;return;}if(b.retained?.length){b.hand.push(...b.retained);b.retained=[];}r.core=Math.min(MAX_CORE,(r.core||0)+CORE_REGEN);b.strength=(r.relics.includes('fist')?1:0)+r.blessing+(b.power||0);b.echo=false;b.weaken=0;b.pressureUsed=false;b.markAppliedThisTurn=false;b.resonanceSpentThisTurn=false;b.turn++;r.turns++;
  let count=Math.max(0,5-(b.drawPenalty||0));b.drawPenalty=0;
- if(b.turn===1){if(r.relics.includes('wayfarer'))count++;if(r.relics.includes('coreprism'))r.core=Math.min(MAX_CORE,r.core+1);if(['kaerun','ilyra'].includes(r.hero)){r.core=Math.min(MAX_CORE,r.core+(r.levelBonuses?.startingCore||0));count+=r.levelBonuses?.firstTurnDraw||0;if(r.hero==='ilyra')b.barrier=(b.barrier||0)+(r.levelBonuses?.startingBarrier||0);}}
+ if(b.turn===1){if(r.eventCorePenalty>0){b.eventCoreDrain=1;r.eventCorePenalty--;}if(r.relics.includes('wayfarer'))count++;if(r.relics.includes('coreprism'))r.core=Math.min(MAX_CORE,r.core+1);if(['kaerun','ilyra'].includes(r.hero)){r.core=Math.min(MAX_CORE,r.core+(r.levelBonuses?.startingCore||0));count+=r.levelBonuses?.firstTurnDraw||0;if(r.hero==='ilyra')b.barrier=(b.barrier||0)+(r.levelBonuses?.startingBarrier||0);}}
  if(r.relics.includes('hourglass')&&b.turn%3===0)r.block+=3;if(r.hero==='kaerun')r.block+=r.levelBonuses?.turnBlock||0;
- r.core=Math.max(0,r.core-(b.coreDebt||0));b.coreDebt=0;
+ r.core=Math.max(0,r.core-(b.coreDebt||0)-(b.turn===1?(b.eventCoreDrain||0):0));b.coreDebt=0;
  if(r.curse>0){r.core=Math.max(0,r.core-1);r.curse--;}
  draw(r,count);
 }
@@ -298,7 +298,7 @@ function log(r,text){r.log=[...r.log.slice(-5),text];}
 export function selectTarget(r,i){if(r.phase!=='combat'||!Number.isInteger(i)||!r.battle.enemies[i]?.hp)return false;r.battle.target=i;return true;}
 function victory(r){
  const b=r.battle;if(!b.enemies.every(e=>e.hp===0))return false;
- const node=r.route.find(n=>n.id===r.current),elite=node.type==='elite',boss=node.type==='boss';if(validBeast(r.companion))r.beastXpEarned=(r.beastXpEarned||0)+(BEAST_XP_REWARDS[node.type]||0);const gold=(boss?90:elite?60:30)+(r.relics.includes('gilded')?10:0);r.gold+=gold;if(r.hero==='kaerun'){r.characterXpEarned=(r.characterXpEarned||0)+kaerunXpForEncounter(node.type);if(elite)r.hp=Math.min(r.maxHp,r.hp+(r.levelBonuses?.eliteHeal||0));}else if(r.hero==='ilyra')r.characterXpEarned=(r.characterXpEarned||0)+ilyraXpForEncounter(node.type);r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;if(boss)r.hp=Math.min(r.maxHp,r.hp+Math.round(r.maxHp*.25));
+ const node=r.route.find(n=>n.id===r.current),elite=node.type==='elite'||!!b.eventTrial,boss=node.type==='boss';if(validBeast(r.companion))r.beastXpEarned=(r.beastXpEarned||0)+(BEAST_XP_REWARDS[b.eventTrial?'elite':node.type]||0);const gold=(boss?90:elite?60:30)+(b.eventTrial?25:0)+(r.relics.includes('gilded')?10:0);r.gold+=gold;r.lastCombatGold=gold;r.trialUpgradePending=!!b.eventTrial;if(r.hero==='kaerun'){r.characterXpEarned=(r.characterXpEarned||0)+kaerunXpForEncounter(b.eventTrial?'elite':node.type);if(elite)r.hp=Math.min(r.maxHp,r.hp+(r.levelBonuses?.eliteHeal||0));}else if(r.hero==='ilyra')r.characterXpEarned=(r.characterXpEarned||0)+ilyraXpForEncounter(b.eventTrial?'elite':node.type);r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;if(boss)r.hp=Math.min(r.maxHp,r.hp+Math.round(r.maxHp*.25));
  if(elite){const relic=randomRelic(r);if(relic)r.relics.push(relic);r.eliteReward=relic;const shardRoll=random(r);const shard=shardRoll<.10?'prismatic':shardRoll<.35?'refined':shardRoll<.85?'basic':null;if(shard)r.shards[shard]++;r.eliteShardReward=shard;}else{r.eliteReward=null;r.eliteShardReward=null;}r.phase=node.type==='boss'?((r.stage||1)>=10?'won':'stage-complete'):'victory';r.rewards=sampleCards(r,3,elite?.20:.10);log(r,`Victory! Gained ${gold} gold${elite&&r.eliteReward?` and ${RELICS[r.eliteReward].name}`:''}${elite&&r.eliteShardReward?`, plus 1 ${SHARDS[r.eliteShardReward].name}`:''}.`);return true;
 }
 function hitEnemy(r,e,base,multiplier=1){const b=r.battle,weakMult=b.weak>0?.75:1,vulnMult=e.vulnerable>0?1.5:1,raw=Math.max(0,Math.floor((base+b.strength+(r.relics.includes('hunterlens')&&e.mark>0?2:0))*multiplier*weakMult*vulnMult)),blocked=Math.min(e.block,raw);e.block-=blocked;const damage=Math.min(e.hp,raw-blocked);e.hp-=damage;emitFeedback(r,{kind:'hit',source:'player',target:'enemy:'+b.enemies.indexOf(e),damage,blocked,blockBreak:blocked>0&&e.block===0,heavy:raw>=18});return damage;}
@@ -340,8 +340,16 @@ export function endTurn(r){
  b.weak=Math.max(0,(b.weak||0)-1);b.vulnerable=Math.max(0,(b.vulnerable||0)-1);if(victory(r))return true;if(b.enemies.some(e=>e.id==='kharvex_prime'))bossPhase(r);if(!b.enemies[b.target]?.hp)b.target=b.enemies.findIndex(e=>e.hp>0);startTurn(r);log(r,'Your turn. Choose a card.');return true;
 }
 function leave(r){r.phase='map';r.battle=null;r.room=null;r.block=0;r.rewards=[];r.eliteReward=null;return true;}
-export function advance(r,card=null){if(r.phase!=='victory'||(card!==null&&!r.rewards.includes(card)))return false;if(card)r.deck.push(card);return leave(r);}
+export function advance(r,card=null){
+ if(r.phase!=='victory'||(card!==null&&!r.rewards.includes(card)))return false;
+ if(card)r.deck.push(card);
+ if(r.trialUpgradePending&&r.deck.some(id=>CARD_UPGRADES[id])){
+  r.trialUpgradePending=false;r.phase='mystery';r.battle=null;r.block=0;r.rewards=[];r.room={eventVersion:1,eventId:'trial',kind:'trial',step:'upgrade',cards:[],result:null};return true;
+ }
+ delete r.trialUpgradePending;return leave(r);
+}
 export function resolveRoom(r,choice){
+ if(r.phase==='mystery'&&r.room?.eventVersion===1)return resolveMystery(r,choice);
  if(r.phase==='chest'){
   if(choice==='leave'&&r.room.revealed)return leave(r);if(!['open','claim'].includes(choice)||r.room.revealed)return false;const t=r.room;t.revealed=true;
   if(t.bad){if(t.kind==='trap'){const loss=Math.min(8,Math.max(0,r.hp-1));r.hp-=loss;t.result=`A concealed trap! Lost ${loss} Vitality. The chest is empty.`;}if(t.kind==='drain'){r.curse+=2;t.result='A cursed crystal drains your Core. Start your next two turns with 1 less Core. No treasure.';}if(t.kind==='theft'){const loss=Math.min(25,r.gold);r.gold-=loss;t.result=`A void snare swallowed ${loss} gold. No treasure.`;}}
@@ -369,6 +377,8 @@ export function restore(raw){try{
  const expectedMaxHp=80+(r.hero==='ilyra'?ilyraBonuses(characterLevel):kaerunBonuses(characterLevel)).maxHp;
  if(!['map','combat','victory','stage-complete','won','lost','shop','chest','mystery','rest'].includes(r.phase)||!int(r.rng,0,4294967295)||!int(r.hp,0,expectedMaxHp)||r.maxHp!==expectedMaxHp||!int(r.gold,0,100000)||!int(r.potions,0,1000)||!int(r.core,0,MAX_CORE)||!int(r.block,0,999)||!int(r.blessing,0,20)||!int(r.curse,0,20))return null;
  r.characterLevel=characterLevel;
+ r.eventCorePenalty??=0;if(!int(r.eventCorePenalty,0,100))return null;
+ if(r.room?.eventVersion===1&&(!Object.hasOwn(MYSTERY_EVENTS,r.room.eventId)||!['offer','upgrade'].includes(r.room.step)||!Array.isArray(r.room.cards)||r.room.cards.some(id=>!CARDS[id])||(r.room.relic&&!RELICS[r.room.relic])))return null;
  const stage=r.stage??1;if(!int(stage,1,10))return null;r.stage=stage;r.maxStage=10;r.stagesCleared??=Math.max(0,stage-1);const expectedRoute=buildRoute(r.seed,r.enemyRoster??1,r.beastSystem??1,!r.beastRoutes,stage);const staleStage2=stage===2&&Array.isArray(r.route)&&r.route.some(n=>['battle','elite','boss'].includes(n?.type)&&n?.enemy&&!n.enemy.stage2&&!n.enemy.beast);if(staleStage2){r.route=expectedRoute;r.visited=[];r.current=null;r.index=0;r.phase='map';r.battle=null;r.room=null;r.block=0;r.core=0;r.rewards=[];r.eliteReward=null;r.eliteShardReward=null;r.captureResult=null;}if(!Array.isArray(r.route)||!r.route.length||!Array.isArray(r.deck)||r.deck.length<5||r.deck.length>100||r.deck.some(c=>!Object.hasOwn(CARDS,c))||!Array.isArray(r.relics)||r.relics.some(id=>!Object.hasOwn(RELICS,id)))return null;
  if(!Array.isArray(r.visited)||r.visited.length>11)return null;let prev=null;for(const id of r.visited){const n=r.route.find(n=>n.id===id);if(!n||(prev?!prev.next.includes(id):n.row!==0))return null;prev=n;}if(r.current!==(prev?.id??null))return null;
  if(!Array.isArray(r.log)||r.log.some(x=>typeof x!=='string'||x.length>300)||!Array.isArray(r.rewards)||r.rewards.some(x=>!CARDS[x]))return null;
@@ -436,3 +446,63 @@ export function equipCompanion(r,companion,collection){
  r.companion=companion?{id:companion.id,rarity:companion.rarity}:null;return true;
 }
 
+
+export const MYSTERY_EVENTS={
+ forge:{name:'Abandoned Forge',cavern:'Excavation Furnace'},
+ exchange:{name:'Memory Exchange',cavern:'Buried Memory Vault'},
+ crystal:{name:'Unstable Crystal',cavern:'Molten Crystal Seam'},
+ explorer:{name:'Stranded Explorer',cavern:'Trapped Excavator'},
+ armoury:{name:'Sealed Armoury',cavern:'Buried Council Armoury'},
+ remains:{name:'Beastkeeper’s Remains',cavern:'Beastkeeper’s Lost Camp'},
+ whisper:{name:'Whispering Relic',cavern:'Echoing Relic'},
+ trial:{name:'Veyrakian Trial',cavern:'Trial of the Deep'}
+};
+const RARE_EVENT_CARDS=['starfall','echocrystal','warcry','ancientrelic','sovereignimpact','crystallance','fracturefield','resonantmend'];
+function mysteryRoom(r,node){
+ const state={...r,rng:hash(r.seed+':event:'+node.id)};
+ const order=shuffle(Object.keys(MYSTERY_EVENTS),{rng:hash(r.seed+':events:'+r.stage)});
+ const nodes=r.route.filter(n=>n.type==='mystery'),eventId=order[nodes.findIndex(n=>n.id===node.id)%order.length];
+ const cards=sampleCards(state),rare=shuffle(RARE_EVENT_CARDS.filter(id=>(!CARDS[id].kaerun||r.hero==='kaerun')&&(!CARDS[id].ilyra||r.hero==='ilyra')),state).slice(0,3);
+ const relic=randomRelic(state),success=random(state)<.7;
+ const elite=r.route.find(n=>n.type==='elite'),trialEnemy=elite?structuredClone(elite.enemy):null;
+ return {eventVersion:1,eventId,kind:eventId,cards,rare,relic,success,trialEnemy,step:'offer',result:null};
+}
+function eventUpgrade(r,i){
+ if(!Number.isInteger(i)||i<0||i>=r.deck.length||!CARD_UPGRADES[r.deck[i]])return false;
+ r.deck[i]=CARD_UPGRADES[r.deck[i]];return leave(r);
+}
+function resolveMystery(r,choice){
+ const t=r.room;
+ if(choice==='leave'){delete r.trialUpgradePending;return leave(r);}
+ if(t.result)return false;
+ const [action,arg,arg2]=String(choice).split(':');
+ const i=Number(arg),eligible=Number.isInteger(i)&&i>=0&&i<r.deck.length;
+ if(t.step==='upgrade'&&t.eventId==='trial')return action==='upgrade'&&eventUpgrade(r,i);
+ if(t.eventId==='forge'&&action==='forge'&&eligible&&CARD_UPGRADES[r.deck[i]]){
+  if(arg2==='gold'&&r.gold>=50){r.gold-=50;return eventUpgrade(r,i);}
+  if(arg2==='health'&&r.hp>10){r.hp-=10;return eventUpgrade(r,i);}return false;
+ }
+ if(t.eventId==='exchange'&&action==='exchange'&&eligible&&t.cards.includes(arg2)){r.deck[i]=arg2;return leave(r);}
+ if(t.eventId==='crystal'){
+  if(choice==='safe'){r.gold+=40;t.result='You collected 40 gold safely.';return true;}
+  if(choice==='risk'){
+   if(t.success){if(t.relic&&!r.relics.includes(t.relic)){r.relics.push(t.relic);t.result='The crystal revealed '+RELICS[t.relic].name+'.';}else{r.gold+=70;t.result='Your relic collection is complete. The crystal yielded 70 gold.';}}
+   else{const loss=Math.min(12,Math.max(0,r.hp-1));r.hp-=loss;t.result='The crystal shattered. Lost '+loss+' Vitality.';}return true;
+  }
+ }
+ if(t.eventId==='explorer'){
+  if(action==='potion'&&r.potions>0&&t.rare.includes(arg)){r.potions--;r.deck.push(arg);return leave(r);}
+  if(choice==='gold'&&r.gold>=25){r.gold-=25;r.deck.push(t.cards[0]);t.result='The explorer gave you '+CARDS[t.cards[0]].name+'.';return true;}
+ }
+ if(t.eventId==='armoury'&&action==='armoury'&&r.hp>12&&t.cards.includes(arg)&&CARD_UPGRADES[arg]){r.hp-=12;r.deck.push(CARD_UPGRADES[arg]);return leave(r);}
+ if(t.eventId==='remains'){
+  if(choice==='basic'){r.shards.basic+=3;return leave(r);}
+  if(choice==='refined'){r.shards.refined++;return leave(r);}
+  if(choice==='gold'){r.gold+=20;return leave(r);}
+ }
+ if(t.eventId==='whisper'&&choice==='accept'&&t.relic&&!r.relics.includes(t.relic)){r.relics.push(t.relic);r.eventCorePenalty=(r.eventCorePenalty||0)+2;return leave(r);}
+ if(t.eventId==='trial'&&choice==='fight'&&t.trialEnemy){
+  const enemy=structuredClone(t.trialEnemy);startBattle(r,{...r.route.find(n=>n.id===r.current),type:'elite',enemy,pack:null});r.battle.eventTrial=true;return true;
+ }
+ return false;
+}
