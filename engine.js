@@ -35,14 +35,14 @@ export const INVADERS=[
 ];
 // Stage 2: tougher subterranean excavation ecosystem. Uses only combat mechanics already supported by the engine.
 export const STAGE2_INVADERS=[
- {id:'riftclaw',name:'Riftclaw',size:'small',art:'stage2_monster_01.png',hp:31,colour:'#9f55ff',moves:[{kind:'attack',value:7,name:'Raking Claw'},{kind:'guard',value:7,name:'Burrow Guard'},{kind:'attack',value:11,name:'Erupting Slash'}]},
- {id:'kharvex',name:'Kharvex',size:'large',art:'stage2_monster_02.png',hp:52,colour:'#ff7a2d',moves:[{kind:'guard',value:13,name:'Brace'},{kind:'charge',value:0,name:'Bore Charge'},{kind:'attack',value:18,name:'Bore Rush'}]},
- {id:'lithophage',name:'Lithophage',size:'large',art:'stage2_monster_03.png',hp:48,colour:'#46bfff',moves:[{kind:'empower',value:1,name:'Harden'},{kind:'attack',value:12,name:'Crystal Rake'},{kind:'guard',value:10,name:'Stone Hide'}]},
- {id:'veylisk',name:'Veylisk',size:'small',art:'stage2_monster_04.png',hp:30,colour:'#5ee5a0',moves:[{kind:'weaken',value:2,name:'Corrosive Spit'},{kind:'attack',value:10,name:'Needle Strike'},{kind:'attack',value:8,name:'Rend'}]},
- {id:'tremor_stalker',name:'Tremor Stalker',size:'small',art:'stage2_monster_05.png',hp:32,colour:'#e7b743',moves:[{kind:'attack',value:9,name:'Tremor Cut'},{kind:'guard',value:8,name:'Vibration Guard'},{kind:'attack',value:12,name:'Seismic Lunge'}]},
- {id:'grindscale',name:'Grindscale',size:'large',art:'stage2_monster_06.png',hp:56,colour:'#e24c43',moves:[{kind:'guard',value:15,name:'Layered Armour'},{kind:'attack',value:13,name:'Crushing Swipe'},{kind:'attack',value:15,name:'Horn Rush'}]},
- {id:'shardburrower',name:'Shardburrower',size:'small',art:'stage2_monster_07.png',hp:29,colour:'#35d6d0',moves:[{kind:'empower',value:1,name:'Excavation Frenzy'},{kind:'guard',value:8,name:'Shard Guard'},{kind:'attack',value:9,name:'Hook Claw'}]},
- {id:'voruun',name:'Voruun',size:'large',art:'stage2_monster_08.png',hp:61,colour:'#e14b9b',moves:[{kind:'attack',value:13,name:'Tunnel Crush'},{kind:'empower',value:2,name:'Deep Dig'},{kind:'attack',value:17,name:'Rupture'}]}
+ {id:'riftclaw',name:'Azurax',size:'small',art:'azurax.png',hp:31,colour:'#9f55ff',moves:[{kind:'attack',value:7,name:'Raking Claw'},{kind:'guard',value:7,name:'Crystal Carapace'},{kind:'attack',value:11,name:'Azure Pincer'}]},
+ {id:'kharvex',name:'Cindervex',size:'large',art:'cindervex.png',hp:52,colour:'#ff7a2d',moves:[{kind:'guard',value:13,name:'Brace'},{kind:'charge',value:0,name:'Blade Charge'},{kind:'attack',value:18,name:'Molten Cleave'}]},
+ {id:'lithophage',name:'Pyrotharn',size:'large',art:'pyrotharn.png',hp:48,colour:'#46bfff',moves:[{kind:'empower',value:1,name:'Harden'},{kind:'attack',value:12,name:'Lava Ram'},{kind:'guard',value:10,name:'Cinder Plating'}]},
+ {id:'veylisk',name:'Vaelith',size:'small',art:'vaelith.png',hp:30,colour:'#5ee5a0',moves:[{kind:'weaken',value:2,name:'Prism Haze'},{kind:'attack',value:10,name:'Crystal Lash'},{kind:'attack',value:8,name:'Tentacle Flurry'}]},
+ {id:'tremor_stalker',name:'Skyrend',size:'small',art:'skyrend.png',hp:32,colour:'#e7b743',moves:[{kind:'attack',value:9,name:'Shard Bite'},{kind:'guard',value:8,name:'Crystal Scales'},{kind:'attack',value:12,name:'Raptor Lunge'}]},
+ {id:'grindscale',name:'Emberwing',size:'large',art:'emberwing.png',hp:56,colour:'#e24c43',moves:[{kind:'guard',value:15,name:'Ember Veil'},{kind:'attack',value:13,name:'Wing Scythe'},{kind:'attack',value:15,name:'Flame Dive'}]},
+ {id:'shardburrower',name:'Cryolith',size:'small',art:'cryolith.png',hp:29,colour:'#35d6d0',moves:[{kind:'empower',value:1,name:'Crystal Surge'},{kind:'guard',value:8,name:'Boulder Guard'},{kind:'attack',value:9,name:'Stone Fist'}]},
+ {id:'voruun',name:'Volkrin',size:'large',art:'volkrin.png',hp:61,colour:'#e14b9b',moves:[{kind:'attack',value:13,name:'Tunnel Crush'},{kind:'empower',value:2,name:'Molten Coil'},{kind:'attack',value:17,name:'Volcanic Eruption'}]}
 ];
 function stage2Partner(seed,nodeId,row,excluded){const pool=STAGE2_INVADERS.filter(x=>x.size==='small'&&x.id!==excluded),state={rng:hash(seed+':stage2-pack:'+nodeId)};return stage2Variant(pool[Math.floor(random(state)*pool.length)],row);}
 function stage2Variant(species,row,elite=false){
@@ -372,6 +372,8 @@ export function restore(raw){try{
  if(!Object.keys(SHARDS).every(id=>int(r.shards[id],0,1000))||![r.seenBeasts,r.capturedBeasts].every(a=>Array.isArray(a)&&a.length<=12&&a.every(validBeast))||(r.companion!==null&&!validBeast(r.companion)))return null;
  if(r.battle){const b=r.battle;b.companionCooldown??=0;b.companionUses??=0;b.companionBoost??=0;if(!int(b.companionCooldown,0,4)||!int(b.companionUses,0,10000)||![0,25,40,50].includes(b.companionBoost))return null;
  for(const e of b.enemies)if(e.beast&&(!validBeast({id:e.beast,rarity:e.rarity})||!int(e.healUses||0,0,2)))return null;}
+ const refreshStage2Art=e=>{if(!e?.stage2||e.boss||e.beast)return;const species=STAGE2_INVADERS.find(x=>x.id===e.id);if(!species)return;e.name=(e.elite?'Elite ':'')+species.name;e.art=species.art;e.colour=species.colour;e.moves?.forEach((m,i)=>{if(species.moves[i])m.name=species.moves[i].name;});};
+ r.route.forEach(n=>{refreshStage2Art(n.enemy);refreshStage2Art(n.pack);});r.battle?.enemies?.forEach(refreshStage2Art);
  return r;
  }catch{return null;}}
 
