@@ -697,3 +697,56 @@ dialog.upgrade-dialog{width:min(760px,94vw);max-height:min(90svh,860px);overflow
  .illustrated-legend{gap:4px 10px}
  .illustrated-legend .map-node-art,.illustrated-legend .item-map{width:20px;height:20px}
 }
+
+
+/* Starter deck collection: scrollable cards with clear mobile controls. */
+.deck-builder{background-image:linear-gradient(#08101ce8,#08101cf5),url('assets/council-background.png');padding-bottom:32px}
+.deck-builder-panel{max-width:1200px;margin:auto;padding:12px 24px}
+.deck-builder-panel>h2{font-size:25px;margin:30px 0 14px}
+.deck-builder-panel>p{line-height:1.6;margin:12px 0}
+.deck-hero-tabs,.deck-loadout-actions{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:14px 0}
+.deck-hero-tabs .active{border-color:var(--gold);background:#b590352b}
+.deck-loadout-actions>span{flex:1;min-width:180px}
+.starter-deck-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin:18px 0}
+.starter-slot,.starter-collection-card,.starter-milestone,.starter-challenge{border:1px solid #b9985655;background:#101a29e8;padding:12px;border-radius:10px;min-width:0}
+.starter-slot.flexible{border-color:#b69c68}
+.starter-slot.chosen{outline:2px solid #f5d28b;outline-offset:2px}
+.starter-slot>.quiet{width:100%;margin-bottom:8px;font-size:11px;min-height:36px}
+.protected-label{display:block;text-align:center;font-size:10px;color:#b4bdc7;min-height:36px;padding:8px 0}
+.starter-preview{display:flex;align-items:center;flex-direction:column;gap:8px;width:100%;background:none;border:0;padding:4px;color:inherit;min-height:44px;text-align:center}
+.starter-preview>.sheet-card,.starter-preview>.neutral-card,.starter-preview>.ilyra-card,.starter-preview>.upgraded-card-art,.starter-preview>.tech-card{width:100px;max-width:100%;flex:none}
+.starter-preview strong{font-size:13px}
+.starter-preview>small{font-size:11px;line-height:1.5}
+.starter-collection-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.starter-collection-card{display:flex;align-items:center;flex-direction:column;gap:10px;text-align:center}
+.starter-collection-card p,.starter-milestone p,.starter-challenge p{font-size:12px;line-height:1.6}
+.starter-collection-card>small{font-size:10px;line-height:1.5;color:#c6ad7c}
+.starter-collection-card>.quiet{margin-top:auto;width:100%;font-size:11px}
+.starter-collection-card.locked{border-color:#485368}
+.undiscovered-card{display:grid;place-items:center;width:100px;height:142px;border:1px solid #b39355;border-radius:9px;background:radial-gradient(#63458b66,#0b111c);font-size:45px;font-family:Georgia,serif;color:#c9b586}
+.starter-milestone{margin:14px 0}
+.starter-milestone h3{font-size:16px;margin-bottom:10px}
+.starter-unlock-options{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+.starter-unlock-options>section{display:flex;flex-direction:column;align-items:center;gap:10px;min-width:0}
+.starter-unlock-options .gold{width:100%;padding:12px 24px;font-size:11px;letter-spacing:0}
+.starter-challenges{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:12px}
+.starter-challenge{display:grid;gap:10px}
+.starter-challenge progress{width:100%;accent-color:#d4b064}
+.starter-challenge small{font-size:11px}
+@media(max-width:600px){
+ .deck-builder-panel{padding:8px 12px}
+ .deck-builder .topbar{flex-wrap:wrap;padding:12px}
+ .deck-builder .topbar h1{font-size:20px}
+ .deck-builder .topbar>span{width:100%;text-align:center;font-size:12px}
+ .starter-deck-grid,.starter-collection-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+ .starter-slot,.starter-collection-card{padding:8px}
+ .starter-unlock-options{grid-template-columns:1fr}
+ .starter-unlock-options>section{padding-bottom:12px;border-bottom:1px solid #b9985633}
+ .starter-challenges{grid-template-columns:1fr}
+ .deck-loadout-actions .gold,.deck-loadout-actions .quiet{flex:1;font-size:11px}
+}
+@media(orientation:landscape) and (max-height:600px){
+ .deck-builder .topbar{padding:8px 16px}
+ .deck-builder-panel{padding:8px 16px}
+ .starter-preview>.sheet-card,.starter-preview>.neutral-card,.starter-preview>.ilyra-card,.starter-preview>.upgraded-card-art,.starter-preview>.tech-card{width:76px}
+}
