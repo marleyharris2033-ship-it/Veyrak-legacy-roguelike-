@@ -627,3 +627,23 @@ dialog.upgrade-dialog{width:min(760px,94vw);max-height:min(90svh,860px);overflow
 
 /* Preserve raster boss proportions at every viewport size. */
 .battle .enemy-target img.boss-art{width:100%;height:72%;max-width:100%;max-height:72%;object-fit:contain;object-position:center bottom;flex-shrink:0}
+
+
+/* Overlay effects never intercept a card drag or change fighter proportions. */
+.combat-fx-layer{position:fixed;inset:0;z-index:900;pointer-events:none;overflow:hidden;contain:layout paint}
+.combat-resolving .hand,.combat-resolving .combat-toolbar,.combat-resolving .enemy-group,.combat-resolving .run-top,.combat-resolving .pile-row{pointer-events:none}
+.combat-resolving .enemy-art,.combat-resolving .combat-hero{will-change:translate,filter}
+.combat-fx-number{position:absolute;translate:-50% -50%;font:800 clamp(17px,2.1vw,30px)/1.1 Inter,system-ui,sans-serif;white-space:nowrap;text-shadow:0 2px 3px #000,0 0 9px #000,1px 0 #000,-1px 0 #000;animation:combat-number .55s ease-out both}
+.combat-fx-number.damage{color:#ffe2ba}.combat-fx-number.blocked{color:#abe7ff;font-size:clamp(12px,1.3vw,19px)}
+.combat-fx-number.guard{color:#a6ddff;font-size:clamp(13px,1.4vw,21px)}.combat-fx-number.heal{color:#9af5c9;font-size:clamp(13px,1.4vw,21px)}
+.combat-fx-number.status{color:#e2c4ff;font-size:clamp(11px,1.2vw,17px)}.combat-fx-number.block-break{color:#ffcf79;font-size:clamp(10px,1vw,15px);letter-spacing:.06em}
+.combat-fx-trail{position:absolute;height:5px;transform-origin:left center;border-radius:50%;opacity:0;animation:combat-trail .22s ease-out both}
+.gauntlet-swipe{background:linear-gradient(90deg,transparent,#d3a35c88,#fff2c6);box-shadow:0 0 12px #efb057;clip-path:polygon(0 45%,85% 0,100% 50%,85% 100%,0 55%)}
+.crystal-bolt{height:4px;background:linear-gradient(90deg,transparent,#ba8aff,#fff0ff);box-shadow:0 0 11px #a672ff,0 0 22px #8662c8}
+.combat-fx-impact{position:absolute;width:70px;height:70px;border:3px solid #fff0b3;border-radius:50%;translate:-50% -50%;box-shadow:0 0 15px #e6ab50,inset 0 0 12px #e6ab50;animation:combat-impact .23s ease-out both}
+.crystal-impact{border-color:#ead5ff;box-shadow:0 0 20px #b087ff,inset 0 0 14px #ae76ff}
+.combat-fx-still .combat-fx-number{animation:none!important}.combat-fx-still .combat-fx-trail,.combat-fx-still .combat-fx-impact{display:none}
+@keyframes combat-number{0%{opacity:0;transform:translateY(5px) scale(.85)}18%{opacity:1;transform:translateY(-2px) scale(1.06)}65%{opacity:1}100%{opacity:0;transform:translateY(-38px) scale(1)}}
+@keyframes combat-trail{0%{opacity:0;scale:.12 1}40%{opacity:.95;scale:1 1}100%{opacity:0;scale:1 1}}
+@keyframes combat-impact{0%{opacity:.9;scale:.35}100%{opacity:0;scale:1.3}}
+@media(prefers-reduced-motion:reduce){.combat-fx-number{animation:none}.combat-fx-trail,.combat-fx-impact{display:none}}
