@@ -6,6 +6,8 @@ import {validBeast,beastKey,addDiscovery,companionDescription,restoreBestiary, b
 import {kaerunLevelFromXp,kaerunBonuses,KAERUN_LEVEL_REWARDS,ilyraLevelFromXp,ilyraBonuses,ILYRA_LEVEL_REWARDS,vaelisLevelFromXp,vaelisBonuses,VAELIS_LEVEL_REWARDS,accountProgress,heroUnlocked as progressionHeroUnlocked} from './progression.js?v=3';
 const characterTestMode=new URLSearchParams(location.search).get('characters')==='all';
 const heroUnlocked=(id,progression={})=>characterTestMode||progressionHeroUnlocked(id,progression);
+const TEST_MAX_XP=999999;
+if(characterTestMode){progression={kaerunXp:TEST_MAX_XP,ilyraXp:TEST_MAX_XP,vaelisXp:TEST_MAX_XP};}
 
 const $=s=>document.querySelector(s),app=$('#app'),modal=$('#modal');
 const keys={run:'veyrak.ascension.run.v4',archive:'veyrak.ascension.archive.v1',bestiary:'veyrak.ascension.bestiary.v1',settings:'veyrak.ascension.settings.v1',progression:'veyrak.ascension.progression.v1',starter:'veyrak.ascension.starter.v1'};
