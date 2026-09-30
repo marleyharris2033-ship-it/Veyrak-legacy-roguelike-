@@ -3,7 +3,9 @@ import {restoreStarterCollection,defaultLoadout,heroLevel,validateLoadout,choose
 import {captureFeedback,presentFeedback} from './combat-feedback.js?v=1';
 import {HEROES,CARDS,MAX_CORE,CORE_REGEN,createRun,continueStage,enterBattle,playCard,endTurn,advance,intent,restore,serialise,availableNodes,chooseNode,selectTarget,RELICS,resolveRoom,buy,sell,usePotion,INVADERS,BEASTS,RARITIES,SHARDS,captureChance,captureBeast,companionReady,useCompanion,equipCompanion,CARD_UPGRADES,upgradeCard,shopUpgradeCard,MYSTERY_EVENTS} from './engine.js?v=74';
 import {validBeast,beastKey,addDiscovery,companionDescription,restoreBestiary, beastLevelFromXp, beastBonuses} from './beasts.js?v=15';
-import {kaerunLevelFromXp,kaerunBonuses,KAERUN_LEVEL_REWARDS,ilyraLevelFromXp,ilyraBonuses,ILYRA_LEVEL_REWARDS,vaelisLevelFromXp,vaelisBonuses,VAELIS_LEVEL_REWARDS,accountProgress,heroUnlocked} from './progression.js?v=3';
+import {kaerunLevelFromXp,kaerunBonuses,KAERUN_LEVEL_REWARDS,ilyraLevelFromXp,ilyraBonuses,ILYRA_LEVEL_REWARDS,vaelisLevelFromXp,vaelisBonuses,VAELIS_LEVEL_REWARDS,accountProgress,heroUnlocked as progressionHeroUnlocked} from './progression.js?v=3';
+const characterTestMode=new URLSearchParams(location.search).get('characters')==='all';
+const heroUnlocked=(id,progression={})=>characterTestMode||progressionHeroUnlocked(id,progression);
 
 const $=s=>document.querySelector(s),app=$('#app'),modal=$('#modal');
 const keys={run:'veyrak.ascension.run.v4',archive:'veyrak.ascension.archive.v1',bestiary:'veyrak.ascension.bestiary.v1',settings:'veyrak.ascension.settings.v1',progression:'veyrak.ascension.progression.v1',starter:'veyrak.ascension.starter.v1'};
