@@ -46,13 +46,15 @@ export const STAGE2_INVADERS=[
 ];
 function stage2Partner(seed,nodeId,row,excluded){const pool=STAGE2_INVADERS.filter(x=>x.size==='small'&&x.id!==excluded),state={rng:hash(seed+':stage2-pack:'+nodeId)};return stage2Variant(pool[Math.floor(random(state)*pool.length)],row);}
 function stage2Variant(species,row,elite=false){
- const enemy=structuredClone(species);enemy.elite=elite;enemy.stage2=true;
- enemy.hp=Math.round((enemy.hp+row*2)*(elite?1.35:1));
- enemy.moves=enemy.moves.map(m=>({...m,value:Math.round((m.value+(['attack','siphon'].includes(m.kind)?Math.floor(row/4):0))*(elite&&['attack','siphon','guard'].includes(m.kind)?1.2:1))}));
+ const enemy=structuredClone(species);enemy.elite=elite;enemy.stage2=true;enemy.balanceRevision=2;
+ enemy.hp=Math.round((enemy.hp+row*2.5)*1.10*(elite?1.35:1));
+ enemy.moves=enemy.moves.map(m=>({...m,value:Math.round((m.value+(['attack','siphon'].includes(m.kind)?1+Math.floor(row/3):m.kind==='guard'?1+Math.floor(row/4):0))*(elite&&['attack','siphon','guard'].includes(m.kind)?1.2:1))}));
  if(elite)enemy.name=`Elite ${enemy.name}`;
  return enemy;
 }
-const STAGE2_BOSS={id:'kharvex_prime',name:'Kharvex Prime',hp:285,colour:'#e3ad4e',boss:true,stage2:true,art:'EF449213-4894-48F5-9B22-E53CA59C4318.png',phase:1,moves:[{kind:'guard',value:20,name:'Anchor Plating'},{kind:'charge',value:0,name:'Bore Charge'},{kind:'attack',value:24,name:'Drill Impact'},{kind:'attack',value:11,hits:2,name:'Twin Bore'}]};
+const KHARVEX_MOVES=[{kind:'guard',value:24,name:'Anchor Plating'},{kind:'attack',value:28,expose:true,name:'Drill Impact'},{kind:'recover',value:0,name:'Exposed Recovery'},{kind:'attack',value:12,hits:2,name:'Twin Bore'}];
+const KHARVEX_ENRAGED_MOVES=[{kind:'guard',value:18,name:'Cracked Plating'},{kind:'attack',value:32,expose:true,name:'Molten Impact'},{kind:'recover',value:0,name:'Exposed Recovery'},{kind:'attack',value:13,hits:2,name:'Frenzied Bore'}];
+const STAGE2_BOSS={id:'kharvex_prime',name:'Kharvex Prime',hp:305,colour:'#e3ad4e',boss:true,stage2:true,balanceRevision:2,art:'EF449213-4894-48F5-9B22-E53CA59C4318.png',phase:1,moves:KHARVEX_MOVES};
 function packPartner(seed,nodeId,row,excluded){const pool=INVADERS.filter(x=>x.size==='small'&&x.id!==excluded),state={rng:hash(seed+':pack:'+nodeId)};return invaderVariant(pool[Math.floor(random(state)*pool.length)],row);}
 function invaderVariant(species,row,elite=false){
  const enemy=structuredClone(species);enemy.elite=elite;
@@ -265,6 +267,8 @@ export function chooseNode(r,id){
 }
 export function enterBattle(r){const id=availableNodes(r).find(id=>['battle','elite','boss'].includes(r.route.find(n=>n.id===id).type));return id?chooseNode(r,id):false;}
 function bossPhase(r){
+ const prime=r.battle?.enemies.find(e=>e.id==='kharvex_prime'&&e.hp>0);
+ if(prime&&prime.phase!==2&&prime.hp<=prime.maxHp/2){prime.phase=2;prime.pendingMoves=structuredClone(KHARVEX_ENRAGED_MOVES);log(r,'Kharvex Prime enrages! Stronger attacks begin after its announced action; its plating weakens.');return true;}
  const b=r.battle,boss=b?.enemies.find(e=>e.boss&&e.hp>0);if(!boss||boss.id!=='warden'||boss.phase===2||boss.hp>boss.maxHp/2)return false;
  boss.phase=2;boss.moves=[{kind:'attack',value:15,name:'Void Claw'},{kind:'guard',value:14,name:'Rift Shield'},{kind:'attack',value:8,hits:2,name:'Twin Slash'},{kind:'charge',value:0,name:'Rift Charge'},{kind:'attack',value:28,name:'Rift Breaker'}];boss.move=0;boss.block=Math.max(boss.block||0,12);
  const species=INVADERS.find(x=>x.id==='rift_skitter'),minion=invaderVariant(species,4);minion.hp=minion.maxHp=18;minion.name='Riftbound Skitter';minion.riftBond=true;minion.block=0;minion.move=0;minion.mark=0;minion.weak=0;minion.vulnerable=0;minion.bleed=0;minion.strength=0;minion.stunned=false;b.enemies.push(minion);log(r,'The Gate Warden tears open the rift! A Riftbound Skitter emerges. Rift Bond empowers the Warden while it lives.');return true;
@@ -327,9 +331,12 @@ export function endTurn(r){
  for(const e of b.enemies.filter(e=>e.hp>0)){
   e.block=0;if(e.bleed>0){e.hp=Math.max(0,e.hp-e.bleed);e.bleed=Math.max(0,e.bleed-1);if(!e.hp)continue;}if(e.stunned){e.stunned=false;continue;}if(e.boss&&e.stunGuard)e.stunGuard=Math.max(0,e.stunGuard-1);const m=e.moves[e.move%e.moves.length];
   if(['attack','siphon'].includes(m.kind)){const bond=e.boss&&b.enemies.some(x=>x.riftBond&&x.hp>0)?3:0,hits=m.hits||1;for(let h=0;h<hits;h++){const incoming=Math.max(0,Math.floor((m.value+(e.strength||0)+bond-(b.weaken||0))*(e.weak>0?.75:1)*(b.vulnerable>0?1.5:1))),blocked=Math.min(r.block,incoming);r.block-=blocked;let damage=incoming-blocked;if(damage>0&&r.relics.includes('wardstone')&&!b.wardUsed){damage=Math.max(0,damage-3);b.wardUsed=true;}if(damage>0)b.hurtLastTurn=true;r.hp=Math.max(0,r.hp-damage);if(m.kind==='siphon'&&damage>0)e.hp=Math.min(e.maxHp,e.hp+3);if(r.relics.includes('thorncrown')){const thornBlocked=Math.min(e.block,2);e.block-=thornBlocked;e.hp=Math.max(0,e.hp-2+thornBlocked);}if(!r.hp)break;}}
-  if(m.kind==='empower'){const ally=e.id==='duskcaller'?b.enemies.find(other=>other!==e&&other.hp>0):null;(ally||e).strength=((ally||e).strength||0)+m.value;}if(m.kind==='weaken')b.weak=(b.weak||0)+m.value;if(m.kind==='heal'&&(e.healUses||0)<2){e.hp=Math.min(e.maxHp,e.hp+m.value);e.healUses=(e.healUses||0)+1;}if(m.kind==='guard')e.block=m.value;e.move=(e.move+1)%e.moves.length;e.mark=Math.max(0,e.mark-1);e.weak=Math.max(0,(e.weak||0)-1);e.vulnerable=Math.max(0,(e.vulnerable||0)-1);if(!r.hp){r.phase='lost';r.core=0;return true;}
+  if(m.kind==='empower'){const ally=e.id==='duskcaller'?b.enemies.find(other=>other!==e&&other.hp>0):null;(ally||e).strength=((ally||e).strength||0)+m.value;}if(m.kind==='weaken')b.weak=(b.weak||0)+m.value;if(m.kind==='heal'&&(e.healUses||0)<2){e.hp=Math.min(e.maxHp,e.hp+m.value);e.healUses=(e.healUses||0)+1;}if(m.kind==='guard')e.block=m.value;
+  if(m.expose&&e.hp>0){e.block=0;e.vulnerable=Math.max(e.vulnerable||0,2);log(r,'Kharvex Prime is exposed! Deal 50% more damage during its recovery turn.');}
+  if(e.pendingMoves){e.moves=e.pendingMoves;delete e.pendingMoves;}
+  e.move=e.balanceLegacyAction?0:(e.move+1)%e.moves.length;delete e.balanceLegacyAction;e.mark=Math.max(0,e.mark-1);e.weak=Math.max(0,(e.weak||0)-1);e.vulnerable=Math.max(0,(e.vulnerable||0)-1);if(!r.hp){r.phase='lost';r.core=0;return true;}
  }
- b.weak=Math.max(0,(b.weak||0)-1);b.vulnerable=Math.max(0,(b.vulnerable||0)-1);if(victory(r))return true;if(!b.enemies[b.target]?.hp)b.target=b.enemies.findIndex(e=>e.hp>0);startTurn(r);log(r,'Your turn. Choose a card.');return true;
+ b.weak=Math.max(0,(b.weak||0)-1);b.vulnerable=Math.max(0,(b.vulnerable||0)-1);if(victory(r))return true;if(b.enemies.some(e=>e.id==='kharvex_prime'))bossPhase(r);if(!b.enemies[b.target]?.hp)b.target=b.enemies.findIndex(e=>e.hp>0);startTurn(r);log(r,'Your turn. Choose a card.');return true;
 }
 function leave(r){r.phase='map';r.battle=null;r.room=null;r.block=0;r.rewards=[];r.eliteReward=null;return true;}
 export function advance(r,card=null){if(r.phase!=='victory'||(card!==null&&!r.rewards.includes(card)))return false;if(card)r.deck.push(card);return leave(r);}
@@ -374,6 +381,10 @@ export function restore(raw){try{
  for(const e of b.enemies)if(e.beast&&(!validBeast({id:e.beast,rarity:e.rarity})||!int(e.healUses||0,0,2)))return null;}
  const refreshStage2Art=e=>{if(!e?.stage2||e.boss||e.beast)return;const species=STAGE2_INVADERS.find(x=>x.id===e.id);if(!species)return;e.name=(e.elite?'Elite ':'')+species.name;e.art=species.art;e.colour=species.colour;e.moves?.forEach((m,i)=>{if(species.moves[i])m.name=species.moves[i].name;});};
  r.route.forEach(n=>{refreshStage2Art(n.enemy);refreshStage2Art(n.pack);});r.battle?.enemies?.forEach(refreshStage2Art);
+ // Update upcoming encounters without healing enemies or changing announced actions in an active battle.
+ if(r.stage===2)for(const node of r.route){if(r.visited.includes(node.id)||node.enemy?.balanceRevision===2)continue;if(node.type==='boss')node.enemy=structuredClone(STAGE2_BOSS);else if(['battle','elite'].includes(node.type)){const species=STAGE2_INVADERS.find(s=>s.id===node.enemy?.id);if(species)node.enemy=stage2Variant(species,node.row,node.type==='elite');if(node.pack){const partner=STAGE2_INVADERS.find(s=>s.id===node.pack.id);if(partner)node.pack=stage2Variant(partner,node.row);}}}
+ const prime=r.battle?.enemies.find(e=>e.id==='kharvex_prime'&&e.hp>0);
+ if(prime&&prime.balanceRevision!==2){prime.balanceRevision=2;const next=structuredClone(prime.phase===2?KHARVEX_ENRAGED_MOVES:KHARVEX_MOVES),announced=prime.moves[prime.move%prime.moves.length];prime.moves=[structuredClone(announced),...next];prime.move=0;prime.pendingMoves=next;prime.balanceLegacyAction=true;}
  return r;
  }catch{return null;}}
 
