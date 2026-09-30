@@ -682,3 +682,18 @@ dialog.upgrade-dialog{width:min(760px,94vw);max-height:min(90svh,860px);overflow
  .shard-options .shard-choice-copy{text-align:left;flex:1}
  .shard-options .item-capture{width:42px;height:46px}
 }
+
+/* Illustrated map nodes keep artwork visible after completion. */
+.branch-node>.node-art{position:relative;display:grid;place-items:center;width:40px;height:36px;line-height:1}
+.map-node-art{display:block;width:36px;height:36px;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none;background:transparent}
+.branch-node>.node-art>.item-map{width:36px;height:36px}
+.node-complete{position:absolute;top:-3px;right:-4px;display:grid;place-items:center;width:16px;height:16px;border-radius:50%;font-size:12px;font-style:normal;background:#0b1b22;color:#a0e5cf;border:1px solid #a0e5cf}
+.illustrated-legend{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:6px 14px}
+.illustrated-legend>span{display:inline-flex;align-items:center;gap:5px}
+.illustrated-legend .map-node-art,.illustrated-legend .item-map{width:24px;height:24px}
+@media(orientation:landscape) and (max-height:600px){
+ .branch-node>.node-art{height:30px;width:34px}
+ .branch-node>.node-art>.map-node-art,.branch-node>.node-art>.item-map{width:30px;height:30px}
+ .illustrated-legend{gap:4px 10px}
+ .illustrated-legend .map-node-art,.illustrated-legend .item-map{width:20px;height:20px}
+}
