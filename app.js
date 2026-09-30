@@ -7,7 +7,6 @@ import {kaerunLevelFromXp,kaerunBonuses,KAERUN_LEVEL_REWARDS,ilyraLevelFromXp,il
 const characterTestMode=new URLSearchParams(location.search).get('characters')==='all';
 const heroUnlocked=(id,progression={})=>characterTestMode||progressionHeroUnlocked(id,progression);
 const TEST_MAX_XP=999999;
-if(characterTestMode){progression={kaerunXp:TEST_MAX_XP,ilyraXp:TEST_MAX_XP,vaelisXp:TEST_MAX_XP};}
 
 const $=s=>document.querySelector(s),app=$('#app'),modal=$('#modal');
 const keys={run:'veyrak.ascension.run.v4',archive:'veyrak.ascension.archive.v1',bestiary:'veyrak.ascension.bestiary.v1',settings:'veyrak.ascension.settings.v1',progression:'veyrak.ascension.progression.v1',starter:'veyrak.ascension.starter.v1'};
@@ -18,6 +17,7 @@ let run=restore(read(keys.run)),selected='kaerun',screen='title',settings={sound
 try{const s=JSON.parse(read(keys.settings));if(s&&typeof s.sound==='boolean'&&typeof s.motion==='boolean')settings=s;}catch{}
 try{const a=JSON.parse(read(keys.archive));if(Array.isArray(a))history=a.filter(x=>x&&typeof x.seed==='string'&&HEROES.some(h=>h.id===x.hero)&&['won','lost','abandoned'].includes(x.outcome)&&Number.isInteger(x.turns)).slice(0,30);}catch{}
 let bestiary=restoreBestiary(read(keys.bestiary)),bestiaryReturn='title',progression={kaerunXp:0,ilyraXp:0,vaelisXp:0};try{const p=JSON.parse(read(keys.progression));for(const id of ['kaerun','ilyra','vaelis'])if(p&&Number.isFinite(p[id+'Xp'])&&p[id+'Xp']>=0)progression[id+'Xp']=Math.floor(p[id+'Xp']);if(p?.xpCheckpoint&&typeof p.xpCheckpoint.id==='string'&&Number.isInteger(p.xpCheckpoint.total)&&p.xpCheckpoint.total>=0)progression.xpCheckpoint=p.xpCheckpoint;}catch{}
+if(characterTestMode)progression={kaerunXp:TEST_MAX_XP,ilyraXp:TEST_MAX_XP,vaelisXp:TEST_MAX_XP};
 const heroName=id=>HEROES.find(h=>h.id===id)?.name||id;
 const masteryFor=id=>id==='vaelis'?vaelisLevelFromXp:id==='ilyra'?ilyraLevelFromXp:kaerunLevelFromXp;
 const bonusesFor=id=>id==='vaelis'?vaelisBonuses:id==='ilyra'?ilyraBonuses:kaerunBonuses;
