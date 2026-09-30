@@ -1,22 +1,25 @@
-import {kaerunLevelFromXp,ilyraLevelFromXp} from './progression.js?v=2';
+import {kaerunLevelFromXp,ilyraLevelFromXp,vaelisLevelFromXp} from './progression.js?v=3';
 
 export const DEFAULT_STARTERS={
  kaerun:['strike','strike','strike','strike','guard','guard','guard','guard','targetbreaker','gauntletsmash'],
- ilyra:['arcbolt','arcbolt','arcbolt','crystalguard','crystalguard','crystalguard','corespark','corespark','resonantstrike','prismward']
+ ilyra:['arcbolt','arcbolt','arcbolt','crystalguard','crystalguard','crystalguard','corespark','corespark','resonantstrike','prismward'],
+ vaelis:['venomcut','venomcut','venomcut','serpentguard','serpentguard','serpentguard','toxicprimer','toxicprimer','venomrupture','miststep']
 };
-export const FLEX_SLOTS={kaerun:[2,3,6,7],ilyra:[2,5,7,9]};
+export const FLEX_SLOTS={kaerun:[2,3,6,7],ilyra:[2,5,7,9],vaelis:[2,5,7,9]};
 export const LEVEL_UNLOCKS={
  kaerun:{2:['deflect','shieldbash','scout'],4:['fortify','suppress','sovereignbrand'],6:['unbrokenguard','relentless','bloodrush'],8:['cleave','shatterarmourkaerun','crushingadvance']},
- ilyra:{2:['deflect','shieldbash','scout'],4:['fortify','suppress','arcsplit'],6:['prismstudy','latticeward','corechannel'],8:['cleave','crystallance','resonantmend']}
+ ilyra:{2:['deflect','shieldbash','scout'],4:['fortify','suppress','arcsplit'],6:['prismstudy','latticeward','corechannel'],8:['cleave','crystallance','resonantmend']},
+ vaelis:{2:['deflect','shieldbash','scout'],4:['serratedfang','toxicmist','fortify'],6:['virulentstudy','venomward','suppress'],8:['catalyst','plagueedge','deathbloom']}
 };
 export const STARTER_CHALLENGES={
  kaerun:[{stat:'markedKills',goal:30,card:'markedforruin',name:'Marked for defeat',text:'Defeat 30 Marked enemies with cards.'},{stat:'marksApplied',goal:60,card:'unbrokenguard',name:'Sovereign discipline',text:'Apply Mark with cards 60 times.'},{stat:'blockedDamage',goal:150,card:'fortressstance',name:'The unbroken',text:'Absorb 150 incoming damage with Block.'}],
- ilyra:[{stat:'resonanceSpent',goal:50,card:'corechannel',name:'Crystal attunement',text:'Spend 50 Resonance.'},{stat:'barrierCreated',goal:150,card:'latticeward',name:'Lasting protection',text:'Create 150 next-turn Barrier with cards.'},{stat:'resonanceKills',goal:30,card:'fracturefield',name:'Resonant finisher',text:'Defeat 30 enemies with Resonance-spending attacks.'}]
+ ilyra:[{stat:'resonanceSpent',goal:50,card:'corechannel',name:'Crystal attunement',text:'Spend 50 Resonance.'},{stat:'barrierCreated',goal:150,card:'latticeward',name:'Lasting protection',text:'Create 150 next-turn Barrier with cards.'},{stat:'resonanceKills',goal:30,card:'fracturefield',name:'Resonant finisher',text:'Defeat 30 enemies with Resonance-spending attacks.'}],
+ vaelis:[{stat:'poisonApplied',goal:150,card:'toxicmist',name:'Venomcraft',text:'Apply 150 Poison with cards.'},{stat:'poisonDamage',goal:250,card:'catalyst',name:'Patient hunter',text:'Deal 250 damage with Poison ticks.'},{stat:'poisonKills',goal:30,card:'deathbloom',name:'The last breath',text:'Defeat 30 enemies with Poison ticks.'}]
 };
-export const STARTER_STAT_KEYS=['markedKills','marksApplied','blockedDamage','resonanceSpent','barrierCreated','resonanceKills'];
+export const STARTER_STAT_KEYS=['markedKills','marksApplied','blockedDamage','resonanceSpent','barrierCreated','resonanceKills','poisonApplied','poisonDamage','poisonKills'];
 export function emptyStarterStats(){return Object.fromEntries(STARTER_STAT_KEYS.map(k=>[k,0]));}
 const count=n=>Number.isFinite(n)&&n>=0?Math.min(100000000,Math.floor(n)):0;
-export function heroLevel(hero,progression={}){return (hero==='ilyra'?ilyraLevelFromXp:kaerunLevelFromXp)(progression[hero+'Xp']||0).level;}
+export function heroLevel(hero,progression={}){return (hero==='vaelis'?vaelisLevelFromXp:hero==='ilyra'?ilyraLevelFromXp:kaerunLevelFromXp)(progression[hero+'Xp']||0).level;}
 export function defaultLoadout(hero){return FLEX_SLOTS[hero].map(i=>DEFAULT_STARTERS[hero][i]);}
 export function starterCatalog(hero){return [...new Set([...DEFAULT_STARTERS[hero],...Object.values(LEVEL_UNLOCKS[hero]).flat(),...STARTER_CHALLENGES[hero].map(c=>c.card)])];}
 export function restoreStarterCollection(raw){
@@ -41,7 +44,7 @@ export function unlockedStarterCards(hero,collection,level=1){
 export function validateLoadout(hero,loadout,collection,level,cards){
  if(!DEFAULT_STARTERS[hero]||!Array.isArray(loadout)||loadout.length!==4)return 'Choose exactly four flexible cards.';
  const unlocked=unlockedStarterCards(hero,collection,level);
- if(loadout.some(id=>!unlocked.includes(id)||!cards[id]||cards[id].upgradeOf||(cards[id].kaerun&&hero!=='kaerun')||(cards[id].ilyra&&hero!=='ilyra')))return 'Choose unlocked, unupgraded cards for this hero.';
+ if(loadout.some(id=>!unlocked.includes(id)||!cards[id]||cards[id].upgradeOf||(cards[id].kaerun&&hero!=='kaerun')||(cards[id].ilyra&&hero!=='ilyra')||(cards[id].vaelis&&hero!=='vaelis')))return 'Choose unlocked, unupgraded cards for this hero.';
  if(loadout.some(id=>loadout.filter(x=>x===id).length>2))return 'Use at most two copies of a card in the flexible slots.';
  if(loadout.some(id=>cards[id].cost>2)||loadout.filter(id=>cards[id].cost===2).length>2)return 'Use at most two cards costing 2 Core; higher-cost cards stay in run rewards.';
  if(loadout.reduce((n,id)=>n+cards[id].cost,0)>6)return 'The four flexible cards can cost at most 6 Core in total.';

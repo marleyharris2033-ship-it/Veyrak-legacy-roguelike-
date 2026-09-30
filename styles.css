@@ -750,3 +750,18 @@ dialog.upgrade-dialog{width:min(760px,94vw);max-height:min(90svh,860px);overflow
  .deck-builder-panel{padding:8px 16px}
  .starter-preview>.sheet-card,.starter-preview>.neutral-card,.starter-preview>.ilyra-card,.starter-preview>.upgraded-card-art,.starter-preview>.tech-card{width:76px}
 }
+
+/* Vaelis uses live labels over illustration so upgrades and balance changes stay readable. */
+.vaelis-card{overflow:hidden;border:2px solid #a78b53;border-radius:9px;background:#0b1914;box-shadow:inset 0 0 18px #030a07;color:#f7edd4}
+.vaelis-card>img{position:absolute;top:19%;height:48%;object-fit:cover;object-position:center}
+.vaelis-card .ilyra-cost{left:3%;top:2%;width:22%;height:16%;font-size:16cqw;border:1px solid #bda970;border-radius:50%;background:#153f2b}
+.vaelis-card .ilyra-name{left:27%;top:3%;width:69%;height:14%;font-size:7.2cqw}
+.vaelis-card .ilyra-type{left:5%;top:66%;width:90%;height:8%;font-size:6.5cqw;color:#b6dda4}
+.vaelis-card .ilyra-effect{left:6%;top:75%;width:88%;height:23%;font-size:6.1cqw;line-height:1.12;padding:0 1%;box-sizing:border-box}
+.account-readout{display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center;justify-content:center;color:#dfcfab;font-size:13px;margin:10px 0 15px}
+.account-readout small{flex-basis:100%;color:#a9c7ac;text-align:center}
+.dossier .account-readout{justify-content:flex-start}.dossier .account-readout small{text-align:left}
+.venom-meter,.status-poison,.status-evade{color:#b0e69a;border-color:#74a864}
+.venom-meter{display:block;font-size:12px;margin-top:5px}.venom-meter b{margin-left:5px}
+.dossier>.account-readout{grid-column:1/-1}
+@media(orientation:landscape) and (max-height:550px){.account-readout{font-size:10px;margin:4px 0;gap:2px 10px}.title-content>.account-readout small{flex-basis:auto}}

@@ -1,6 +1,6 @@
-import {buildStarterDeck,emptyStarterStats,STARTER_STAT_KEYS} from './starter-decks.js?v=1';
+import {buildStarterDeck,emptyStarterStats,STARTER_STAT_KEYS} from './starter-decks.js?v=2';
 import {emitFeedback} from './combat-feedback.js?v=1';
-import {kaerunBonuses,kaerunXpForEncounter,ilyraBonuses,ilyraXpForEncounter} from './progression.js?v=2';
+import {kaerunBonuses,kaerunXpForEncounter,ilyraBonuses,ilyraXpForEncounter,vaelisBonuses} from './progression.js?v=3';
 import {BEASTS,RARITIES,SHARDS,validBeast,beastKey,addDiscovery, beastBonuses, BEAST_XP_REWARDS} from './beasts.js?v=15';
 export {BEASTS,RARITIES,SHARDS} from './beasts.js?v=13';
 export const VERSION=4;
@@ -10,7 +10,7 @@ export const CORE_REGEN=3;
 export const HEROES = [
  {id:'kaerun',name:'Kaerun',title:'The Unbroken',weapon:'Gauntlets',signature:'Sovereign Impact',available:true,portrait:16.64},
  {id:'ilyra',name:'Ilyra',title:'The Crystal Seer',weapon:'Staff & catalyst',signature:'Violet Core',available:true,portrait:29.49},
- {id:'vaelis',name:'Vaelis',weapon:'Dual blades',portrait:43.14},
+ {id:'vaelis',name:'Vaelis',title:'The Riftblade',weapon:'Poisoned dual blades',signature:'Venomcraft',available:true,unlockRank:5,portrait:43.14},
  {id:'dhoran',name:'Dhoran',weapon:'Heavy cannon',portrait:56.92},
  {id:'saevra',name:'Saevra',weapon:'Polearm',portrait:70.9},
  {id:'nyvara',name:'Nyvara',weapon:'Rifle',portrait:84.28}
@@ -71,6 +71,18 @@ function hash(text){let n=2166136261;for(const c of text){n^=c.charCodeAt(0);n=M
 function random(state){state.rng=(state.rng+0x6D2B79F5)>>>0;let t=state.rng;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;}
 function shuffle(a,state){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(random(state)*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 export const CARDS={
+ venomcut:{"name": "Venom Cut", "cost": 1, "type": "attack", "vaelis": true, "damage": 5, "poison": 2, "text": "Deal 5 damage. Apply 2 Poison."},
+ serpentguard:{"name": "Serpent Guard", "cost": 1, "type": "defence", "vaelis": true, "block": 6, "poisonBonusBlock": 3, "text": "Gain 6 Block. Gain 3 more if target is Poisoned."},
+ toxicprimer:{"name": "Toxic Primer", "cost": 1, "type": "skill", "vaelis": true, "poison": 4, "text": "Apply 4 Poison."},
+ venomrupture:{"name": "Venom Rupture", "cost": 2, "type": "attack", "vaelis": true, "damage": 8, "consumePoisonDamage": 3, "text": "Deal 8 damage, plus 3 per Poison on target. Consume its Poison."},
+ miststep:{"name": "Mist Step", "cost": 1, "type": "defence", "vaelis": true, "block": 4, "evade": 1, "exhaust": true, "text": "Gain 4 Block. Evade the next enemy hit this turn. Exhaust."},
+ serratedfang:{"name": "Serrated Fang", "cost": 1, "type": "attack", "vaelis": true, "damage": 7, "poison": 3, "text": "Deal 7 damage. Apply 3 Poison."},
+ toxicmist:{"name": "Toxic Mist", "cost": 1, "type": "skill", "vaelis": true, "poisonAll": 2, "text": "Apply 2 Poison to all enemies."},
+ virulentstudy:{"name": "Virulent Study", "cost": 1, "type": "skill", "vaelis": true, "draw": 2, "poison": 1, "text": "Draw 2 cards. Apply 1 Poison."},
+ venomward:{"name": "Venom Ward", "cost": 1, "type": "defence", "vaelis": true, "block": 8, "nextBarrier": 3, "text": "Gain 8 Block and 3 next-turn Barrier."},
+ catalyst:{"name": "Catalyst", "cost": 2, "type": "skill", "vaelis": true, "multiplyPoison": 2, "exhaust": true, "text": "Double target’s Poison. Exhaust."},
+ plagueedge:{"name": "Plague Edge", "cost": 2, "type": "attack", "vaelis": true, "damage": 6, "all": true, "poisonAll": 3, "text": "Deal 6 damage and apply 3 Poison to all enemies."},
+ deathbloom:{"name": "Death Bloom", "cost": 2, "type": "attack", "vaelis": true, "damage": 7, "all": true, "consumePoisonDamage": 2, "exhaust": true, "text": "Deal 7 damage to all enemies, plus 2 per Poison each has. Consume their Poison. Exhaust."},
  strike:{name:'Strike',cost:1,damage:6,type:'attack',text:'Deal 6 damage.',tile:0},
  guard:{name:'Guard',cost:1,block:6,type:'defence',text:'Gain 6 Block this turn.',tile:1},
  targetbreaker:{name:'Target Breaker',cost:1,mark:3,type:'skill',kaerun:true,modernArt:'mark',text:'Apply 3 Mark to target.',tile:2},
@@ -125,6 +137,7 @@ export const CARDS={
  sundering:{name:'Sundering',cost:2,damage:9,vulnerable:2,type:'attack',modernArt:'sunder',text:'Deal 9 damage. Apply 2 Vulnerable to target.'}
 };
 export const CARD_UPGRADES={
+venomcut:'venomcut_up',serpentguard:'serpentguard_up',toxicprimer:'toxicprimer_up',venomrupture:'venomrupture_up',miststep:'miststep_up',serratedfang:'serratedfang_up',toxicmist:'toxicmist_up',virulentstudy:'virulentstudy_up',venomward:'venomward_up',catalyst:'catalyst_up',plagueedge:'plagueedge_up',deathbloom:'deathbloom_up',
  strike:'strike_up',guard:'guard_up',targetbreaker:'targetbreaker_up',gauntletsmash:'gauntletsmash_up',
  deflect:'deflect_up',cleave:'cleave_up',focus:'focus_up',ironskin:'ironskin_up',seismicpunch:'seismicpunch_up',stonebulwark:'stonebulwark_up',
  meteor:'meteor_up',chainlightning:'chainlightning_up',shatterarmour:'shatterarmour_up',lifesiphon:'lifesiphon_up',crystalbarrier:'crystalbarrier_up',
@@ -138,6 +151,18 @@ export const CARD_UPGRADES={
  piercingray:'piercingray_up',suppress:'suppress_up',scout:'scout_up',ricochet:'ricochet_up',sundering:'sundering_up'
 };
 Object.assign(CARDS,{
+ venomcut_up:{...CARDS.venomcut,"name": "Venom Cut+", "damage": 7, "poison": 3, "text": "Deal 7 damage. Apply 3 Poison.", "upgradeOf": "venomcut"},
+ serpentguard_up:{...CARDS.serpentguard,"name": "Serpent Guard+", "block": 9, "poisonBonusBlock": 4, "text": "Gain 9 Block. Gain 4 more if target is Poisoned.", "upgradeOf": "serpentguard"},
+ toxicprimer_up:{...CARDS.toxicprimer,"name": "Toxic Primer+", "poison": 6, "text": "Apply 6 Poison.", "upgradeOf": "toxicprimer"},
+ venomrupture_up:{...CARDS.venomrupture,"name": "Venom Rupture+", "damage": 11, "consumePoisonDamage": 4, "text": "Deal 11 damage, plus 4 per Poison on target. Consume its Poison.", "upgradeOf": "venomrupture"},
+ miststep_up:{...CARDS.miststep,"name": "Mist Step+", "block": 7, "text": "Gain 7 Block. Evade the next enemy hit this turn. Exhaust.", "upgradeOf": "miststep"},
+ serratedfang_up:{...CARDS.serratedfang,"name": "Serrated Fang+", "damage": 10, "poison": 4, "text": "Deal 10 damage. Apply 4 Poison.", "upgradeOf": "serratedfang"},
+ toxicmist_up:{...CARDS.toxicmist,"name": "Toxic Mist+", "poisonAll": 3, "text": "Apply 3 Poison to all enemies.", "upgradeOf": "toxicmist"},
+ virulentstudy_up:{...CARDS.virulentstudy,"name": "Virulent Study+", "poison": 3, "text": "Draw 2 cards. Apply 3 Poison.", "upgradeOf": "virulentstudy"},
+ venomward_up:{...CARDS.venomward,"name": "Venom Ward+", "block": 10, "nextBarrier": 5, "text": "Gain 10 Block and 5 next-turn Barrier.", "upgradeOf": "venomward"},
+ catalyst_up:{...CARDS.catalyst,"name": "Catalyst+", "multiplyPoison": 3, "text": "Triple target’s Poison. Exhaust.", "upgradeOf": "catalyst"},
+ plagueedge_up:{...CARDS.plagueedge,"name": "Plague Edge+", "damage": 8, "poisonAll": 4, "text": "Deal 8 damage and apply 4 Poison to all enemies.", "upgradeOf": "plagueedge"},
+ deathbloom_up:{...CARDS.deathbloom,"name": "Death Bloom+", "damage": 10, "consumePoisonDamage": 3, "text": "Deal 10 damage to all enemies, plus 3 per Poison each has. Consume their Poison. Exhaust.", "upgradeOf": "deathbloom"},
  strike_up:{...CARDS.strike,name:'Strike+',damage:9,text:'Deal 9 damage.',upgradeOf:'strike'},
  guard_up:{...CARDS.guard,name:'Guard+',block:9,text:'Gain 9 Block this turn.',upgradeOf:'guard'},
  targetbreaker_up:{...CARDS.targetbreaker,name:'Target Breaker+',mark:4,text:'Apply 4 Mark to target.',upgradeOf:'targetbreaker'},
@@ -198,6 +223,7 @@ export function upgradeCard(r,i){
 }
 
 export const STARTER=['strike','strike','strike','strike','guard','guard','guard','guard','targetbreaker','gauntletsmash'];
+export const VAELIS_STARTER=['venomcut','venomcut','venomcut','serpentguard','serpentguard','serpentguard','toxicprimer','toxicprimer','venomrupture','miststep'];
 export const ILYRA_STARTER=['arcbolt','arcbolt','arcbolt','crystalguard','crystalguard','crystalguard','corespark','corespark','resonantstrike','prismward'];
 export const RELICS={
  amber:{name:'Amber Heart',text:'Heal 4 Vitality after combat.'},
@@ -245,8 +271,8 @@ const beastSpecies=beastSystem>=2?shuffle(Object.keys(BEASTS),{rng:hash(seed+':b
 export function createRun(seed,hero='kaerun',options={}){
  if(!HEROES.some(h=>h.id===hero&&h.available))throw Error('This hero is locked.');
  seed=normaliseSeed(seed);const enemyRoster=options.enemyRoster??2,beastSystem=options.beastSystem??5,stage=1;
- const route=buildRoute(seed,enemyRoster,beastSystem,!!options.legacy,stage);const characterLevel=['kaerun','ilyra'].includes(hero)?Math.max(1,Math.min(20,Math.floor(options.characterLevel)||1)):1,levelBonuses=hero==='kaerun'?kaerunBonuses(characterLevel):hero==='ilyra'?ilyraBonuses(characterLevel):{};
- return {starterStats:emptyStarterStats(),eventCorePenalty:0,characterLevel,characterXpEarned:0,characterXpBanked:0,levelBonuses,enemyRoster,beastSystem,beastRoutes:!options.legacy,legacy:!!options.legacy,stage,maxStage:10,stagesCleared:0,shards:{basic:5,refined:0,prismatic:0},seenBeasts:[],capturedBeasts:[],companion:validBeast(options.companion)?{id:options.companion.id,rarity:options.companion.rarity}:null,companionLevel:Math.max(1,Math.min(10,Math.floor(options.companionLevel)||1)),beastXpEarned:0,beastXpBanked:0,captureResult:null,version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80+(levelBonuses.maxHp||0),maxHp:80+(levelBonuses.maxHp||0),block:0,core:0,index:0,route,current:null,visited:[],deck:options.starterCollection?buildStarterDeck(hero,options.starterLoadout,options.starterCollection,characterLevel,CARDS):[...(hero==='ilyra'?ILYRA_STARTER:STARTER)],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
+ const route=buildRoute(seed,enemyRoster,beastSystem,!!options.legacy,stage);const characterLevel=['kaerun','ilyra','vaelis'].includes(hero)?Math.max(1,Math.min(20,Math.floor(options.characterLevel)||1)):1,levelBonuses=hero==='kaerun'?kaerunBonuses(characterLevel):hero==='ilyra'?ilyraBonuses(characterLevel):hero==='vaelis'?vaelisBonuses(characterLevel):{};
+ return {starterStats:emptyStarterStats(),eventCorePenalty:0,characterLevel,characterXpEarned:0,characterXpBanked:0,levelBonuses,enemyRoster,beastSystem,beastRoutes:!options.legacy,legacy:!!options.legacy,stage,maxStage:10,stagesCleared:0,shards:{basic:5,refined:0,prismatic:0},seenBeasts:[],capturedBeasts:[],companion:validBeast(options.companion)?{id:options.companion.id,rarity:options.companion.rarity}:null,companionLevel:Math.max(1,Math.min(10,Math.floor(options.companionLevel)||1)),beastXpEarned:0,beastXpBanked:0,captureResult:null,version:VERSION,seed,hero,rng:hash(seed+':combat'),phase:'map',hp:80+(levelBonuses.maxHp||0),maxHp:80+(levelBonuses.maxHp||0),block:0,core:0,index:0,route,current:null,visited:[],deck:options.starterCollection?buildStarterDeck(hero,options.starterLoadout,options.starterCollection,characterLevel,CARDS):[...(hero==='vaelis'?VAELIS_STARTER:hero==='ilyra'?ILYRA_STARTER:STARTER)],gold:60,relics:[],potions:0,blessing:0,curse:0,battle:null,room:null,rewards:[],turns:0,cardsPlayed:0,log:[]};
 }
 export function continueStage(r){
  if(r.phase!=='stage-complete'||(r.stage||1)>=10)return false;
@@ -254,7 +280,7 @@ export function continueStage(r){
 }
 export function availableNodes(r){return r.current?r.route.find(n=>n.id===r.current).next:r.route.filter(n=>n.row===0).map(n=>n.id);}
 function sampleCards(r,n=3,upgradeChance=0){
- const pool=Object.keys(CARDS).filter(id=>!CARDS[id].upgradeOf&&!['strike','guard'].includes(id)&&(!CARDS[id].kaerun||r.hero==='kaerun')&&(!CARDS[id].ilyra||r.hero==='ilyra'));
+ const pool=Object.keys(CARDS).filter(id=>!CARDS[id].upgradeOf&&!['strike','guard'].includes(id)&&(!CARDS[id].kaerun||r.hero==='kaerun')&&(!CARDS[id].ilyra||r.hero==='ilyra')&&(!CARDS[id].vaelis||r.hero==='vaelis'));
  return shuffle(pool,r).slice(0,n).map(id=>CARD_UPGRADES[id]&&random(r)<upgradeChance?CARD_UPGRADES[id]:id);
 }
 export function chooseNode(r,id){
@@ -278,14 +304,14 @@ function bossPhase(r){
 function startBattle(r,node){
  r.captureResult=null;if(node.enemy.beast)addDiscovery(r.seenBeasts,{id:node.enemy.beast,rarity:node.enemy.rarity});
  const enemies=[structuredClone(node.enemy)];if(node.pack)enemies.push(structuredClone(node.pack));if(r.enemyRoster!==2&&[3,6,8].includes(node.row)&&node.type==='battle'&&node.col===1){const add=structuredClone(LEGACY_ENEMIES[0]);add.hp=16+node.row;enemies.push(add);}
- const es=enemies.map(e=>({...e,maxHp:e.hp,block:0,move:e.boss?0:Math.floor(random(r)*e.moves.length),mark:0,weak:0,vulnerable:0,bleed:0,strength:0,stunned:false,stunGuard:0}));
- r.phase='combat';r.battle={enemies:es,target:0,draw:shuffle(r.deck,r),hand:[],discard:[],exhaust:[],retained:[],turn:0,strength:0,power:0,relentless:0,bloodRush:false,weak:0,vulnerable:0,bleed:0,barrier:0,resonance:r.hero==='ilyra'?(r.levelBonuses?.startingResonance||0):0,pressureUsed:false,markAppliedThisTurn:false,sovereignUsed:false,resonanceSpentThisTurn:false,stunned:false,echo:false,weaken:0,drawPenalty:0,coreDebt:0,hurtLastTurn:false,firstAttack:true,wardUsed:false,companionCooldown:0,companionUses:0,companionBoost:0};r.log=[`${node.enemy.name} bars your path.`];startTurn(r);if(r.relics.includes('aegis'))r.block+=5;
+ const es=enemies.map(e=>({...e,maxHp:e.hp,block:0,move:e.boss?0:Math.floor(random(r)*e.moves.length),mark:0,weak:0,vulnerable:0,bleed:0,poison:0,strength:0,stunned:false,stunGuard:0}));
+ r.phase='combat';r.battle={enemies:es,target:0,draw:shuffle(r.deck,r),hand:[],discard:[],exhaust:[],retained:[],turn:0,strength:0,power:0,relentless:0,bloodRush:false,weak:0,vulnerable:0,bleed:0,barrier:0,resonance:r.hero==='ilyra'?(r.levelBonuses?.startingResonance||0):0,pressureUsed:false,markAppliedThisTurn:false,sovereignUsed:false,resonanceSpentThisTurn:false,venomUsed:false,venomDrawUsed:false,evade:0,stunned:false,echo:false,weaken:0,drawPenalty:0,coreDebt:0,hurtLastTurn:false,firstAttack:true,wardUsed:false,companionCooldown:0,companionUses:0,companionBoost:0};r.log=[`${node.enemy.name} bars your path.`];startTurn(r);if(r.relics.includes('aegis'))r.block+=5;
 }
 function draw(r,n){const b=r.battle;for(let i=0;i<n;i++){if(!b.draw.length){b.draw=shuffle(b.discard,r);b.discard=[];}if(!b.draw.length)break;b.hand.push(b.draw.pop());}}
 function startTurn(r){
- const b=r.battle;b.companionCooldown=Math.max(0,(b.companionCooldown||0)-1);b.companionBoost=0;r.block=b.barrier||0;b.barrier=0;if(b.bleed>0){emitFeedback(r,{kind:'hit',source:'player',target:'player',damage:Math.min(r.hp,b.bleed),blocked:0});r.hp=Math.max(0,r.hp-b.bleed);b.bleed=Math.max(0,b.bleed-1);}if(!r.hp){r.phase='lost';r.core=0;return;}if(b.retained?.length){b.hand.push(...b.retained);b.retained=[];}r.core=Math.min(MAX_CORE,(r.core||0)+CORE_REGEN);b.strength=(r.relics.includes('fist')?1:0)+r.blessing+(b.power||0);b.echo=false;b.weaken=0;b.pressureUsed=false;b.markAppliedThisTurn=false;b.resonanceSpentThisTurn=false;b.turn++;r.turns++;
+ const b=r.battle;b.companionCooldown=Math.max(0,(b.companionCooldown||0)-1);b.companionBoost=0;r.block=b.barrier||0;b.barrier=0;if(b.bleed>0){emitFeedback(r,{kind:'hit',source:'player',target:'player',damage:Math.min(r.hp,b.bleed),blocked:0});r.hp=Math.max(0,r.hp-b.bleed);b.bleed=Math.max(0,b.bleed-1);}if(!r.hp){r.phase='lost';r.core=0;return;}if(b.retained?.length){b.hand.push(...b.retained);b.retained=[];}r.core=Math.min(MAX_CORE,(r.core||0)+CORE_REGEN);b.strength=(r.relics.includes('fist')?1:0)+r.blessing+(b.power||0);b.echo=false;b.weaken=0;b.pressureUsed=false;b.markAppliedThisTurn=false;b.resonanceSpentThisTurn=false;b.venomUsed=false;b.evade=0;b.turn++;r.turns++;
  let count=Math.max(0,5-(b.drawPenalty||0));b.drawPenalty=0;
- if(b.turn===1){if(r.eventCorePenalty>0){b.eventCoreDrain=1;r.eventCorePenalty--;}if(r.relics.includes('wayfarer'))count++;if(r.relics.includes('coreprism'))r.core=Math.min(MAX_CORE,r.core+1);if(['kaerun','ilyra'].includes(r.hero)){r.core=Math.min(MAX_CORE,r.core+(r.levelBonuses?.startingCore||0));count+=r.levelBonuses?.firstTurnDraw||0;if(r.hero==='ilyra')b.barrier=(b.barrier||0)+(r.levelBonuses?.startingBarrier||0);}}
+ if(b.turn===1){if(r.eventCorePenalty>0){b.eventCoreDrain=1;r.eventCorePenalty--;}if(r.relics.includes('wayfarer'))count++;if(r.relics.includes('coreprism'))r.core=Math.min(MAX_CORE,r.core+1);if(['kaerun','ilyra','vaelis'].includes(r.hero)){r.core=Math.min(MAX_CORE,r.core+(r.levelBonuses?.startingCore||0));count+=r.levelBonuses?.firstTurnDraw||0;if(r.hero==='vaelis')r.block+=r.levelBonuses?.startingBlock||0;if(r.hero==='ilyra')b.barrier=(b.barrier||0)+(r.levelBonuses?.startingBarrier||0);}}
  if(r.relics.includes('hourglass')&&b.turn%3===0)r.block+=3;if(r.hero==='kaerun')r.block+=r.levelBonuses?.turnBlock||0;
  r.core=Math.max(0,r.core-(b.coreDebt||0)-(b.turn===1?(b.eventCoreDrain||0):0));b.coreDebt=0;
  if(r.curse>0){r.core=Math.max(0,r.core-1);r.curse--;}
@@ -299,10 +325,15 @@ function log(r,text){r.log=[...r.log.slice(-5),text];}
 export function selectTarget(r,i){if(r.phase!=='combat'||!Number.isInteger(i)||!r.battle.enemies[i]?.hp)return false;r.battle.target=i;return true;}
 function victory(r){
  const b=r.battle;if(!b.enemies.every(e=>e.hp===0))return false;
- const node=r.route.find(n=>n.id===r.current),elite=node.type==='elite'||!!b.eventTrial,boss=node.type==='boss';if(validBeast(r.companion))r.beastXpEarned=(r.beastXpEarned||0)+(BEAST_XP_REWARDS[b.eventTrial?'elite':node.type]||0);const gold=(boss?90:elite?60:30)+(b.eventTrial?25:0)+(r.relics.includes('gilded')?10:0);r.gold+=gold;r.lastCombatGold=gold;r.trialUpgradePending=!!b.eventTrial;if(r.hero==='kaerun'){r.characterXpEarned=(r.characterXpEarned||0)+kaerunXpForEncounter(b.eventTrial?'elite':node.type);if(elite)r.hp=Math.min(r.maxHp,r.hp+(r.levelBonuses?.eliteHeal||0));}else if(r.hero==='ilyra')r.characterXpEarned=(r.characterXpEarned||0)+ilyraXpForEncounter(b.eventTrial?'elite':node.type);r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;if(boss)r.hp=Math.min(r.maxHp,r.hp+Math.round(r.maxHp*.25));
+ const node=r.route.find(n=>n.id===r.current),elite=node.type==='elite'||!!b.eventTrial,boss=node.type==='boss';if(validBeast(r.companion))r.beastXpEarned=(r.beastXpEarned||0)+(BEAST_XP_REWARDS[b.eventTrial?'elite':node.type]||0);const gold=(boss?90:elite?60:30)+(b.eventTrial?25:0)+(r.relics.includes('gilded')?10:0);r.gold+=gold;r.lastCombatGold=gold;r.trialUpgradePending=!!b.eventTrial;if(r.hero==='kaerun'){r.characterXpEarned=(r.characterXpEarned||0)+kaerunXpForEncounter(b.eventTrial?'elite':node.type);if(elite)r.hp=Math.min(r.maxHp,r.hp+(r.levelBonuses?.eliteHeal||0));}else if(['ilyra','vaelis'].includes(r.hero))r.characterXpEarned=(r.characterXpEarned||0)+ilyraXpForEncounter(b.eventTrial?'elite':node.type);r.hp=Math.min(r.maxHp,r.hp+(r.relics.includes('amber')?4:0));r.core=0;if(boss)r.hp=Math.min(r.maxHp,r.hp+Math.round(r.maxHp*.25));
  if(elite){const relic=randomRelic(r);if(relic)r.relics.push(relic);r.eliteReward=relic;const shardRoll=random(r);const shard=shardRoll<.10?'prismatic':shardRoll<.35?'refined':shardRoll<.85?'basic':null;if(shard)r.shards[shard]++;r.eliteShardReward=shard;}else{r.eliteReward=null;r.eliteShardReward=null;}r.phase=node.type==='boss'?((r.stage||1)>=10?'won':'stage-complete'):'victory';r.rewards=sampleCards(r,3,elite?.20:.10);log(r,`Victory! Gained ${gold} gold${elite&&r.eliteReward?` and ${RELICS[r.eliteReward].name}`:''}${elite&&r.eliteShardReward?`, plus 1 ${SHARDS[r.eliteShardReward].name}`:''}.`);return true;
 }
 function hitEnemy(r,e,base,multiplier=1){const b=r.battle,weakMult=b.weak>0?.75:1,vulnMult=e.vulnerable>0?1.5:1,raw=Math.max(0,Math.floor((base+b.strength+(r.relics.includes('hunterlens')&&e.mark>0?2:0))*multiplier*weakMult*vulnMult)),blocked=Math.min(e.block,raw);e.block-=blocked;const damage=Math.min(e.hp,raw-blocked);e.hp-=damage;emitFeedback(r,{kind:'hit',source:'player',target:'enemy:'+b.enemies.indexOf(e),damage,blocked,blockBreak:blocked>0&&e.block===0,heavy:raw>=18});return damage;}
+function applyPoison(r,foe,amount){
+ if(amount<=0)return;const b=r.battle;let bonus=0;
+ if(r.hero==='vaelis'&&!b.venomUsed){bonus=r.levelBonuses?.poisonBonus||1;b.venomUsed=true;r.block+=r.levelBonuses?.poisonBlock||0;if(r.levelBonuses?.poisonDraw&&!b.venomDrawUsed){draw(r,1);b.venomDrawUsed=true;}}
+ const before=foe.poison||0;foe.poison=Math.min(999,before+amount+bonus);r.starterStats??=emptyStarterStats();if(r.hero==='vaelis')r.starterStats.poisonApplied+=foe.poison-before;
+}
 export function playCard(r,i){
  if(r.phase!=='combat'||!Number.isInteger(i)||i<0)return false;
  const b=r.battle,id=b.hand[i],c=CARDS[id],selected=b.enemies[b.target];
@@ -310,6 +341,7 @@ export function playCard(r,i){
  const markedBefore=(selected.mark||0)>0,selectedAliveBefore=selected.hp>0;
  const challengeBefore=b.enemies.map(e=>({hp:e.hp,mark:e.mark||0})),barrierBefore=b.barrier||0;
  r.core-=c.cost;r.cardsPlayed++;b.hand.splice(i,1);
+ if(c.evade)b.evade=1;if(c.poisonBonusBlock&&selected.poison>0)r.block+=c.poisonBonusBlock;
  if(c.coreGain)r.core=Math.min(MAX_CORE,r.core+c.coreGain);if(c.block)r.block+=c.block;if(c.nextBarrier)b.barrier=(b.barrier||0)+c.nextBarrier;if(c.markedBonusBlock&&(selected.mark||0)>0)r.block+=c.markedBonusBlock;if(c.strength)b.strength+=c.strength;if(c.markedStrength&&(selected.mark||0)>0)b.strength+=c.markedStrength;if(c.draw)draw(r,c.draw);
  if(c.resonanceGain)b.resonance=Math.min(r.hero==='ilyra'?(r.levelBonuses?.resonanceCap||3):3,(b.resonance||0)+c.resonanceGain);
  const spentResonance=c.resonanceDamage||c.resonanceBarrier||c.resonanceHeal?b.resonance||0:0;if(spentResonance){b.resonance=0;if(r.hero==='ilyra'&&!b.resonanceSpentThisTurn){b.barrier=(b.barrier||0)+(r.levelBonuses?.spendBarrier||0);b.resonanceSpentThisTurn=true;}}
@@ -320,11 +352,12 @@ export function playCard(r,i){
   const companionMultiplier=1+(b.companionBoost||0)/100;b.companionBoost=0;const repetitions=b.echo?2:1;b.echo=false;const firstBonus=b.firstAttack&&r.relics.includes('emberstone')?3:0;b.firstAttack=false;
   for(let n=0;n<repetitions;n++){const living=b.enemies.filter(e=>e.hp>0);if(!living.length)break;const target=c.randomTarget?living[Math.floor(random(r)*living.length)]:selected;if(!target?.hp&&!c.all&&!c.splash)break;
    for(const foe of c.all?living:c.splash?living:[target]){if(r.hero==='kaerun'&&(foe.mark||0)>0&&!b.pressureUsed){r.block+=3+(r.levelBonuses?.markedAttackBlock||0);b.pressureUsed=true;}
-    let base=c.splash&&foe!==target?c.splash:c.damage;if(c.resonanceDamage)base+=spentResonance*c.resonanceDamage;if(c.blockComboDamage&&r.block>=10)base=c.blockComboDamage;if(c.executeBonus&&foe.hp<foe.maxHp/2)base+=c.executeBonus;if(c.consumeMarkDamage&&foe===target){base+=c.consumeMarkDamage*(foe.mark||0);foe.mark=0;}if(c.removeBlock)foe.block=Math.max(0,foe.block-c.removeBlock);if(c.markedDamage&&(foe.mark||0)>0)base=c.markedDamage;if(c.executeDamage&&foe.hp<=foe.maxHp/2)base=c.executeDamage;if(c.revengeDamage&&b.hurtLastTurn)base=c.revengeDamage;if(c.shatter)foe.block=0;
+    let base=c.splash&&foe!==target?c.splash:c.damage;if(c.consumePoisonDamage){base+=(foe.poison||0)*c.consumePoisonDamage;foe.poison=0;}if(c.resonanceDamage)base+=spentResonance*c.resonanceDamage;if(c.blockComboDamage&&r.block>=10)base=c.blockComboDamage;if(c.executeBonus&&foe.hp<foe.maxHp/2)base+=c.executeBonus;if(c.consumeMarkDamage&&foe===target){base+=c.consumeMarkDamage*(foe.mark||0);foe.mark=0;}if(c.removeBlock)foe.block=Math.max(0,foe.block-c.removeBlock);if(c.markedDamage&&(foe.mark||0)>0)base=c.markedDamage;if(c.executeDamage&&foe.hp<=foe.maxHp/2)base=c.executeDamage;if(c.revengeDamage&&b.hurtLastTurn)base=c.revengeDamage;if(c.shatter)foe.block=0;
     const damage=hitEnemy(r,foe,base+firstBonus,companionMultiplier);if(c.siphon&&damage>0)r.hp=Math.min(r.maxHp,r.hp+c.siphon);if(c.stun&&r.block>=10){if(!foe.boss||!foe.stunGuard){foe.stunned=true;if(foe.boss)foe.stunGuard=1;}}
    }
   }
  }
+ if(c.poison||c.poisonAll||c.multiplyPoison){for(const foe of c.poisonAll?b.enemies:[selected]){if(foe.hp<=0)continue;const amount=c.multiplyPoison?(foe.poison||0)*(c.multiplyPoison-1):(c.poisonAll||c.poison);applyPoison(r,foe,amount);}}
  if(c.mark){let mark=c.mark;if(r.hero==='kaerun'){if(!b.markAppliedThisTurn){r.block+=r.levelBonuses?.markBlock||0;b.markAppliedThisTurn=true;}if(r.levelBonuses?.sovereign&&!b.sovereignUsed){mark++;r.core=Math.min(MAX_CORE,r.core+1);b.sovereignUsed=true;}}selected.mark=(selected.mark||0)+mark;}
  if(c.blockComboVulnerable&&r.block>=10)selected.vulnerable=(selected.vulnerable||0)+c.blockComboVulnerable;if(markedBefore&&b.relentless>0){draw(r,b.relentless);b.relentless=0;}if(selectedAliveBefore&&!selected.hp&&b.bloodRush){r.core=Math.min(MAX_CORE,r.core+1);b.bloodRush=false;}
  if(!r.starterStats)r.starterStats=emptyStarterStats();
@@ -335,14 +368,15 @@ export function playCard(r,i){
 export function endTurn(r){
  if(r.phase!=='combat')return false;const b=r.battle;const keep=b.hand.filter(id=>CARDS[id]?.retain),toss=b.hand.filter(id=>!CARDS[id]?.retain);b.retained.push(...keep);b.discard.push(...toss);b.hand=[];b.hurtLastTurn=false;if(b.stunned){b.stunned=false;startTurn(r);log(r,'Stunned — enemy turn skipped.');return true;}
  for(const e of b.enemies.filter(e=>e.hp>0)){
+  if(e.poison>0){const dealt=Math.min(e.hp,e.poison);e.hp-=dealt;e.poison--;r.starterStats??=emptyStarterStats();if(r.hero==='vaelis'){r.starterStats.poisonDamage+=dealt;if(!e.hp)r.starterStats.poisonKills++;}emitFeedback(r,{kind:'hit',source:'player',target:'enemy:'+b.enemies.indexOf(e),damage:dealt,blocked:0});if(!e.hp){log(r,e.name+' falls to Poison.');continue;}}
   e.block=0;if(e.bleed>0){emitFeedback(r,{kind:'hit',source:'enemy:'+b.enemies.indexOf(e),target:'enemy:'+b.enemies.indexOf(e),damage:Math.min(e.hp,e.bleed),blocked:0});e.hp=Math.max(0,e.hp-e.bleed);e.bleed=Math.max(0,e.bleed-1);if(!e.hp)continue;}if(e.stunned){e.stunned=false;continue;}if(e.boss&&e.stunGuard)e.stunGuard=Math.max(0,e.stunGuard-1);const m=e.moves[e.move%e.moves.length];
-  if(['attack','siphon'].includes(m.kind)){const bond=e.boss&&b.enemies.some(x=>x.riftBond&&x.hp>0)?3:0,hits=m.hits||1;for(let h=0;h<hits;h++){const incoming=Math.max(0,Math.floor((m.value+(e.strength||0)+bond-(b.weaken||0))*(e.weak>0?.75:1)*(b.vulnerable>0?1.5:1))),blocked=Math.min(r.block,incoming);r.block-=blocked;if(r.hero==='kaerun'){r.starterStats??=emptyStarterStats();r.starterStats.blockedDamage+=blocked;}let damage=incoming-blocked;if(damage>0&&r.relics.includes('wardstone')&&!b.wardUsed){damage=Math.max(0,damage-3);b.wardUsed=true;}if(damage>0)b.hurtLastTurn=true;const dealt=Math.min(r.hp,damage);r.hp=Math.max(0,r.hp-damage);emitFeedback(r,{kind:'hit',source:'enemy:'+b.enemies.indexOf(e),target:'player',damage:dealt,blocked,blockBreak:blocked>0&&r.block===0,heavy:incoming>=18});if(m.kind==='siphon'&&damage>0)e.hp=Math.min(e.maxHp,e.hp+3);if(r.relics.includes('thorncrown')){const thornBlocked=Math.min(e.block,2);e.block-=thornBlocked;e.hp=Math.max(0,e.hp-2+thornBlocked);}if(!r.hp)break;}}
+  if(['attack','siphon'].includes(m.kind)){const bond=e.boss&&b.enemies.some(x=>x.riftBond&&x.hp>0)?3:0,hits=m.hits||1;for(let h=0;h<hits;h++){if(b.evade>0){b.evade--;emitFeedback(r,{kind:'status',target:'player',text:'Evaded'});log(r,'Mist Step evades one hit.');continue;}const incoming=Math.max(0,Math.floor((m.value+(e.strength||0)+bond-(b.weaken||0))*(e.weak>0?.75:1)*(b.vulnerable>0?1.5:1))),blocked=Math.min(r.block,incoming);r.block-=blocked;if(r.hero==='kaerun'){r.starterStats??=emptyStarterStats();r.starterStats.blockedDamage+=blocked;}let damage=incoming-blocked;if(damage>0&&r.relics.includes('wardstone')&&!b.wardUsed){damage=Math.max(0,damage-3);b.wardUsed=true;}if(damage>0)b.hurtLastTurn=true;const dealt=Math.min(r.hp,damage);r.hp=Math.max(0,r.hp-damage);emitFeedback(r,{kind:'hit',source:'enemy:'+b.enemies.indexOf(e),target:'player',damage:dealt,blocked,blockBreak:blocked>0&&r.block===0,heavy:incoming>=18});if(m.kind==='siphon'&&damage>0)e.hp=Math.min(e.maxHp,e.hp+3);if(r.relics.includes('thorncrown')){const thornBlocked=Math.min(e.block,2);e.block-=thornBlocked;e.hp=Math.max(0,e.hp-2+thornBlocked);}if(!r.hp)break;}}
   if(m.kind==='empower'){const ally=e.id==='duskcaller'?b.enemies.find(other=>other!==e&&other.hp>0):null;(ally||e).strength=((ally||e).strength||0)+m.value;}if(m.kind==='weaken')b.weak=(b.weak||0)+m.value;if(m.kind==='heal'&&(e.healUses||0)<2){e.hp=Math.min(e.maxHp,e.hp+m.value);e.healUses=(e.healUses||0)+1;}if(m.kind==='guard'){e.block=m.value;emitFeedback(r,{kind:'guard',target:'enemy:'+b.enemies.indexOf(e),text:'+'+m.value+' Block'});}
   if(m.expose&&e.hp>0){e.block=0;e.vulnerable=Math.max(e.vulnerable||0,2);log(r,'Kharvex Prime is exposed! Deal 50% more damage during its recovery turn.');}
   if(e.pendingMoves){e.moves=e.pendingMoves;delete e.pendingMoves;}
   e.move=e.balanceLegacyAction?0:(e.move+1)%e.moves.length;delete e.balanceLegacyAction;e.mark=Math.max(0,e.mark-1);e.weak=Math.max(0,(e.weak||0)-1);e.vulnerable=Math.max(0,(e.vulnerable||0)-1);if(!r.hp){r.phase='lost';r.core=0;return true;}
  }
- b.weak=Math.max(0,(b.weak||0)-1);b.vulnerable=Math.max(0,(b.vulnerable||0)-1);if(victory(r))return true;if(b.enemies.some(e=>e.id==='kharvex_prime'))bossPhase(r);if(!b.enemies[b.target]?.hp)b.target=b.enemies.findIndex(e=>e.hp>0);startTurn(r);log(r,'Your turn. Choose a card.');return true;
+ b.weak=Math.max(0,(b.weak||0)-1);b.vulnerable=Math.max(0,(b.vulnerable||0)-1);if(victory(r))return true;if(r.hero==='vaelis'||b.enemies.some(e=>e.id==='kharvex_prime'))bossPhase(r);if(!b.enemies[b.target]?.hp)b.target=b.enemies.findIndex(e=>e.hp>0);startTurn(r);log(r,'Your turn. Choose a card.');return true;
 }
 function leave(r){r.phase='map';r.battle=null;r.room=null;r.block=0;r.rewards=[];r.eliteReward=null;return true;}
 export function advance(r,card=null){
@@ -379,10 +413,10 @@ export function restore(raw){try{
  r.version=VERSION;
  const characterLevel=r.characterLevel??1;
  if(!int(characterLevel,1,20))return null;
- const expectedMaxHp=80+(r.hero==='ilyra'?ilyraBonuses(characterLevel):kaerunBonuses(characterLevel)).maxHp;
+ const expectedMaxHp=80+(r.hero==='vaelis'?vaelisBonuses(characterLevel):r.hero==='ilyra'?ilyraBonuses(characterLevel):kaerunBonuses(characterLevel)).maxHp;
  if(!['map','combat','victory','stage-complete','won','lost','shop','chest','mystery','rest'].includes(r.phase)||!int(r.rng,0,4294967295)||!int(r.hp,0,expectedMaxHp)||r.maxHp!==expectedMaxHp||!int(r.gold,0,100000)||!int(r.potions,0,1000)||!int(r.core,0,MAX_CORE)||!int(r.block,0,999)||!int(r.blessing,0,20)||!int(r.curse,0,20))return null;
  r.characterLevel=characterLevel;
- r.starterStats??=emptyStarterStats();if(!STARTER_STAT_KEYS.every(k=>int(r.starterStats[k],0,100000000)))return null;
+ r.starterStats={...emptyStarterStats(),...(r.starterStats||{})};if(!STARTER_STAT_KEYS.every(k=>int(r.starterStats[k],0,100000000)))return null;
  if(r.starterRunId!==undefined&&(typeof r.starterRunId!=='string'||r.starterRunId.length>100))return null;
  r.eventCorePenalty??=0;if(!int(r.eventCorePenalty,0,100))return null;
  if(r.room?.eventVersion===1&&(!Object.hasOwn(MYSTERY_EVENTS,r.room.eventId)||!['offer','upgrade'].includes(r.room.step)||!Array.isArray(r.room.cards)||r.room.cards.some(id=>!CARDS[id])||(r.room.relic&&!RELICS[r.room.relic])))return null;
@@ -391,7 +425,7 @@ export function restore(raw){try{
  if(!Array.isArray(r.log)||r.log.some(x=>typeof x!=='string'||x.length>300)||!Array.isArray(r.rewards)||r.rewards.some(x=>!CARDS[x]))return null;
  if(['combat','victory','stage-complete','won','lost'].includes(r.phase)){const b=r.battle;if(!b||!Array.isArray(b.enemies)||!b.enemies.length||b.enemies.some(e=>!int(e.hp,0,e.maxHp)||!Array.isArray(e.moves))||!['draw','hand','discard'].every(k=>Array.isArray(b[k])&&b[k].every(c=>Object.hasOwn(CARDS,c))))return null;b.exhaust??=[];b.retained??=[];if(JSON.stringify([...b.draw,...b.hand,...b.discard,...b.exhaust,...b.retained].sort())!==JSON.stringify([...r.deck].sort()))return null;if(r.phase==='combat'&&(!r.hp||!b.enemies[b.target]?.hp))return null;}
  if(['shop','chest','mystery'].includes(r.phase)&&!r.room)return null;if(r.phase==='shop'&&(!Array.isArray(r.room.stock)||r.room.stock.some(x=>!int(x.price,0,1000)||!['card','potion','relic','shard'].includes(x.kind)||(x.kind==='card'&&!CARDS[x.id])||(x.kind==='relic'&&!RELICS[x.id])||(x.kind==='shard'&&(!Object.hasOwn(SHARDS,x.id)||x.quantity!==SHARDS[x.id].quantity)))))return null;
- if(r.battle){const b=r.battle;b.exhaust??=[];b.retained??=[];b.relentless??=0;b.bloodRush??=false;b.weak??=0;b.vulnerable??=0;b.bleed??=0;b.barrier??=0;b.resonance??=0;if(!int(b.resonance,0,r.hero==='ilyra'?(r.levelBonuses?.resonanceCap||3):3))return null;b.pressureUsed??=false;if(typeof b.pressureUsed!=='boolean')return null;b.stunned??=false;b.enemies.forEach(e=>{e.weak??=0;e.vulnerable??=0;e.bleed??=0;e.strength??=0;});b.power??=0;b.echo??=false;b.weaken??=0;b.drawPenalty??=0;b.coreDebt??=0;b.hurtLastTurn??=false;b.firstAttack??=false;b.wardUsed??=false;}
+ if(r.battle){const b=r.battle;b.exhaust??=[];b.retained??=[];b.relentless??=0;b.bloodRush??=false;b.weak??=0;b.vulnerable??=0;b.bleed??=0;b.barrier??=0;b.resonance??=0;if(!int(b.resonance,0,r.hero==='ilyra'?(r.levelBonuses?.resonanceCap||3):3))return null;b.pressureUsed??=false;if(typeof b.pressureUsed!=='boolean')return null;b.stunned??=false;b.evade??=0;b.venomUsed??=false;b.venomDrawUsed??=false;if(!int(b.evade,0,1)||typeof b.venomUsed!=='boolean'||typeof b.venomDrawUsed!=='boolean')return null;for(const e of b.enemies){e.poison??=0;if(!int(e.poison,0,999))return null;}b.enemies.forEach(e=>{e.weak??=0;e.vulnerable??=0;e.bleed??=0;e.strength??=0;});b.power??=0;b.echo??=false;b.weaken??=0;b.drawPenalty??=0;b.coreDebt??=0;b.hurtLastTurn??=false;b.firstAttack??=false;b.wardUsed??=false;}
  r.enemyRoster??=1;if(![1,2].includes(r.enemyRoster))return null;r.beastSystem??=1;if(![1,2,3,4,5].includes(r.beastSystem))return null;
  r.shards??={basic:5,refined:0,prismatic:0};r.seenBeasts??=[];r.capturedBeasts??=[];r.companion??=null;r.captureResult??=null;r.beastRoutes??=false;
  if(!Object.keys(SHARDS).every(id=>int(r.shards[id],0,1000))||![r.seenBeasts,r.capturedBeasts].every(a=>Array.isArray(a)&&a.length<=12&&a.every(validBeast))||(r.companion!==null&&!validBeast(r.companion)))return null;
@@ -428,7 +462,7 @@ export function captureBeast(r,shard='basic'){
  const e=r.battle.enemies[r.battle.target];r.core--;r.shards[shard]--;
  const caught=random(r)*100<chance;
  const duplicate=!!r.capturedBeasts?.some(x=>beastKey(x)===beastKey({id:e.beast,rarity:e.rarity})),duplicateXp=duplicate?(e.rarity==='legendary'?100:e.rarity==='rare'?65:40):0;r.captureResult={id:e.beast,rarity:e.rarity,caught,chance,duplicate,duplicateXp};if(caught&&duplicateXp)r.beastDuplicateXp=(r.beastDuplicateXp||0)+duplicateXp;
- if(caught){if(['kaerun','ilyra'].includes(r.hero))r.characterXpEarned=(r.characterXpEarned||0)+(e.rarity==='legendary'?40:e.rarity==='rare'?25:15);const companion={id:e.beast,rarity:e.rarity};addDiscovery(r.capturedBeasts,companion);if(!r.companion)r.companion={...companion};e.hp=0;e.captured=true;victory(r);log(r,`${RARITIES[e.rarity].name} ${e.name} captured! Added to your bestiary.`);}
+ if(caught){if(['kaerun','ilyra','vaelis'].includes(r.hero))r.characterXpEarned=(r.characterXpEarned||0)+(e.rarity==='legendary'?40:e.rarity==='rare'?25:15);const companion={id:e.beast,rarity:e.rarity};addDiscovery(r.capturedBeasts,companion);if(!r.companion)r.companion={...companion};e.hp=0;e.captured=true;victory(r);log(r,`${RARITIES[e.rarity].name} ${e.name} captured! Added to your bestiary.`);}
  else{e.strength=(e.strength||0)+2;log(r,`${e.name} broke free! The shard is spent. Rage: +2 attack damage.`);}
  return true;
 }
@@ -464,12 +498,12 @@ export const MYSTERY_EVENTS={
  whisper:{name:'Whispering Relic',cavern:'Echoing Relic'},
  trial:{name:'Veyrakian Trial',cavern:'Trial of the Deep'}
 };
-const RARE_EVENT_CARDS=['starfall','echocrystal','warcry','ancientrelic','sovereignimpact','crystallance','fracturefield','resonantmend'];
+const RARE_EVENT_CARDS=['starfall','echocrystal','warcry','ancientrelic','sovereignimpact','crystallance','fracturefield','resonantmend','catalyst','deathbloom'];
 function mysteryRoom(r,node){
  const state={...r,rng:hash(r.seed+':event:'+node.id)};
  const order=shuffle(Object.keys(MYSTERY_EVENTS),{rng:hash(r.seed+':events:'+r.stage)});
  const nodes=r.route.filter(n=>n.type==='mystery'),eventId=order[nodes.findIndex(n=>n.id===node.id)%order.length];
- const cards=sampleCards(state),rare=shuffle(RARE_EVENT_CARDS.filter(id=>(!CARDS[id].kaerun||r.hero==='kaerun')&&(!CARDS[id].ilyra||r.hero==='ilyra')),state).slice(0,3);
+ const cards=sampleCards(state),rare=shuffle(RARE_EVENT_CARDS.filter(id=>(!CARDS[id].kaerun||r.hero==='kaerun')&&(!CARDS[id].ilyra||r.hero==='ilyra')&&(!CARDS[id].vaelis||r.hero==='vaelis')),state).slice(0,3);
  const relic=randomRelic(state),success=random(state)<.7;
  const elite=r.route.find(n=>n.type==='elite'),trialEnemy=elite?structuredClone(elite.enemy):null;
  return {eventVersion:1,eventId,kind:eventId,cards,rare,relic,success,trialEnemy,step:'offer',result:null};

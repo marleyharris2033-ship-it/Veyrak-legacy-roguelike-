@@ -59,3 +59,19 @@ export function ilyraBonuses(level=1){level=Math.max(1,Math.min(ILYRA_MAX_LEVEL,
  spendBarrier:level>=19?4:level>=15?3:0
 };}
 export function ilyraXpForEncounter(type,captureRarity=null){let xp=type==='boss'?100:type==='elite'?25:type==='beast'?10:12;if(captureRarity)xp+=captureRarity==='legendary'?40:captureRarity==='rare'?25:15;return xp;}
+
+
+// Account rank is shared mastery XP, so existing progress counts immediately.
+export function accountProgress(progression={}){
+ const totalXp=['kaerun','ilyra','vaelis'].reduce((sum,id)=>sum+(Number.isFinite(progression[id+'Xp'])?Math.max(0,Math.floor(progression[id+'Xp'])):0),0);
+ const p=kaerunLevelFromXp(totalXp);return {...p,rank:p.level};
+}
+export function heroUnlocked(id,progression={}){return id==='kaerun'||id==='ilyra'||id==='vaelis'&&accountProgress(progression).rank>=5;}
+export const VAELIS_LEVEL_REWARDS=[null,'Base Vaelis','+2 Max Vitality','Start battle with 2 Block','+2 Max Vitality','Venomcraft: first Poison application each turn adds 2 extra Poison instead of 1','+2 Max Vitality','Start each battle with +1 Core','+2 Max Vitality','Start battle with 5 Block instead of 2','Toxic Defence: first Poison application each turn grants 2 Block','+2 Max Vitality','Draw +1 card on the first turn','+2 Max Vitality','Start battle with 8 Block instead of 5','Venomcraft adds 3 extra Poison','+2 Max Vitality','Start each battle with +1 additional Core','+2 Max Vitality','Toxic Defence improves to 3 Block','First Poison application each battle draws 1 card'];
+export const vaelisLevelFromXp=kaerunLevelFromXp;
+export function vaelisBonuses(level=1){level=Math.max(1,Math.min(20,Math.floor(level)||1));return {
+ maxHp:2*[2,4,6,8,11,13,16,18].filter(x=>level>=x).length,
+ startingCore:level>=17?2:level>=7?1:0,firstTurnDraw:level>=12?1:0,
+ startingBlock:level>=14?8:level>=9?5:level>=3?2:0,
+ poisonBonus:level>=15?3:level>=5?2:1,poisonBlock:level>=19?3:level>=10?2:0,poisonDraw:level>=20
+};}
