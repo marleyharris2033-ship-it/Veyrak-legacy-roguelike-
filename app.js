@@ -1,4 +1,4 @@
-import {renderKaerunCard,renderUpgradeChanges} from './card-components.js?v=1';
+import {renderCard,renderUpgradeChanges} from './card-components.js?v=2';
 import {renderDeckBuilder} from './deck-builder.js?v=2';
 import {restoreStarterCollection,defaultLoadout,heroLevel,validateLoadout,chooseLevelUnlock,bankStarterProgress} from './starter-decks.js?v=2';
 import {captureFeedback,presentFeedback} from './combat-feedback.js?v=1';
@@ -103,80 +103,7 @@ const nodeIcons=Object.fromEntries(Object.keys(nodeNames).map(type=>[type,mapArt
 
 function inventoryBar(){return `<div class="inventory-bar"><span>♥ ${run.hp}/${run.maxHp}</span><span class="item-count">${itemArt('gold')} ${run.gold} gold</span>${button(`Deck · ${run.deck.length}`,'cards','quiet')}${button(`Relics · ${run.relics.length}`,'relics','quiet')}${button(run.companion?BEASTS[run.companion.id].name:'Companion','bestiary','quiet')}<span class="shard-counts" aria-label="Capture shards"><span class="item-count" title="Basic Shards">${itemArt('basic')} <span aria-label="basic shards">${run.shards.basic}</span></span><span class="item-count" title="Refined Shards">${itemArt('refined')} <span aria-label="refined shards">${run.shards.refined}</span></span><span class="item-count" title="Prismatic Shards">${itemArt('prismatic')} <span aria-label="prismatic shards">${run.shards.prismatic}</span></span></span>${button(`${itemArt('potion')}Potion · ${run.potions}`,'potion','quiet',run.potions&&run.hp<run.maxHp?'':'disabled')}${run.blessing?`<span>+${run.blessing} Strength</span>`:''}${run.curse?`<span>Core drain: ${run.curse} turns</span>`:''}</div>`;}
 function map(){const available=run?.debugUnlockAll?run.route.filter(n=>!run.visited.includes(n.id)).map(n=>n.id):availableNodes(run);const pos=n=>({x:60+n.row*110,y:n.type==='boss'?130:45+n.col*85});return `<main class="route screen">${runHeader('Choose your path')}<section class="branch-panel"><div class="map-heading"><h1>The gates of Veyathuun</h1><p>Stage 1 has ten levels, then the Gate Warden. Swipe to explore the route.</p></div>${inventoryBar()}<div class="branch-scroll"><div class="branch-map"><svg viewBox="0 0 1220 270" preserveAspectRatio="none" aria-hidden="true">${run.route.flatMap(n=>n.next.map(id=>{const v=run.route.find(x=>x.id===id),a=pos(n),b=pos(v);return `<path class="${run.visited.includes(n.id)&&run.visited.includes(id)?'travelled':run.current===n.id?'open-path':''}" d="M${a.x} ${a.y} L${b.x} ${b.y}"/>`;})).join('')}</svg>${run.route.map(n=>{const p=pos(n),visited=run.visited.includes(n.id),secret=!visited&&n.type==='battle',name=secret?'Encounter':nodeNames[n.type],symbol=nodeIcons[n.type],beastClass=n.type==='beast'?'beast-node'+(visited?' rarity-'+n.enemy.rarity:''):'',detail=secret||n.type==='beast'&&!visited?'':n.type==='beast'?`<small>${RARITIES[n.enemy.rarity].name}<br>${BEASTS[n.enemy.beast].role}</small>`:n.type==='battle'&&n.enemy.size?`<small>${n.pack?'Pair of invaders':'Large invader'}</small>`:'';return `<button class="branch-node ${beastClass} ${available.includes(n.id)?'available':''} ${visited?'visited':''}" style="left:${p.x/12.2}%;top:${p.y/2.7}%" data-action="node" data-id="${n.id}" ${available.includes(n.id)?'':'disabled'} aria-label="Level ${n.row+1}: ${name}"><b class="node-art">${symbol}${visited?'<i class="node-complete" aria-hidden="true">✓</i>':''}</b><span>${name}</span>${detail}</button>`;}).join('')}</div></div><p class="map-legend illustrated-legend">${[['battle','Encounter'],['elite','Elite'],['boss','Boss'],['beast','Beast'],['chest','Treasure'],['mystery','Mystery'],['shop','Shop'],['rest','Sanctuary']].map(([type,label])=>`<span>${nodeIcons[type]}${label}</span>`).join('')}</p></section></main>`;}
-const NEUTRAL_CARD_ASSETS={
- meteor:'meteor_fragment.png',
- chainlightning:'chain_lightning.png',
- shatterarmour:'shatter_armour.png',
- lifesiphon:'life_siphon.png',
- crystalbarrier:'crystal_barrier.png',
- echocrystal:'echo_crystal.png',
- gravitywell:'gravity_well.png',
- finishingblow:'finishing_blow.png',
- unstablecore:'unstable_core.png',
- vengefulspirit:'vengeful_spirit.png',
- warcry:'war_cry.png',
- ancientrelic:'ancient_relic.png',
- sovereignbrand:'sovereign_brand.png',
- markedforruin:'marked_for_ruin.png',
- unbrokenguard:'unbroken_guard.png',
- crushingadvance:'crushing_advance.png',
- sovereignimpact:'sovereign_impact.png',
- relentless:'relentless.png',
- bloodrush:'blood_rush.png',
- shatterarmourkaerun:'shatter_armour.png',
- execution:'execution.png',
- fortressstance:'fortress_stance.png'
-};
-const FINISHED_CARD_ASSETS={
- targetbreaker:'targetbreaker.png',focus:'focus.png',shatterarmour:'armourbreak.png',fortressstance:'fortress.png',
- arcsplit:'arcsplit.png',prismstudy:'prismstudy.png',latticeward:'latticeward.png',crystallance:'crystallance.png',
- fracturefield:'fracturefield.png',corechannel:'corechannel.png',resonantmend:'resonantmend.png',shieldbash:'shieldbash.png',
- starfall:'starfall.png',fortify:'fortify.png',piercingray:'piercingray.png',suppress:'suppress.png',scout:'scout.png',
- ricochet:'ricochet.png',sundering:'sundering.png'
-};
-const TECH_PATHS={
- mark:'M50 18v19m0 26v19M18 50h19m26 0h19M50 30a20 20 0 1 0 0 40 20 20 0 0 0 0-40Zm0 15a5 5 0 1 0 0 10 5 5 0 0 0 0-10Z',
- core:'M50 14 75 50 50 86 25 50 50 14Zm0 13v46M32 50h36',
- shatter:'M50 12 80 42 66 86 35 76 18 42 50 12Zm0 0-12 31 18 9-10 34m-8-43-20-1m38 10 24-10',
- fortress:'M24 30 50 17 76 30v27c0 18-26 28-26 28S24 75 24 57V30Zm10 21h32M50 30v42',
- arc:'M58 10 28 54h22L42 90l31-47H52L58 10Z',
- prism:'M50 12 80 35v30L50 88 20 65V35L50 12Zm0 0v76M20 35l30 19 30-19M20 65l30-11 30 11',
- ward:'M50 13 76 30v27c0 18-26 29-26 29S24 75 24 57V30L50 13Zm-18 46 18-29 18 29-18 14-18-14Z',
- lance:'M78 14 38 72l-18 8 8-18 50-48Zm-40 58L66 42M24 76l-8 8',
- fracture:'M18 24 47 14l32 17-9 47-36 8-16-30V24Zm29-10-8 29 16 8-21 35M18 56l21-13m16 8 24-20',
- channel:'M50 15a35 35 0 1 0 0 70 35 35 0 0 0 0-70Zm0 12a23 23 0 1 0 0 46 23 23 0 0 0 0-46Zm0 10 10 13-10 13-10-13 10-13Z',
- mend:'M50 16 76 30v25c0 19-26 30-26 30S24 74 24 55V30l26-14Zm-7 18v33m-16-16h46',
- shield:'M50 15 76 28v28c0 18-26 29-26 29S24 74 24 56V28l26-13ZM30 60l47-32',
- star:'M50 10 57 38 85 45 57 53 50 83 42 53 15 45 42 38 50 10Zm-28 70 7-12m42 0 7 12',
- fortify:'M17 77h66M24 77V31h12v9h9V28h10v12h9v-9h12v46M42 77V61h16v16',
- ray:'M17 78 77 18M60 15h20v20M19 26l22 22m16 16 22 22M15 55l16 16',
- suppress:'M18 29h64M28 43h44M38 57h24M42 68l8 12 8-12',
- scout:'M15 50s15-22 35-22 35 22 35 22-15 22-35 22S15 50 15 50Zm35-13a13 13 0 1 0 0 26 13 13 0 0 0 0-26Z',
- ricochet:'M20 68 39 43l18 18 24-34M20 52v16h16m31-41h14v14',
- sunder:'M70 15 30 72m-7 6 13-4-10-10-3 14ZM57 32l16 16M21 30l20 20'
-};
-function cardArt(id,cls=''){
- const c=CARDS[id];
- if(c.kaerun)return renderKaerunCard(id,CARDS,cls);
- if(c.upgradeOf){
-  const base=CARDS[c.upgradeOf],artId=c.upgradeOf;
-  if(base?.vaelis)return `<span class="ilyra-card vaelis-card upgraded-live-card ${cls}" role="img" aria-label="${escape(c.name)}, ${c.cost} Core. ${escape(c.text)}"><img src="assets/vaelis-cards/${artId}.webp" alt="" draggable="false"><b class="ilyra-cost">${c.cost}</b><strong class="ilyra-name">${escape(c.name)}</strong><em class="ilyra-type">${escape(c.type)}</em><span class="ilyra-effect">${escape(c.text)}</span><span class="upgrade-plus" aria-hidden="true">+</span></span>`;
-  if(base?.ilyra)return `<span class="ilyra-card upgraded-live-card ${cls}" role="img" aria-label="${escape(c.name)}, ${c.cost} Core. ${escape(c.text)}"><img src="assets/ilyra-cards/${artId}.webp" alt="" draggable="false"><b class="ilyra-cost">${c.cost}</b><strong class="ilyra-name">${escape(c.name)}</strong><em class="ilyra-type">${escape(c.type)}</em><span class="ilyra-effect">${escape(c.text)}</span><span class="upgrade-plus" aria-hidden="true">+</span></span>`;
-  const baseArt=cardArt(c.upgradeOf);return `<span class="upgraded-card-art ${cls}" role="img" aria-label="${escape(c.name)}, ${c.cost} Core. ${escape(c.text)}"><span class="upgrade-base" aria-hidden="true">${baseArt}</span><span class="upgrade-card-cost" aria-hidden="true">${c.cost}</span><strong class="upgrade-card-name" aria-hidden="true">${escape(c.name)}</strong><span class="upgrade-card-effect" aria-hidden="true">${escape(c.text)}</span><span class="upgrade-plus" aria-hidden="true">+</span></span>`;
- }
- if(c.vaelis)return `<span class="ilyra-card vaelis-card ${cls}" role="img" aria-label="${escape(c.name)}, ${c.cost} Core. ${escape(c.text)}"><img src="assets/vaelis-cards/${id}.webp" alt="" draggable="false"><b class="ilyra-cost">${c.cost}</b><strong class="ilyra-name">${escape(c.name)}</strong><em class="ilyra-type">${escape(c.type)}</em><span class="ilyra-effect">${escape(c.text)}</span></span>`;
- const t=c.tile;
- const finished=FINISHED_CARD_ASSETS[id];
-
- if(finished)return `<img class="neutral-card neutral-card-png finished-card card-${id} ${cls}" src="assets/card-masks/${finished}" alt="${c.name}" draggable="false">`;
- if(c.modernArt)return `<span class="tech-card tech-${c.ilyra?'ilyra':c.kaerun?'kaerun':'shared'} tech-${c.type} ${cls}" role="img" aria-label="${c.name}, ${c.cost} Core. ${c.text}"><b class="tech-cost">${c.cost}</b><strong class="tech-name">${c.name}</strong><span class="tech-scene" aria-hidden="true"><svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="37"/><path d="${TECH_PATHS[c.modernArt]}"/></svg></span><em class="tech-kind">${c.type}</em><span class="tech-effect">${c.text}</span></span>`;
- if(c.ilyra)return `<span class="ilyra-card ${cls}" role="img" aria-label="${c.name}, ${c.cost} Core. ${c.text}"><img src="assets/ilyra-cards/${id}.webp" alt="" draggable="false"><b class="ilyra-cost">${c.cost}</b><strong class="ilyra-name">${c.name}</strong><em class="ilyra-type">${c.type}</em><span class="ilyra-effect">${c.text}</span></span>`;
- if(t===undefined){
-  const asset=NEUTRAL_CARD_ASSETS[id];
-  return `<img class="neutral-card neutral-card-png card-${id} ${cls}" src="assets/card-masks/${asset}" alt="${c.name}" draggable="false">`;
- }
- return `<span class="sheet-card tile-${t} ${cls}" style="--cx:${t%5};--cy:${Math.floor(t/5)}" role="img" aria-label="${c.name}"></span>`;
-}
+function cardArt(id,cls=''){return renderCard(id,CARDS,cls);}
 const RELIC_ASSETS={amber:'amber_heart.png',aegis:'ivory_aegis.png',fist:'sovereign_seal.png',emberstone:'emberstone.png',wayfarer:'wayfarers_compass.png',coreprism:'core_prism.png',thorncrown:'crown_of_thorns.png',gilded:'gilded_scarab.png',moonchalice:'moon_chalice.png',wardstone:'wardstone.png',hunterlens:'hunters_lens.png',hourglass:'dusk_hourglass.png'};
 function relicArt(id){const r=RELICS[id],asset=RELIC_ASSETS[id];return asset?`<img class="relic-art" src="assets/${asset}" alt="${r.name}" draggable="false">`:'<b class="relic-fallback">◆</b>';}
 function relicEntry(id){return `<article class="relic-entry">${relicArt(id)}<div><strong>${RELICS[id].name}</strong><p>${RELICS[id].text}</p></div></article>`;}
