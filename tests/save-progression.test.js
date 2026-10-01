@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {createRun,enterBattle,endTurn,continueStage,restore,serialise} from '../engine.js';
 
-test('levelled Kaerun and Ilyra runs survive reload in map, combat and later stages',()=>{
- for(const hero of ['kaerun','ilyra'])for(const level of [1,2,10,20]){
+test('levelled hero runs survive reload in map, combat and later stages',()=>{
+ for(const hero of ['kaerun','ilyra','vaelis'])for(const level of [1,2,10,20]){
   const r=createRun(`SAVE-${hero}-${level}`,hero,{characterLevel:level});
   assert.deepEqual(restore(serialise(r)),r,`${hero} level ${level} at the map`);
   assert.ok(enterBattle(r));

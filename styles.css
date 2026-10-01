@@ -892,3 +892,23 @@ dialog.upgrade-dialog{width:min(760px,94vw);max-height:min(90svh,860px);overflow
     height:30%;
   }
 }
+
+
+/* QA stability pass: keep dense run chrome usable on short phone landscapes. */
+@media(orientation:landscape) and (max-height:650px){
+ .run-top{min-height:42px;padding:5px 12px;gap:8px}
+ .run-top .run-brand{font-size:13px;white-space:nowrap}
+ .run-top .run-location{font-size:12px;line-height:1.1;min-width:0}
+ .run-top .run-location small{font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .run-top button{min-height:34px;padding:6px 10px}
+ .inventory-bar{gap:5px 8px;padding-block:5px;font-size:10px}
+ .branch-panel{padding-top:8px}
+ .map-heading h1{font-size:clamp(18px,4.5vh,25px);margin-bottom:2px}
+ .map-heading p{font-size:10px;line-height:1.25;margin:0 auto 5px}
+ .illustrated-legend{font-size:9px}
+}
+@media(orientation:landscape) and (max-height:520px){
+ .run-top .run-brand span{display:none}
+ .inventory-bar .quiet{min-height:30px;padding:4px 7px;font-size:9px}
+ .map-heading p{display:none}
+}
