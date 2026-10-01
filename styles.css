@@ -811,3 +811,52 @@ dialog.upgrade-dialog{width:min(760px,94vw);max-height:min(90svh,860px);overflow
   .battle .fighter.player .companion-art{z-index:3}
   .battle .fighter.player .combat-hero{z-index:2}
 }
+
+
+/* v87: compact short-landscape combat hand and keep companion visible. */
+@media(orientation:landscape) and (max-height:650px){
+  .battle .hand{
+    height:clamp(82px,19dvh,118px);
+    padding-inline:clamp(78px,10vw,120px);
+    align-items:flex-end;
+  }
+  .battle .ability-card{
+    flex:0 0 clamp(72px,14.5dvh,96px);
+    width:clamp(72px,14.5dvh,96px);
+    max-width:96px;
+    height:auto;
+    margin:0 -5px!important;
+  }
+  .battle .ability-card>.component-card{
+    width:100%!important;
+    height:auto!important;
+    max-width:100%!important;
+    max-height:none!important;
+    aspect-ratio:307/490;
+  }
+  .battle .fighter.player .companion-art{
+    right:-1vw;
+    bottom:7%;
+    width:34%;
+    height:38%;
+    z-index:5;
+  }
+  .battle .fighter.player .combat-hero{
+    z-index:2;
+  }
+}
+@media(orientation:landscape) and (max-height:520px){
+  .battle .hand{height:78px}
+  .battle .ability-card{
+    flex-basis:68px;
+    width:68px;
+    max-width:68px;
+    margin:0 -4px!important;
+  }
+  .battle .fighter.player .companion-art{
+    right:-2vw;
+    bottom:10%;
+    width:32%;
+    height:36%;
+  }
+}
