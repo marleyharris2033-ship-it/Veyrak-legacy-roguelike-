@@ -802,3 +802,12 @@ dialog.upgrade-dialog{width:min(760px,94vw);max-height:min(90svh,860px);overflow
 @media(max-width:600px){.collection-card>.component-card{width:64px}}
 .upgrade-dialog .upgrade-preview{align-items:start}
 .upgrade-dialog .upgrade-preview .upgrade-arrow{align-self:center}
+
+
+/* v86: keep the universal live card renderer inside the combat hand. */
+.battle .ability-card>.component-card{max-width:100%;max-height:100%}
+@media(orientation:landscape) and (max-height:600px){
+  .battle .ability-card>.component-card{width:auto!important;height:100%!important;max-width:100%!important;max-height:100%!important;margin:0 auto;aspect-ratio:307/490}
+  .battle .fighter.player .companion-art{z-index:3}
+  .battle .fighter.player .combat-hero{z-index:2}
+}
