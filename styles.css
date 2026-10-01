@@ -803,60 +803,92 @@ dialog.upgrade-dialog{width:min(760px,94vw);max-height:min(90svh,860px);overflow
 .upgrade-dialog .upgrade-preview{align-items:start}
 .upgrade-dialog .upgrade-preview .upgrade-arrow{align-self:center}
 
-
-/* v86: keep the universal live card renderer inside the combat hand. */
-.battle .ability-card>.component-card{max-width:100%;max-height:100%}
-@media(orientation:landscape) and (max-height:600px){
-  .battle .ability-card>.component-card{width:auto!important;height:100%!important;max-width:100%!important;max-height:100%!important;margin:0 auto;aspect-ratio:307/490}
-  .battle .fighter.player .companion-art{z-index:3}
-  .battle .fighter.player .combat-hero{z-index:2}
-}
-
-
-/* v87: compact short-landscape combat hand and keep companion visible. */
+/* v88: deterministic short-landscape combat layout.
+   Explicit card boxes prevent Safari flex/aspect-ratio collapse; the companion
+   is anchored inside the player half and the hand always owns the top layer. */
 @media(orientation:landscape) and (max-height:650px){
+  .battle>.combat-controls{
+    position:relative;
+    z-index:20;
+    overflow:visible;
+  }
+  .battle .combat-toolbar{
+    position:relative;
+    z-index:40;
+  }
   .battle .hand{
-    height:clamp(82px,19dvh,118px);
-    padding-inline:clamp(78px,10vw,120px);
+    position:relative;
+    z-index:30;
+    height:108px;
+    min-height:108px;
+    overflow:visible;
+    padding:0 clamp(82px,10vw,118px) 2px;
+    gap:0;
     align-items:flex-end;
   }
   .battle .ability-card{
-    flex:0 0 clamp(72px,14.5dvh,96px);
-    width:clamp(72px,14.5dvh,96px);
-    max-width:96px;
-    height:auto;
-    margin:0 -5px!important;
+    position:relative;
+    z-index:31;
+    flex:0 0 68px;
+    width:68px;
+    min-width:68px;
+    max-width:68px;
+    height:108px;
+    min-height:108px;
+    max-height:108px;
+    margin:0 -4px!important;
   }
   .battle .ability-card>.component-card{
-    width:100%!important;
-    height:auto!important;
-    max-width:100%!important;
-    max-height:none!important;
-    aspect-ratio:307/490;
-  }
-  .battle .fighter.player .companion-art{
-    right:-1vw;
-    bottom:7%;
-    width:34%;
-    height:38%;
-    z-index:5;
+    display:grid!important;
+    width:68px!important;
+    min-width:68px!important;
+    max-width:68px!important;
+    height:108px!important;
+    min-height:108px!important;
+    max-height:108px!important;
+    aspect-ratio:auto!important;
+    margin:0!important;
   }
   .battle .fighter.player .combat-hero{
-    z-index:2;
+    z-index:3;
+  }
+  .battle .fighter.player .companion-art{
+    left:34%;
+    right:auto;
+    bottom:15%;
+    width:29%;
+    height:32%;
+    z-index:4;
   }
 }
 @media(orientation:landscape) and (max-height:520px){
-  .battle .hand{height:78px}
+  .battle .hand{
+    height:96px;
+    min-height:96px;
+    padding-inline:clamp(72px,9vw,104px);
+  }
   .battle .ability-card{
-    flex-basis:68px;
-    width:68px;
-    max-width:68px;
-    margin:0 -4px!important;
+    flex-basis:60px;
+    width:60px;
+    min-width:60px;
+    max-width:60px;
+    height:96px;
+    min-height:96px;
+    max-height:96px;
+    margin:0 -3px!important;
+  }
+  .battle .ability-card>.component-card{
+    width:60px!important;
+    min-width:60px!important;
+    max-width:60px!important;
+    height:96px!important;
+    min-height:96px!important;
+    max-height:96px!important;
   }
   .battle .fighter.player .companion-art{
-    right:-2vw;
-    bottom:10%;
-    width:32%;
-    height:36%;
+    left:32%;
+    bottom:18%;
+    width:27%;
+    height:30%;
   }
 }
